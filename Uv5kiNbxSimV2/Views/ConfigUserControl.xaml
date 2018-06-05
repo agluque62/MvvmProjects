@@ -1,0 +1,66 @@
+﻿<UserControl x:Class="Uv5kiNbxSimV2.Views.ConfigUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Uv5kiNbxSimV2.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="520">
+    <Grid>
+        <Grid.Background>
+            <SolidColorBrush Color="Beige"></SolidColorBrush>
+        </Grid.Background>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="35"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Grid.ColumnSpan="2" HorizontalAlignment="Center" FontSize="16" FontWeight="Bold" >Datos de Configuracion</Label>
+        <Label Grid.Row="1" Grid.Column="0" Margin="5">IP del Servidor</Label>
+        <TextBox Grid.Row="1" Grid.Column="1" Margin="5" Text="{Binding Path=JData.ServerIP}"></TextBox>
+
+        <Label Grid.Row="2" Grid.Column="0" Margin="5">Puerto del Servidor</Label>
+        <TextBox Grid.Row="2" Grid.Column="1" Margin="5" Text="{Binding Path=JData.ServerPort}"></TextBox>
+
+        <Label Grid.Row="3" Grid.Column="0" Margin="5">Lista de Nodebox</Label>
+        <ListView Grid.Row="3" Grid.Column="1" ItemsSource="{Binding JData.Nbxs, Mode=TwoWay}" Margin="5" SelectedItem="{Binding SelectedItem, Mode=TwoWay}" SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}">
+            <ListView.Resources>
+                <DataTemplate x:Key="Templ">
+                    <TextBlock HorizontalAlignment="Left" Text="{Binding}" Margin="5 0 0 0" />
+                </DataTemplate>
+                <Style x:Key="HeaderStyle" TargetType="GridViewColumnHeader">
+                    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                </Style>
+            </ListView.Resources>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Ip" Width="200" HeaderTemplate="{StaticResource Templ}" HeaderContainerStyle="{StaticResource HeaderStyle}">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Ip, Mode=TwoWay}" Width="150" HorizontalAlignment="Right"></TextBox>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Port" Width="100" HeaderTemplate="{StaticResource Templ}" HeaderContainerStyle="{StaticResource HeaderStyle}">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Wp, Mode=TwoWay}" Width="80" HorizontalAlignment="Right"></TextBox>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        
+        <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Margin="5" Width="40" Command="{Binding CfgAdd}">Add</Button>
+            <Button Margin="5" Width="40" Command="{Binding CfgDel}">Del</Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

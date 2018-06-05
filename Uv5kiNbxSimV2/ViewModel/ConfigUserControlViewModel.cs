@@ -12,7 +12,7 @@ using Uv5kiNbxSimV2.Services;
 
 namespace Uv5kiNbxSimV2.ViewModel
 {
-    class ConfigUserControlViewModel : ViewModelBase, IDisposable
+    public class ConfigUserControlViewModel : ViewModelBase, IDisposable
     {
         public ConfigUserControlViewModel(IDataService dataService, IDialogService dialogService)
         {

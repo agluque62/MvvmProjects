@@ -63,6 +63,22 @@ namespace Uv5kiNbxSimV2.ViewModel
             }
         }
 
+        public static MainUserControlViewModel MainModel
+        {
+           get
+            {
+                return ServiceLocator.Current.GetInstance<MainUserControlViewModel>();
+            }
+        }
+
+        public static ConfigUserControlViewModel ConfigModel
+        {
+            get
+            {
+                return ServiceLocator.Current.GetInstance<ConfigUserControlViewModel>();
+            }
+        }
+
         /// <summary>
         /// Cleans up all the resources.
         /// </summary>

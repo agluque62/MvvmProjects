@@ -11,7 +11,7 @@ using Uv5kiNbxSimV2.Model;
 
 namespace Uv5kiNbxSimV2.ViewModel
 {
-    class MainUserControlViewModel : ViewModelBase, IDisposable
+    public class MainUserControlViewModel : ViewModelBase, IDisposable
     {
         public MainUserControlViewModel(IDataService dataService)
         {

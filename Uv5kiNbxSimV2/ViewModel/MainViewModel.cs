@@ -36,6 +36,7 @@ namespace Uv5kiNbxSimV2.ViewModel
                 if (CurrentViewModel is MainUserControlViewModel)
                 {
                     (CurrentViewModel as MainUserControlViewModel).Dispose();
+                    //CurrentViewModel = ViewModelLocator.ConfigModel;
                     CurrentViewModel = new ConfigUserControlViewModel(_dataService, _dialogService);
                 }
             });
@@ -45,6 +46,7 @@ namespace Uv5kiNbxSimV2.ViewModel
                 if (CurrentViewModel is ConfigUserControlViewModel)
                 {
                     (CurrentViewModel as ConfigUserControlViewModel).Dispose();
+                    //CurrentViewModel = ViewModelLocator.MainModel;
                     CurrentViewModel = new MainUserControlViewModel(_dataService);
                 }
             });

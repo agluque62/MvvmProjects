@@ -56,6 +56,7 @@
     <Compile Include="ViewModel\UCConfigViewModel.cs" />
     <Compile Include="ViewModel\UCMainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelMain.cs" />
+    <Compile Include="Views\Led.xaml.cs" />
     <Compile Include="Views\UserControlConfig.xaml.cs">
       <DependentUpon>UserControlConfig.xaml</DependentUpon>
     </Compile>
@@ -74,6 +75,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Views\Led.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Views\UserControlConfig.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

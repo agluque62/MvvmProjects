@@ -4,13 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:RadioVoipSimV2.ViewModel"
+             xmlns:led="clr-namespace:LedControl"
              xmlns:p="clr-namespace:RadioVoipSimV2.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <StackPanel VerticalAlignment="Top">
             <Label Content="UserControlMain" HorizontalAlignment="Left" Margin="113,141,0,0" VerticalAlignment="Top"/>
-            <Button Command="{Binding CmdEjemplo}">ejemplo</Button>
+            <led:Led IsActive="False" Flashing="{Binding Flash}" ColorNull="Gray" ColorOff="Green" ColorOn="GreenYellow" Width="32" Height="32" />
+            <led:Led IsActive="False" Flashing="{Binding Flash}" ColorNull="Gray" ColorOff="DarkRed" ColorOn="Red" Width="32" Height="32" />
         </StackPanel>
     </Grid>
 </UserControl>

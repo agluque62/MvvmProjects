@@ -63,6 +63,7 @@
     <Compile Include="Views\UserControlMain.xaml.cs">
       <DependentUpon>UserControlMain.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\WidthToBorderThickConverter.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

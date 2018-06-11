@@ -4,7 +4,7 @@
         xmlns:vm="clr-namespace:RadioVoipSimV2.ViewModel"
         xmlns:ucs="clr-namespace:RadioVoipSimV2.Views"
         xmlns:p="clr-namespace:RadioVoipSimV2.Properties"
-        Title="MainWindow" Height="350" Width="525">
+        Title="{Binding ActiveVm.Title}"  Height="350" Width="525">
     <Window.Resources>
         <DataTemplate DataType="{x:Type vm:UCMainViewModel}">
             <ucs:UserControlMain />

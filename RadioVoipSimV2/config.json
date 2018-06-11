@@ -1,0 +1,56 @@
+{
+    "VoipAgentIP": "192.168.0.129",
+    "VoipAgentPort":7060,
+  "SimulatedFrequencies": [
+    {
+      "Id": "125.000",
+      "TxUsers": [ "STX00","STX01" ],
+      "RxUsers": [ "SRX00","SRX01" ]
+    },
+    {
+      "Id": "125.200",
+      "TxUsers": [ "STX02" ],
+      "RxUsers": [ "SRX02" ]
+    },
+    {
+      "Id": "125.300",
+      "TxUsers": [ "STX03" ],
+      "RxUsers": [ "SRX03" ]
+    },
+    {
+      "Id": "125.400",
+      "TxUsers": [ "STX04" ],
+      "RxUsers": [ "SRX04" ]
+    },
+    {
+      "Id": "125.500",
+      "TxUsers": [ "STX05" ],
+      "RxUsers": [ "SRX05" ]
+    },
+    {
+      "Id": "125.600",
+      "TxUsers": [ "STX06" ],
+      "RxUsers": [ "SRX06" ]
+    },
+    {
+      "Id": "125.700",
+      "TxUsers": [ "STX07" ],
+      "RxUsers": [ "SRX07" ]
+    },
+    {
+      "Id": "125.800",
+      "TxUsers": [ "STX08" ],
+      "RxUsers": [ "SRX08" ]
+    },
+    {
+      "Id": "125.900",
+      "TxUsers": [ "STX09" ],
+      "RxUsers": [ "SRX09" ]
+    },
+    {
+      "Id": "126.000",
+      "TxUsers": [ "STR00" ],
+      "RxUsers": [ "STR00" ]
+    }
+  ]
+}

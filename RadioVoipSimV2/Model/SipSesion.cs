@@ -18,6 +18,7 @@ namespace RadioVoipSimV2.Model
         private CORESIP_CallInfo _info;
         private bool _squelch;
         private bool _ptt;
+        private bool _error;
 
         public string Name { get => _name; set => _name = value; }
         public bool IsTx { get => _isTx; set => _isTx = value; }
@@ -27,6 +28,6 @@ namespace RadioVoipSimV2.Model
         public CORESIP_CallInfo Info { get => _info; set => _info = value; }
         public bool Squelch { get => _squelch; set => _squelch = value; }
         public bool Ptt { get => _ptt; set => _ptt = value; }
-        public bool Error { get; set; }
+        public bool Error { get => _error; set => _error = value; }
     }
 }

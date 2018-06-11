@@ -12,15 +12,22 @@ namespace RadioVoipSimV2.MvvmFramework
     /// </summary>
     public abstract class ViewModelBase : INotifyPropertyChanged
     {
+        private string _title;
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged(string propertyName)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
 
-            if (handler != null)
+        public string Title
+        {
+            get => _title;
+            set
             {
-                handler(this, new PropertyChangedEventArgs(propertyName));
+                _title = value;
+                OnPropertyChanged("Title");
             }
         }
     }

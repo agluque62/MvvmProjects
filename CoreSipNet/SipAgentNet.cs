@@ -1882,58 +1882,47 @@ namespace CoreSipNet
             _Cb.OnLog = new LogCb((p1, p2, p3) =>
             {
                 //if (Settings.Default.SipLogLevel <= 3)
-                if (OnLog != null)
-                    OnLog(p1, p2, p3);
+                OnLog?.Invoke(p1, p2, p3);
             });
             _Cb.OnKaTimeout = new KaTimeoutCb((p1) =>
             {
-                if (OnKaTimeout != null)
-                    OnKaTimeout(p1);
+                OnKaTimeout?.Invoke(p1);
             });
             _Cb.OnRdInfo = new RdInfoCb((p1, p2) =>
             {
-                if (OnRdInfo != null)
-                    OnRdInfo(p1, p2);
+                OnRdInfo?.Invoke(p1, p2);
             });
             _Cb.OnCallState = new CallStateCb((p1, p2, p3) =>
             {
-                if (OnCallState != null)
-                    OnCallState(p1, p2, p3);
+                OnCallState?.Invoke(p1, p2, p3);
             });
             _Cb.OnCallIncoming = new CallIncomingCb((p1, p2, p3, p4) =>
             {
-                if (OnCallIncoming != null)
-                    OnCallIncoming(p1, p2, p3, p4);
+                OnCallIncoming?.Invoke(p1, p2, p3, p4);
             });
             _Cb.OnTransferRequest = new TransferRequestCb((p1, p2, p3) =>
             {
-                if (OnTransferRequest != null)
-                    OnTransferRequest(p1, p2, p3);
+                OnTransferRequest?.Invoke(p1, p2, p3);
             });
             _Cb.OnTransferStatus = new TransferStatusCb((p1, p2) =>
             {
-                if (OnTransferStatus != null)
-                    OnTransferStatus(p1, p2);
+                OnTransferStatus?.Invoke(p1, p2);
             });
             _Cb.OnConfInfo = new ConfInfoCb((p1, p2) =>
             {
-                if (OnConfInfo != null)
-                    OnConfInfo(p1, p2);
+                OnConfInfo?.Invoke(p1, p2);
             });
             _Cb.OnOptionsReceive = new OptionsReceiveCb((p1) =>
             {
-                if (OnOptionsReceive != null)
-                    OnOptionsReceive(p1);
+                OnOptionsReceive?.Invoke(p1);
             });
             _Cb.OnWG67Notify = new WG67NotifyCb((p1, p2, p3) =>
             {
-                if (OnWG67Notify != null)
-                    OnWG67Notify(p1, p2, p3);
+                OnWG67Notify?.Invoke(p1, p2, p3);
             });
             _Cb.OnInfoReceived = new InfoReceivedCb((p1, p2, p3) =>
             {
-                if (OnInfoReceived != null)
-                    OnInfoReceived(p1, p2, p3);
+                OnInfoReceived?.Invoke(p1, p2, p3);
             });
             //_Cb.OnIncomingSubscribeConf = new IncomingSubscribeConfCb((p1, p2, p3) =>
             //{

@@ -8,5 +8,9 @@ namespace RadioVoipSimV2.ViewModel
 {
     class UCConfigViewModel : RadioVoipSimV2.MvvmFramework.ViewModelBase
     {
+        public UCConfigViewModel()
+        {
+            Title = String.Format("Simulador de Equipos Radio Voip. Nucleo 2018. [Configurador]");
+        }
     }
 }

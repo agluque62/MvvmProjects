@@ -9,10 +9,49 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
-        <StackPanel VerticalAlignment="Top">
-            <Label Content="UserControlMain" HorizontalAlignment="Left" Margin="113,141,0,0" VerticalAlignment="Top"/>
-            <led:Led IsActive="False" Flashing="{Binding Flash}" ColorNull="Gray" ColorOff="Green" ColorOn="GreenYellow" Width="32" Height="32" />
-            <led:Led IsActive="False" Flashing="{Binding Flash}" ColorNull="Gray" ColorOff="DarkRed" ColorOn="Red" Width="32" Height="32" />
-        </StackPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top">Frecuencias Simuladas</Label>
+        <ListView Grid.Row="1" ItemsSource="{Binding Frequencies}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="FRQ" Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Label Tag="{Binding}" Content="{Binding Config.Id}">
+                                    <Label.Style>
+                                        <Style>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                    <Setter Property="Label.Foreground" Value="Red"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Label.Style>
+
+                                </Label>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="PTT" Width="30">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <led:Led  IsActive="{Binding Ptt, Mode=TwoWay}" ColorNull="Gray" ColorOff="DarkRed" ColorOn="Red" Width="16" Height="16" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="SQH" Width="30">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <led:Led  IsActive="{Binding Squelch, Mode=TwoWay}" ColorNull="Gray" ColorOff="Green" ColorOn="GreenYellow" Width="16" Height="16" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="CTR" Width="100"></GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
     </Grid>
 </UserControl>

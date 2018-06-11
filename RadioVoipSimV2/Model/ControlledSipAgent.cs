@@ -9,20 +9,21 @@ using CoreSipNet;
 
 namespace RadioVoipSimV2.Model
 {
+
     public class ControlledSipAgent
     {
-        public void Init(CallIncomingCb onCallIncoming,
-                CallStateCb onCallState, RdInfoCb onRdInfo, KaTimeoutCb onKaTimeout,
-                OptionsReceiveCb onOptionsReceive, InfoReceivedCb onInfoReceived)
+        public enum SipAgentEvents { IncomingCall, CallConected, CallDisconected, PttOn, PttOff, KaTimeout }
+
+        public void Init()
         {
             try
             {
-                SipAgentNet.CallState += onCallState;
-                SipAgentNet.CallIncoming += onCallIncoming;
-                SipAgentNet.RdInfo += onRdInfo;
-                SipAgentNet.KaTimeout += onKaTimeout;
-                SipAgentNet.OptionsReceive += onOptionsReceive;
-                SipAgentNet.InfoReceived += onInfoReceived;
+                SipAgentNet.CallState += OnCallState;
+                SipAgentNet.CallIncoming += OnCallIncoming;
+                SipAgentNet.RdInfo += OnRdInfo;
+                SipAgentNet.KaTimeout += OnKaTimeout;
+                SipAgentNet.OptionsReceive += OnOptionsReceive;
+                SipAgentNet.InfoReceived += OnInfoReceived;
 
                 SipAgentNet.Log += (p1, p2, p3) =>
                 {
@@ -62,6 +63,10 @@ namespace RadioVoipSimV2.Model
             catch (Exception x)
             {
                 LogException(x, "End Exception");
+            }
+            finally
+            {
+                SipAgentEvent = null;
             }
         }
         public void AnswerCall(int callid, int code)
@@ -130,6 +135,8 @@ namespace RadioVoipSimV2.Model
         public string IpBase { get; set; }
         public uint SipPort { get; set; }
 
+        public event Action<SipAgentEvents, int, string> SipAgentEvent=null;
+
         #region Protegidas.
         protected void LogException(Exception x, string msg, params object[] par)
         {
@@ -156,5 +163,60 @@ namespace RadioVoipSimV2.Model
             }
         };
         #endregion
+
+        #region Callbacks
+        private void OnCallIncoming(int call, int call2replace, CORESIP_CallInfo info, CORESIP_CallInInfo inInfo)
+        {
+            SipAgentEvent?.Invoke(SipAgentEvents.IncomingCall, call, inInfo.DstId);
+        }
+        private void OnCallState(int call, CORESIP_CallInfo info, CORESIP_CallStateInfo stateInfo)
+        {
+            switch (stateInfo.State)
+            {
+                case CORESIP_CallState.CORESIP_CALL_STATE_DISCONNECTED:
+                    SipAgentEvent?.Invoke(SipAgentEvents.CallDisconected, call, "");
+                    break;
+                case CORESIP_CallState.CORESIP_CALL_STATE_CONFIRMED:
+                    SipAgentEvent?.Invoke(SipAgentEvents.CallConected, call, "");
+                    break;
+                case CORESIP_CallState.CORESIP_CALL_STATE_INCOMING:
+                case CORESIP_CallState.CORESIP_CALL_STATE_CALLING:
+                case CORESIP_CallState.CORESIP_CALL_STATE_CONNECTING:
+                case CORESIP_CallState.CORESIP_CALL_STATE_EARLY:
+                case CORESIP_CallState.CORESIP_CALL_STATE_NULL:
+                    break;
+                case CORESIP_CallState.CORESIP_CALL_STATE_STATE_DESCONOCIDO:
+                    break;
+                case CORESIP_CallState.CORESIP_CALL_STATE_DISCONNECTED2:
+                    break;
+            }
+        }
+        private void OnRdInfo(int call, CORESIP_RdInfo info)
+        {
+            switch (info.PttType)
+            {
+                case CORESIP_PttType.CORESIP_PTT_NORMAL:
+                case CORESIP_PttType.CORESIP_PTT_PRIORITY:
+                case CORESIP_PttType.CORESIP_PTT_EMERGENCY:
+                case CORESIP_PttType.CORESIP_PTT_COUPLING:
+                    SipAgentEvent?.Invoke(SipAgentEvents.PttOn, call, "");
+                    break;
+
+                case CORESIP_PttType.CORESIP_PTT_OFF:
+                    SipAgentEvent?.Invoke(SipAgentEvents.PttOff, call, "");
+                    break;
+            }
+        }
+        private void OnKaTimeout(int call)
+        {
+            SipAgentEvent?.Invoke(SipAgentEvents.KaTimeout, call, "");
+        }
+        private void OnOptionsReceive(string fromUri/*, string callid, int statusCodem, string supported, string allow*/)
+        {
+        }
+        private void OnInfoReceived(int call, string info, uint lenInfo)
+        {
+        }
+        #endregion Callbacks
     }
 }

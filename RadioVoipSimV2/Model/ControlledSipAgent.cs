@@ -12,7 +12,7 @@ namespace RadioVoipSimV2.Model
 
     public class ControlledSipAgent
     {
-        public enum SipAgentEvents { IncomingCall, CallConected, CallDisconected, PttOn, PttOff, KaTimeout }
+        public enum SipAgentEvents { IncomingCall, CallConnected, CallDisconnected, PttOn, PttOff, KaTimeout }
 
         public void Init()
         {
@@ -135,7 +135,7 @@ namespace RadioVoipSimV2.Model
         public string IpBase { get; set; }
         public uint SipPort { get; set; }
 
-        public event Action<SipAgentEvents, int, string> SipAgentEvent=null;
+        public event Action<SipAgentEvents, int, string, CORESIP_RdInfo> SipAgentEvent=null;
 
         #region Protegidas.
         protected void LogException(Exception x, string msg, params object[] par)
@@ -167,17 +167,17 @@ namespace RadioVoipSimV2.Model
         #region Callbacks
         private void OnCallIncoming(int call, int call2replace, CORESIP_CallInfo info, CORESIP_CallInInfo inInfo)
         {
-            SipAgentEvent?.Invoke(SipAgentEvents.IncomingCall, call, inInfo.DstId);
+            SipAgentEvent?.Invoke(SipAgentEvents.IncomingCall, call, inInfo.DstId, null);
         }
         private void OnCallState(int call, CORESIP_CallInfo info, CORESIP_CallStateInfo stateInfo)
         {
             switch (stateInfo.State)
             {
                 case CORESIP_CallState.CORESIP_CALL_STATE_DISCONNECTED:
-                    SipAgentEvent?.Invoke(SipAgentEvents.CallDisconected, call, "");
+                    SipAgentEvent?.Invoke(SipAgentEvents.CallDisconnected, call, "", null);
                     break;
                 case CORESIP_CallState.CORESIP_CALL_STATE_CONFIRMED:
-                    SipAgentEvent?.Invoke(SipAgentEvents.CallConected, call, "");
+                    SipAgentEvent?.Invoke(SipAgentEvents.CallConnected, call, "", null);
                     break;
                 case CORESIP_CallState.CORESIP_CALL_STATE_INCOMING:
                 case CORESIP_CallState.CORESIP_CALL_STATE_CALLING:
@@ -199,17 +199,17 @@ namespace RadioVoipSimV2.Model
                 case CORESIP_PttType.CORESIP_PTT_PRIORITY:
                 case CORESIP_PttType.CORESIP_PTT_EMERGENCY:
                 case CORESIP_PttType.CORESIP_PTT_COUPLING:
-                    SipAgentEvent?.Invoke(SipAgentEvents.PttOn, call, "");
+                    SipAgentEvent?.Invoke(SipAgentEvents.PttOn, call, "", info);
                     break;
 
                 case CORESIP_PttType.CORESIP_PTT_OFF:
-                    SipAgentEvent?.Invoke(SipAgentEvents.PttOff, call, "");
+                    SipAgentEvent?.Invoke(SipAgentEvents.PttOff, call, "", info);
                     break;
             }
         }
         private void OnKaTimeout(int call)
         {
-            SipAgentEvent?.Invoke(SipAgentEvents.KaTimeout, call, "");
+            SipAgentEvent?.Invoke(SipAgentEvents.KaTimeout, call, "", null);
         }
         private void OnOptionsReceive(string fromUri/*, string callid, int statusCodem, string supported, string allow*/)
         {

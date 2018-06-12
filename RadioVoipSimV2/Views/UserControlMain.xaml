@@ -3,21 +3,31 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RadioVoipSimV2.Views"
              xmlns:vm="clr-namespace:RadioVoipSimV2.ViewModel"
              xmlns:led="clr-namespace:LedControl"
              xmlns:p="clr-namespace:RadioVoipSimV2.Properties"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="400" d:DesignWidth="500">
+    <UserControl.Resources>
+        <local:SessionConnectedViewConverter x:Key="SessionConnectedViewConverters"/>
+        <local:VisibilityConverter x:Key="VisibilityConverter"/>
+        <local:HideConverter x:Key="HideConverter"></local:HideConverter>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="32"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
-        <Label Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Top">Frecuencias Simuladas</Label>
-        <ListView Grid.Row="1" ItemsSource="{Binding Frequencies}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Top">Frecuencias Simuladas</Label>
+        <ListView Grid.Row="1" ItemsSource="{Binding Frequencies}" SelectedItem="{Binding SelectedFreq, Mode=TwoWay}">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="FRQ" Width="100">
+                    <GridViewColumn Header="FRQ" Width="150">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Label Tag="{Binding}" Content="{Binding Config.Id}">
@@ -35,21 +45,110 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="PTT" Width="30">
+                    <GridViewColumn Header="PTT" Width="40">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <led:Led  IsActive="{Binding Ptt, Mode=TwoWay}" ColorNull="Gray" ColorOff="DarkRed" ColorOn="Red" Width="16" Height="16" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="SQH" Width="30">
+                    <GridViewColumn Header="SQH" Width="40">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <led:Led  IsActive="{Binding Squelch, Mode=TwoWay}" ColorNull="Gray" ColorOff="Green" ColorOn="GreenYellow" Width="16" Height="16" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="CTR" Width="100"></GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <ListView Grid.Row="1" Grid.Column="1" ItemsSource="{Binding SelectedFreq.Sessions}" >
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="USER" Width="150">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Label Tag="{Binding}" Content="{Binding Name}" FontWeight="Bold">
+                                    <Label.Style>
+                                        <Style>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding State, Converter={StaticResource SessionConnectedViewConverters}}" Value="True">
+                                                    <Setter Property="Label.Foreground" Value="Green"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Error}" Value="True">
+                                                    <Setter Property="Label.Foreground" Value="Red"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Habilitado}" Value="False">
+                                                    <Setter Property="Label.Foreground" Value="Gray"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Label.Style>
+
+                                </Label>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>                    
+                    </GridViewColumn>
+                    <GridViewColumn Header="PTT/SQH" Width="60">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition></ColumnDefinition>
+                                        <ColumnDefinition></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <led:Led Grid.Column="0" IsActive="{Binding Ptt}" ColorNull="Gray" ColorOff="DarkRed" ColorOn="Red" Width="16" Height="16" >
+                                        <led:Led.Style>
+                                            <Style>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsTx}" Value="False">
+                                                        <Setter Property="CheckBox.Visibility" Value="Hidden"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </led:Led.Style>
+                                    </led:Led>
+                                    <led:Led Grid.Column="1" IsActive="{Binding Squelch}" ColorNull="Gray" ColorOff="Green" ColorOn="GreenYellow" Width="16" Height="16">
+                                        <led:Led.Style>
+                                            <Style>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsTx}" Value="True">
+                                                        <Setter Property="CheckBox.Visibility" Value="Hidden"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </led:Led.Style>
+                                    </led:Led>
+                                </Grid>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Enable" Width="50">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding Habilitado}"
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.EnableDisableCmd}"
+                                        CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Error" Width="50">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox Tag="{Binding}" IsThreeState="False"  IsChecked="{Binding Error, Mode=TwoWay}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="SQH" Width="50">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding AircrafSquelch}"
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.ForceSquelchCmd}"
+                                        CommandParameter="{Binding}"
+                                        Visibility="{Binding IsTx, Converter={StaticResource HideConverter}}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>

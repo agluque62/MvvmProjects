@@ -7,16 +7,20 @@ using System.Threading.Tasks;
 
 using RadioVoipSimV2.MvvmFramework;
 using RadioVoipSimV2.Model;
+using CoreSipNet;
 
 namespace RadioVoipSimV2.ViewModel
 {
     class UCMainViewModel : ViewModelBase
     {
-        private DelegateCommandBase _cmdEjemplo;
         private AppConfig _config;
         private ControlledSipAgent _sipAgent;
-        private ObservableCollection<SimulatedFrequecy> _frecuencies;
+        private /*ObservableCollection*/List<SimulatedFrequecy> _frecuencies;
+        private SimulatedFrequecy _selectedFreq;
+
         private System.Threading.SynchronizationContext _uiContext = null;
+        private DelegateCommandBase _forceSquelchCmd;
+        private DelegateCommandBase _enableDisableCmd;
 
         public UCMainViewModel()
         {
@@ -26,22 +30,6 @@ namespace RadioVoipSimV2.ViewModel
             SipAgentInitAndStart();
 
             Title = String.Format("Simulador de Equipos Radio Voip. Nucleo 2018. [{0}:{1}]", Config.VoipAgentIP, Config.VoipAgentPort);
-
-            Task.Factory.StartNew(() =>
-            {
-                Task.Delay(2000).Wait();
-                _uiContext.Send(x =>
-                {
-                    Frequencies[0].Ptt = true;
-                    Frequencies[1].Squelch = true;
-                    OnPropertyChanged("Ptt");
-                },null);
-            });
-
-            CmdEjemplo = new DelegateCommandBase((parametros) =>
-            {
-                System.Windows.MessageBox.Show("HolaHola");
-            });
         }
 
         public void Dispose()
@@ -50,7 +38,9 @@ namespace RadioVoipSimV2.ViewModel
             Unload();
         }
 
-        public DelegateCommandBase CmdEjemplo { get => _cmdEjemplo; set => _cmdEjemplo = value; }
+        public DelegateCommandBase ForceSquelchCmd { get => _forceSquelchCmd; set => _forceSquelchCmd = value; }
+        public DelegateCommandBase EnableDisableCmd { get => _enableDisableCmd; set => _enableDisableCmd = value; }
+
         public AppConfig Config
         {
             get => _config;
@@ -61,13 +51,22 @@ namespace RadioVoipSimV2.ViewModel
             }
         }
         public ControlledSipAgent SipAgent { get => _sipAgent; set => _sipAgent = value; }
-        public ObservableCollection<SimulatedFrequecy> Frequencies
+        public /*ObservableCollection*/List<SimulatedFrequecy> Frequencies
         {
             get => _frecuencies;
             set
             {
                 _frecuencies = value;
                 OnPropertyChanged("Frequencies");
+            }
+        }
+        public SimulatedFrequecy SelectedFreq
+        {
+            get => _selectedFreq;
+            set
+            {
+                _selectedFreq = value;
+                OnPropertyChanged("SelectedFreq");
             }
         }
 
@@ -77,19 +76,60 @@ namespace RadioVoipSimV2.ViewModel
             {
                 Config = cfg;
 
-                Frequencies = new ObservableCollection<SimulatedFrequecy>();
+                Frequencies = new /*ObservableCollection*/List<SimulatedFrequecy>();
                 foreach (var f in cfg.SimulatedFrequencies)
                 {
-                    Frequencies.Add(new SimulatedFrequecy()
+                    var frequency = new SimulatedFrequecy()
                     {
                         Config = f,
                         Ptt = false,
                         Squelch = false,
-                        Sessions = new ObservableCollection<SipSesion>()
+                        Sessions = new /*ObservableCollection*/List<SipSession>()
+                    };
+                    /** Añadir los Usuarios de tx */
+                    f.TxUsers.ForEach(tx =>
+                    {
+                        frequency.Sessions.Add(new SipSession(tx, true) { Freq = frequency });
                     });
+                    /** Añadir los usuarios de rx */
+                    f.RxUsers.ForEach(rx =>
+                    {
+                        frequency.Sessions.Add(new SipSession(rx) { Freq = frequency });
+                    });
+
+                    Frequencies.Add(frequency);
+                }
+                SelectedFreq = Frequencies.Count > 0 ? Frequencies[0] : null;
+            });
+
+            ForceSquelchCmd = new DelegateCommandBase((obj) =>
+            {
+                if (obj is SipSession)
+                {
+                    var ses = (obj as SipSession);
+                    if (ses.Habilitado==true && ses.IsTx == false)
+                    {
+                        if (ses.CallId != -1)
+                        {
+                            ses.AircrafSquelch = !ses.AircrafSquelch;
+                            SipAgent.SquelchSet(ses.CallId, ses.Squelch);
+                        }
+                    }
                 }
             });
 
+            EnableDisableCmd = new DelegateCommandBase((obj)=>{
+                if (obj is SipSession)
+                {
+                    var ses = (obj as SipSession);
+                    if (ses.CallId != -1)
+                    {
+                        SipAgent.HangupCall(ses.CallId, SipAgentNet.SIP_OK);
+                        ses.Reset();
+                    }
+                    ses.Habilitado = !ses.Habilitado;
+                }
+            });
         }
         private void Unload()
         {
@@ -99,26 +139,175 @@ namespace RadioVoipSimV2.ViewModel
         private void SipAgentInitAndStart()
         {
             SipAgent = new ControlledSipAgent() { IpBase = Config.VoipAgentIP, SipPort = (uint)Config.VoipAgentPort, CoresipLogLevel = 3 };
-            SipAgent.SipAgentEvent += (ev, call, id) =>
+            SipAgent.SipAgentEvent += (ev, call, id, rdinfo) =>
             {
-                switch (ev)
+                /** Ejecutar los eventos en el contexto UI */
+                _uiContext.Send(x =>
                 {
-                    case ControlledSipAgent.SipAgentEvents.IncomingCall:
-                        break;
-                    case ControlledSipAgent.SipAgentEvents.CallConected:
-                        break;
-                    case ControlledSipAgent.SipAgentEvents.CallDisconected:
-                        break;
-                    case ControlledSipAgent.SipAgentEvents.KaTimeout:
-                        break;
-                    case ControlledSipAgent.SipAgentEvents.PttOn:
-                        break;
-                    case ControlledSipAgent.SipAgentEvents.PttOff:
-                        break;
-                }
+                    switch (ev)
+                    {
+                        case ControlledSipAgent.SipAgentEvents.IncomingCall:
+                            ProcessIncomingCall(call, id);
+                            break;
+                        case ControlledSipAgent.SipAgentEvents.CallConnected:
+                            ProcessCallConnected(call);
+                            break;
+                        case ControlledSipAgent.SipAgentEvents.CallDisconnected:
+                            ProcessCallConnected(call);
+                            break;
+                        case ControlledSipAgent.SipAgentEvents.KaTimeout:
+                            ProcessKATimeout(call);
+                            break;
+                        case ControlledSipAgent.SipAgentEvents.PttOn:
+                            ProcessPtton(call, rdinfo.PttType, rdinfo.PttId);
+                            break;
+                        case ControlledSipAgent.SipAgentEvents.PttOff:
+                            ProcessPttoff(call);
+                            break;
+                    }
+                }, null);
             };
+
             SipAgent.Init();
             SipAgent.Start();
         }
+
+        private void ProcessIncomingCall(int callid, string touser)
+        {
+            SimulatedFrequecy freq;
+            SipSession ses;
+            if (FindFrequencyAndUser(touser, out freq, out ses))
+            {
+                if (ses.Habilitado)
+                {
+                    ses.CallId = callid;
+                    ses.State = CORESIP_CallState.CORESIP_CALL_STATE_INCOMING;
+                    SipAgent.AnswerCall(callid, SipAgentNet.SIP_OK);
+                }
+                else
+                {
+                    SipAgent.HangupCall(callid, SipAgentNet.SIP_TEMPORARILY_UNAVAILABLE);
+                }
+                return;
+            }
+            SipAgent.HangupCall(callid, SipAgentNet.SIP_NOT_FOUND);
+        }
+
+        private void ProcessCallConnected(int callid)
+        {
+            SimulatedFrequecy freq;
+            SipSession ses;
+            if (FindFrequencyAndUser(callid, out freq, out ses))
+            {
+                /** Recuperar el sqh forzado */
+                ses.Squelch = true;
+                ses.State = CORESIP_CallState.CORESIP_CALL_STATE_CONFIRMED;
+            }
+        }
+
+        private void ProcessCallDisconnected(int callid)
+        {
+            SimulatedFrequecy freq;
+            SipSession ses;
+            if (FindFrequencyAndUser(callid, out freq, out ses))
+            {
+                ses.Reset();
+            }
+        }
+
+        private void ProcessKATimeout(int callid)
+        {
+            SimulatedFrequecy freq;
+            SipSession ses;
+            if (FindFrequencyAndUser(callid, out freq, out ses))
+            {
+                SipAgent.HangupCall(callid, SipAgentNet.SIP_ERROR);
+                ses.Reset();
+            }
+        }
+
+        private void ProcessPtton(int callid, CORESIP_PttType pttType, int pttId)
+        {
+            SimulatedFrequecy freq;
+            SipSession ses;
+            if (FindFrequencyAndUser(callid, out freq, out ses))
+            {
+                if (ses.IsTx && !ses.Error)
+                {
+                    SipAgent.PttSet(callid, pttType, (ushort)pttId);
+
+                    /** Replicar los SQH */
+                    ses.Freq.Sessions.Where(s => s.IsTx == false).ToList().ForEach(s =>
+                        {
+                            /** TODO Temporizar.... */
+                            ses.ScvSquelch = true;
+                            SipAgent.SquelchSet(ses.CallId, ses.Squelch);
+                        });
+                    ses.Ptt = true;
+                }
+            }
+        }
+
+        private void ProcessPttoff(int callid)
+        {
+            SimulatedFrequecy freq;
+            SipSession ses;
+            if (FindFrequencyAndUser(callid, out freq, out ses))
+            {
+                if (ses.IsTx && !ses.Error)
+                {
+                    SipAgent.PttSet(callid, CORESIP_PttType.CORESIP_PTT_OFF);
+                    /** Replicar los SQH */
+                    ses.Freq.Sessions.Where(s => s.IsTx == false).ToList().ForEach(s =>
+                    {
+                        /** TODO Temporizar.... */
+                        ses.ScvSquelch = false;
+                        SipAgent.SquelchSet(ses.CallId, ses.Squelch);
+                    });
+                    ses.Ptt = false;
+                }
+            }
+        }
+
+        private bool FindFrequencyAndUser(string userid, out SimulatedFrequecy freq, out SipSession ses)
+        {
+            foreach (var f in Frequencies)
+            {
+                foreach (var u in f.Sessions)
+                {
+                    if (u.Name == userid && u.CallId == -1)
+                    {
+                        freq = f;
+                        ses = u;
+                        return true;
+                    }
+                }
+            }
+            freq = null; ses = null;
+            return false;
+        }
+        private bool FindFrequencyAndUser(int callid, out SimulatedFrequecy freq, out SipSession ses)
+        {
+            foreach (var f in Frequencies)
+            {
+                foreach (var u in f.Sessions)
+                {
+                    if (u.CallId == callid)
+                    {
+                        freq = f;
+                        ses = u;
+                        return true;
+                    }
+                }
+            }
+            freq = null; ses = null;
+            return false;
+        }
+
+        private SimulatedFrequecy FindFrequency(string userid)
+        {
+            return null;
+        }
+
     }
 }

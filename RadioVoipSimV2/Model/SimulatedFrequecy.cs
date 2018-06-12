@@ -11,32 +11,35 @@ namespace RadioVoipSimV2.Model
 {
     public class SimulatedFrequecy : ViewModelBase
     {
-        private bool _ptt;
-        private bool _squelch;
-        private ObservableCollection<SipSesion> _sessions;
+        private /*ObservableCollection*/List<SipSession> _sessions;
         private AppConfig.FrequencyConfig _config;
-
-        public AppConfig.FrequencyConfig Config { get => _config; set => _config = value; }
+        public  AppConfig.FrequencyConfig Config { get => _config; set => _config = value; }
 
         public bool Ptt
         {
-            get => _ptt;
+            get
+            {
+                var inPtt = _sessions.Where(s => s.IsTx && s.Ptt).ToList();
+                return inPtt.Count > 0;
+            }
             set
             {
-                _ptt = value;
                 OnPropertyChanged("Ptt");
             }
         }
         public bool Squelch
         {
-            get => _squelch;
+            get
+            {
+                var inSqh = _sessions.Where(s => s.IsTx == false && s.Squelch).ToList();
+                return inSqh.Count > 0;
+            }
             set
             {
-                _squelch = value;
                 OnPropertyChanged("Squelch");
             }
         }
-        public ObservableCollection<SipSesion> Sessions { get => _sessions; set => _sessions = value; }
+        public /*ObservableCollection*/List<SipSession> Sessions { get => _sessions; set => _sessions = value; }
         public bool IsActive { get; set; }
     }
 }

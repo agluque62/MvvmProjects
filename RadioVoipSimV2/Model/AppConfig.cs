@@ -25,10 +25,14 @@ namespace RadioVoipSimV2.Model
         private string _voipAgentIP;
         private int _voipAgentPort;
         private ObservableCollection<FrequencyConfig> _simulatedFrequencies;
+        private int _pttOn2SqhOn;
+        private int _pttOff2SqhOff;
 
         public string VoipAgentIP { get => _voipAgentIP; set => _voipAgentIP = value; }
         public int VoipAgentPort { get => _voipAgentPort; set => _voipAgentPort = value; }
         public ObservableCollection<FrequencyConfig> SimulatedFrequencies { get => _simulatedFrequencies; set => _simulatedFrequencies = value; }
+        public int PttOn2SqhOn { get => _pttOn2SqhOn; set => _pttOn2SqhOn = value; }
+        public int PttOff2SqhOff { get => _pttOff2SqhOff; set => _pttOff2SqhOff = value; }
 
         public static void GetAppConfig(Action<AppConfig, Exception> callback)
         {
@@ -39,13 +43,15 @@ namespace RadioVoipSimV2.Model
                 {
                     VoipAgentIP = "127.0.0.1",
                     VoipAgentPort = 7060,
-                    SimulatedFrequencies = new ObservableCollection<FrequencyConfig>()
+                    SimulatedFrequencies = new ObservableCollection<FrequencyConfig>(),
+                    PttOn2SqhOn = 50,
+                    PttOff2SqhOff = 50,
                 };
                 cfg.SimulatedFrequencies.Add(new FrequencyConfig()
                 {
-                    Id="199.000",
-                    TxUsers = {"TX001"},
-                    RxUsers = {"RX001"}
+                    Id = "199.000",
+                    TxUsers = { "TX001" },
+                    RxUsers = { "RX001" }
                 });
                 callback(cfg, null);
             }

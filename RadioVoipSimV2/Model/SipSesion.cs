@@ -79,7 +79,11 @@ namespace RadioVoipSimV2.Model
         public bool Error
         {
             get => _error;
-            set { _error = value; OnPropertyChanged("Error"); }
+            set {
+                _error = value;
+                OnPropertyChanged("Error");
+                if (Freq != null) Freq.Status = FrequencyStatus.Error;
+            }
         }
 
         public bool AircrafSquelch

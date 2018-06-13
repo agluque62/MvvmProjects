@@ -4,8 +4,8 @@
   "SimulatedFrequencies": [
     {
       "Id": "125.000",
-      "TxUsers": [ "STX00","STX01" ],
-      "RxUsers": [ "SRX00","SRX01" ]
+      "TxUsers": [ "STX00", "STX01" ],
+      "RxUsers": [ "SRX00", "SRX01" ]
     },
     {
       "Id": "125.200",
@@ -52,5 +52,7 @@
       "TxUsers": [ "STR00" ],
       "RxUsers": [ "STR00" ]
     }
-  ]
+  ],
+  "PttOn2SqhOn": 50,
+  "PttOff2SqhOff": 50
 }

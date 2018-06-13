@@ -13,14 +13,6 @@ namespace RadioVoipSimV2.ViewModel
 {
     class UCMainViewModel : ViewModelBase
     {
-        private AppConfig _config;
-        private ControlledSipAgent _sipAgent;
-        private /*ObservableCollection*/List<SimulatedFrequecy> _frecuencies;
-        private SimulatedFrequecy _selectedFreq;
-
-        private System.Threading.SynchronizationContext _uiContext = null;
-        private DelegateCommandBase _forceSquelchCmd;
-        private DelegateCommandBase _enableDisableCmd;
 
         public UCMainViewModel()
         {
@@ -69,6 +61,14 @@ namespace RadioVoipSimV2.ViewModel
                 OnPropertyChanged("SelectedFreq");
             }
         }
+
+        private AppConfig _config;
+        private ControlledSipAgent _sipAgent;
+        private /*ObservableCollection*/List<SimulatedFrequecy> _frecuencies;
+        private SimulatedFrequecy _selectedFreq;
+        private System.Threading.SynchronizationContext _uiContext = null;
+        private DelegateCommandBase _forceSquelchCmd;
+        private DelegateCommandBase _enableDisableCmd;
 
         private void Load()
         {
@@ -131,6 +131,7 @@ namespace RadioVoipSimV2.ViewModel
                 }
             });
         }
+
         private void Unload()
         {
             Frequencies.Clear();
@@ -142,8 +143,8 @@ namespace RadioVoipSimV2.ViewModel
             SipAgent.SipAgentEvent += (ev, call, id, rdinfo) =>
             {
                 /** Ejecutar los eventos en el contexto UI */
-                _uiContext.Send(x =>
-                {
+                //_uiContext.Send(x =>
+                //{
                     switch (ev)
                     {
                         case ControlledSipAgent.SipAgentEvents.IncomingCall:
@@ -165,7 +166,7 @@ namespace RadioVoipSimV2.ViewModel
                             ProcessPttoff(call);
                             break;
                     }
-                }, null);
+                //}, null);
             };
 
             SipAgent.Init();
@@ -199,9 +200,12 @@ namespace RadioVoipSimV2.ViewModel
             SipSession ses;
             if (FindFrequencyAndUser(callid, out freq, out ses))
             {
+                ses.State = CORESIP_CallState.CORESIP_CALL_STATE_CONFIRMED;
                 /** Recuperar el sqh forzado */
                 ses.Squelch = true;
-                ses.State = CORESIP_CallState.CORESIP_CALL_STATE_CONFIRMED;
+                SipAgent.SquelchSet(ses.CallId, ses.Squelch);
+
+                freq.Status = FrequencyStatus.Operational;
             }
         }
 
@@ -212,6 +216,7 @@ namespace RadioVoipSimV2.ViewModel
             if (FindFrequencyAndUser(callid, out freq, out ses))
             {
                 ses.Reset();
+                freq.Status = FrequencyStatus.NotOperational;
             }
         }
 
@@ -235,14 +240,20 @@ namespace RadioVoipSimV2.ViewModel
                 if (ses.IsTx && !ses.Error)
                 {
                     SipAgent.PttSet(callid, pttType, (ushort)pttId);
-
                     /** Replicar los SQH */
-                    ses.Freq.Sessions.Where(s => s.IsTx == false).ToList().ForEach(s =>
+                    Task.Run(() =>
+                    {
+                        Task.Delay(Config.PttOn2SqhOn).Wait();
+                        ses.Freq.Sessions.Where(s => s.IsTx == false).ToList().ForEach(s =>
                         {
-                            /** TODO Temporizar.... */
-                            ses.ScvSquelch = true;
-                            SipAgent.SquelchSet(ses.CallId, ses.Squelch);
+                            if (s.CallId != -1)
+                            {
+                                s.ScvSquelch = true;
+                                SipAgent.SquelchSet(s.CallId, s.Squelch);
+                            }
                         });
+
+                    });
                     ses.Ptt = true;
                 }
             }
@@ -258,11 +269,17 @@ namespace RadioVoipSimV2.ViewModel
                 {
                     SipAgent.PttSet(callid, CORESIP_PttType.CORESIP_PTT_OFF);
                     /** Replicar los SQH */
-                    ses.Freq.Sessions.Where(s => s.IsTx == false).ToList().ForEach(s =>
+                    Task.Run(() =>
                     {
-                        /** TODO Temporizar.... */
-                        ses.ScvSquelch = false;
-                        SipAgent.SquelchSet(ses.CallId, ses.Squelch);
+                        Task.Delay(Config.PttOff2SqhOff).Wait();
+                        ses.Freq.Sessions.Where(s => s.IsTx == false).ToList().ForEach(s =>
+                        {
+                            if (s.CallId != -1)
+                            {
+                                s.ScvSquelch = false;
+                                SipAgent.SquelchSet(s.CallId, s.Squelch);
+                            }
+                        });
                     });
                     ses.Ptt = false;
                 }
@@ -286,6 +303,7 @@ namespace RadioVoipSimV2.ViewModel
             freq = null; ses = null;
             return false;
         }
+
         private bool FindFrequencyAndUser(int callid, out SimulatedFrequecy freq, out SipSession ses)
         {
             foreach (var f in Frequencies)

@@ -9,6 +9,7 @@ using RadioVoipSimV2.MvvmFramework;
 
 namespace RadioVoipSimV2.Model
 {
+    public enum FrequencyStatus { NotOperational, Operational, Degraded, Error }
     public class SimulatedFrequecy : ViewModelBase
     {
         private /*ObservableCollection*/List<SipSession> _sessions;
@@ -40,6 +41,24 @@ namespace RadioVoipSimV2.Model
             }
         }
         public /*ObservableCollection*/List<SipSession> Sessions { get => _sessions; set => _sessions = value; }
-        public bool IsActive { get; set; }
+        public FrequencyStatus Status
+        {
+            get
+            {
+                int ConnectedTxs = Sessions.Where(t => t.IsTx && t.CallId != -1).ToList().Count();
+                int ConnectedRxs = Sessions.Where(t => t.IsTx==false && t.CallId != -1).ToList().Count();
+                int InError = Sessions.Where(s => s.Error).ToList().Count;
+
+                return (ConnectedTxs == 0 && ConnectedRxs == 0) ? FrequencyStatus.NotOperational :
+                    (InError > 0) ? FrequencyStatus.Error :
+                    (ConnectedRxs != ConnectedTxs) ? FrequencyStatus.Degraded : FrequencyStatus.Operational;
+
+            }
+            set
+            {
+                OnPropertyChanged("Status");
+            }
+        }
+        
     }
 }

@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:RadioVoipSimV2.Views"
              xmlns:vm="clr-namespace:RadioVoipSimV2.ViewModel"
+             xmlns:m="clr-namespace:RadioVoipSimV2.Model"
              xmlns:led="clr-namespace:LedControl"
              xmlns:p="clr-namespace:RadioVoipSimV2.Properties"
              mc:Ignorable="d" 
@@ -30,11 +31,20 @@
                     <GridViewColumn Header="FRQ" Width="150">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Label Tag="{Binding}" Content="{Binding Config.Id}">
+                                <Label Tag="{Binding}" Content="{Binding Config.Id}" FontWeight="Bold">
                                     <Label.Style>
                                         <Style>
                                             <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                <DataTrigger Binding="{Binding Status}" Value="{x:Static m:FrequencyStatus.NotOperational}">
+                                                    <Setter Property="Label.Foreground" Value="Gray"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="{x:Static m:FrequencyStatus.Operational}">
+                                                    <Setter Property="Label.Foreground" Value="Green"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="{x:Static m:FrequencyStatus.Degraded}">
+                                                    <Setter Property="Label.Foreground" Value="Orange"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Status}" Value="{x:Static m:FrequencyStatus.Error}">
                                                     <Setter Property="Label.Foreground" Value="Red"/>
                                                 </DataTrigger>
                                             </Style.Triggers>

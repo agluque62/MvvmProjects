@@ -26,8 +26,7 @@ namespace RadioVoipSimV2.ViewModel
                 }
                 else if (_activo is UCConfigViewModel)
                 {
-                    /** */
-                    // (_activo as UCConfigViewModel).Dispose();
+                    (_activo as UCConfigViewModel).Dispose();
                     ActiveVm = new UCMainViewModel();
                     ButtonText1 = "To Config";
                     OnPropertyChanged("ButtonText1");

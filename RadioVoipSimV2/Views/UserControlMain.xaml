@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:RadioVoipSimV2.Views"
              xmlns:vm="clr-namespace:RadioVoipSimV2.ViewModel"
              xmlns:m="clr-namespace:RadioVoipSimV2.Model"
-             xmlns:led="clr-namespace:LedControl"
+             xmlns:uc="clr-namespace:MyWpfControlLibrary;assembly=MyWpfControlLibrary"
              xmlns:p="clr-namespace:RadioVoipSimV2.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="500">
@@ -58,14 +58,14 @@
                     <GridViewColumn Header="PTT" Width="40">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <led:Led  IsActive="{Binding Ptt, Mode=TwoWay}" ColorNull="Gray" ColorOff="DarkRed" ColorOn="Red" Width="16" Height="16" />
+                                <uc:Led IsActive="{Binding Ptt, Mode=TwoWay}" ColorNull="Gray" ColorOff="DarkRed" ColorOn="Red" Width="16" Height="16" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
                     <GridViewColumn Header="SQH" Width="40">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <led:Led  IsActive="{Binding Squelch, Mode=TwoWay}" ColorNull="Gray" ColorOff="Green" ColorOn="GreenYellow" Width="16" Height="16" />
+                                <uc:Led  IsActive="{Binding Squelch, Mode=TwoWay}" ColorNull="Gray" ColorOff="Green" ColorOn="GreenYellow" Width="16" Height="16" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -107,8 +107,8 @@
                                         <ColumnDefinition></ColumnDefinition>
                                         <ColumnDefinition></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
-                                    <led:Led Grid.Column="0" IsActive="{Binding Ptt}" ColorNull="Gray" ColorOff="DarkRed" ColorOn="Red" Width="16" Height="16" >
-                                        <led:Led.Style>
+                                    <uc:Led Grid.Column="0" IsActive="{Binding Ptt}" ColorNull="Gray" ColorOff="DarkRed" ColorOn="Red" Width="16" Height="16" >
+                                        <uc:Led.Style>
                                             <Style>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsTx}" Value="False">
@@ -116,10 +116,10 @@
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
-                                        </led:Led.Style>
-                                    </led:Led>
-                                    <led:Led Grid.Column="1" IsActive="{Binding Squelch}" ColorNull="Gray" ColorOff="Green" ColorOn="GreenYellow" Width="16" Height="16">
-                                        <led:Led.Style>
+                                        </uc:Led.Style>
+                                    </uc:Led>
+                                    <uc:Led Grid.Column="1" IsActive="{Binding Squelch}" ColorNull="Gray" ColorOff="Green" ColorOn="GreenYellow" Width="16" Height="16">
+                                        <uc:Led.Style>
                                             <Style>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsTx}" Value="True">
@@ -127,8 +127,8 @@
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
-                                        </led:Led.Style>
-                                    </led:Led>
+                                        </uc:Led.Style>
+                                    </uc:Led>
                                 </Grid>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>

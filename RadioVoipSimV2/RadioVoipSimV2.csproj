@@ -71,7 +71,6 @@
     <Compile Include="ViewModel\UCConfigViewModel.cs" />
     <Compile Include="ViewModel\UCMainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelMain.cs" />
-    <Compile Include="Views\Led.xaml.cs" />
     <Compile Include="Views\UserControlConfig.xaml.cs">
       <DependentUpon>UserControlConfig.xaml</DependentUpon>
     </Compile>
@@ -79,7 +78,6 @@
       <DependentUpon>UserControlMain.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ViewConverters.cs" />
-    <Compile Include="Views\WidthToBorderThickConverter.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -92,10 +90,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Views\Led.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Views\UserControlConfig.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -144,11 +138,17 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CoreSipNet\CoreSipNet.csproj">
       <Project>{d09e025f-67c2-48e5-a2a1-ecfcd860dea1}</Project>
       <Name>CoreSipNet</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MyWpfControlLibrary\MyWpfControlLibrary.csproj">
+      <Project>{678b39b1-249e-4940-8b8d-cbfdb345ae70}</Project>
+      <Name>MyWpfControlLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

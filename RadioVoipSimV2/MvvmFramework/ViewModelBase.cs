@@ -13,6 +13,8 @@ namespace RadioVoipSimV2.MvvmFramework
     public abstract class ViewModelBase : INotifyPropertyChanged
     {
         private string _title;
+        private string _btn01Text;
+        private string _btn02Text;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -30,5 +32,8 @@ namespace RadioVoipSimV2.MvvmFramework
                 OnPropertyChanged("Title");
             }
         }
+
+        public string Btn01Text { get => _btn01Text; set => _btn01Text = value; }
+        public string Btn02Text { get => _btn02Text; set => _btn02Text = value; }
     }
 }

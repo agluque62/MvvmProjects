@@ -22,6 +22,8 @@ namespace RadioVoipSimV2.ViewModel
             SipAgentInitAndStart();
 
             Title = String.Format("Simulador de Equipos Radio Voip. Nucleo 2018. [{0}:{1}]", Config.VoipAgentIP, Config.VoipAgentPort);
+            Btn01Text = "Config";
+            Btn02Text = "Salir";
         }
 
         public void Dispose()
@@ -87,15 +89,15 @@ namespace RadioVoipSimV2.ViewModel
                         Sessions = new /*ObservableCollection*/List<SipSession>()
                     };
                     /** Añadir los Usuarios de tx */
-                    f.TxUsers.ForEach(tx =>
+                    foreach(var tx in f.TxUsers)
                     {
-                        frequency.Sessions.Add(new SipSession(tx, true) { Freq = frequency });
-                    });
+                        frequency.Sessions.Add(new SipSession(tx.Id, true) { Freq = frequency });
+                    };
                     /** Añadir los usuarios de rx */
-                    f.RxUsers.ForEach(rx =>
+                    foreach(var rx in f.RxUsers)
                     {
-                        frequency.Sessions.Add(new SipSession(rx) { Freq = frequency });
-                    });
+                        frequency.Sessions.Add(new SipSession(rx.Id) { Freq = frequency });
+                    };
 
                     Frequencies.Add(frequency);
                 }

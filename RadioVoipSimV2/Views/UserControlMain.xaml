@@ -103,11 +103,7 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition></ColumnDefinition>
-                                        <ColumnDefinition></ColumnDefinition>
-                                    </Grid.ColumnDefinitions>
-                                    <uc:Led Grid.Column="0" IsActive="{Binding Ptt}" ColorNull="Gray" ColorOff="DarkRed" ColorOn="Red" Width="16" Height="16" >
+                                    <uc:Led IsActive="{Binding Ptt}" ColorNull="Gray" ColorOff="DarkRed" ColorOn="Red" Width="16" Height="16" >
                                         <uc:Led.Style>
                                             <Style>
                                                 <Style.Triggers>
@@ -118,7 +114,7 @@
                                             </Style>
                                         </uc:Led.Style>
                                     </uc:Led>
-                                    <uc:Led Grid.Column="1" IsActive="{Binding Squelch}" ColorNull="Gray" ColorOff="Green" ColorOn="GreenYellow" Width="16" Height="16">
+                                    <uc:Led IsActive="{Binding Squelch}" ColorNull="Gray" ColorOff="Green" ColorOn="GreenYellow" Width="16" Height="16">
                                         <uc:Led.Style>
                                             <Style>
                                                 <Style.Triggers>

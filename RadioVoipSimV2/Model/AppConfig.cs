@@ -15,11 +15,17 @@ namespace RadioVoipSimV2.Model
     {
         const string FileName = "config.json";
 
+
         public class FrequencyConfig
         {
             public string Id { get; set; }
-            public List<string> TxUsers { get; set; }
-            public List<string> RxUsers { get; set; }
+            public ObservableCollection<EquipmentConfig> TxUsers { get; set; }
+            public ObservableCollection<EquipmentConfig> RxUsers { get; set; }
+        }
+
+        public class EquipmentConfig
+        {
+            public string Id { get; set; }
         }
 
         private string _voipAgentIP;
@@ -50,8 +56,8 @@ namespace RadioVoipSimV2.Model
                 cfg.SimulatedFrequencies.Add(new FrequencyConfig()
                 {
                     Id = "199.000",
-                    TxUsers = { "TX001" },
-                    RxUsers = { "RX001" }
+                    TxUsers = { new EquipmentConfig() { Id = "TX001" } },
+                    RxUsers = { new EquipmentConfig() { Id = "RX001" } }
                 });
                 callback(cfg, null);
             }

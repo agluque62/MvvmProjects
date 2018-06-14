@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,10 +16,14 @@ namespace RadioVoipSimV2.ViewModel
         private AppConfig.FrequencyConfig _selectedFreq;
         private int _selectedTxIndex;
         private int _selectedRxIndex;
+        private List<AppConfig> _listOfConfig;
 
         public UCConfigViewModel()
         {
             Title = String.Format("Simulador de Equipos Radio Voip. Nucleo 2018. [Configurador]");
+            Btn01Text = "Aceptar";
+            Btn02Text = "Cancelar";
+
             AppConfig.GetAppConfig((cfg, ex) =>
             {
                 Config = cfg;
@@ -30,6 +35,7 @@ namespace RadioVoipSimV2.ViewModel
                     if (SelectedFreq.TxUsers.Count > 0)
                         SelectedTxIndex = 0;
                 }
+                ListOfConfig = new List<AppConfig>() { cfg };
             });
 
             AddFreq = new DelegateCommandBase((obj) =>
@@ -37,15 +43,15 @@ namespace RadioVoipSimV2.ViewModel
                 Config.SimulatedFrequencies.Add(new AppConfig.FrequencyConfig()
                 {
                     Id = "100.000",
-                    RxUsers = new List<string>(),
-                    TxUsers = new List<string>()
+                    RxUsers = new ObservableCollection<AppConfig.EquipmentConfig>(),
+                    TxUsers = new ObservableCollection<AppConfig.EquipmentConfig>()
                 });
                 OnPropertyChanged("Config");
             });
 
             DelFreq = new DelegateCommandBase((obj) =>
             {
-                if (obj is Int32 index && index >=0)
+                if (obj is Int32 index && index >= 0)
                 {
                     // if (_dialogService.Confirm("¿Desea eliminar el item seleccionado?"))
                     {
@@ -59,8 +65,8 @@ namespace RadioVoipSimV2.ViewModel
             {
                 if (SelectedFreq != null)
                 {
-                    SelectedFreq.TxUsers.Add("TXNEW");
-                    OnPropertyChanged("Config");
+                    SelectedFreq.TxUsers.Add(new AppConfig.EquipmentConfig() { Id = "TXNEW" });
+                    OnPropertyChanged("SelectedFreq");
                 }
             });
 
@@ -69,7 +75,7 @@ namespace RadioVoipSimV2.ViewModel
                 if (par is Int32 index && index >= 0 && SelectedFreq != null)
                 {
                     SelectedFreq.TxUsers.RemoveAt(index);
-                    OnPropertyChanged("Config");
+                    OnPropertyChanged("SelectedFreq");
                 }
             });
 
@@ -77,8 +83,8 @@ namespace RadioVoipSimV2.ViewModel
             {
                 if (SelectedFreq != null)
                 {
-                    SelectedFreq.RxUsers.Add("RXNEW");
-                    OnPropertyChanged("Config");
+                    SelectedFreq.RxUsers.Add(new AppConfig.EquipmentConfig() { Id = "RXNEW" });
+                    OnPropertyChanged("SelectedFreq");
                 }
             });
 
@@ -87,12 +93,17 @@ namespace RadioVoipSimV2.ViewModel
                 if (par is Int32 index && index >= 0 && SelectedFreq != null)
                 {
                     SelectedFreq.RxUsers.RemoveAt(index);
-                    OnPropertyChanged("Config");
+                    OnPropertyChanged("SelectedFreq");
                 }
             });
         }
 
-        public void Dispose()
+        public void Save()
+        {
+            AppConfig.SetAppConfig(Config);
+        }
+
+        public void Cancel()
         {
         }
 
@@ -106,9 +117,18 @@ namespace RadioVoipSimV2.ViewModel
             }
         }
 
-        public AppConfig.FrequencyConfig SelectedFreq { get => _selectedFreq; set => _selectedFreq = value; }
+        public AppConfig.FrequencyConfig SelectedFreq
+        {
+            get => _selectedFreq;
+            set
+            {
+                _selectedFreq = value;
+                OnPropertyChanged("SelectedFreq");
+            }
+        }
         public int SelectedTxIndex { get => _selectedTxIndex; set => _selectedTxIndex = value; }
         public int SelectedRxIndex { get => _selectedRxIndex; set => _selectedRxIndex = value; }
+        public List<AppConfig> ListOfConfig { get => _listOfConfig; set => _listOfConfig = value; }
 
         public DelegateCommandBase AddFreq { get; set; }
         public DelegateCommandBase DelFreq { get; set; }

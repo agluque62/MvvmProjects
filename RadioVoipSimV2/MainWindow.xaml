@@ -22,9 +22,9 @@
             <RowDefinition Height="40"></RowDefinition>
         </Grid.RowDefinitions>            
         <ContentControl Grid.Row="0" Content="{Binding ActiveVm, Mode=TwoWay}"/>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">            
-            <Button Margin="5 8 5 8" Width="80" Command="{Binding ChangePage}" Content="{Binding ButtonText1}"></Button>
-            <Button Margin="5 8 5 8" Width="80" Command="{Binding Exit}">Salir</Button>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Margin="5 8 5 8" Width="80" Command="{Binding Btn01Command}" Content="{Binding ActiveVm.Btn01Text}"></Button>
+            <Button Margin="5 8 5 8" Width="80" Command="{Binding Btn02Command}" Content="{Binding ActiveVm.Btn02Text}"/>
         </StackPanel>
     </Grid>
 </Window>

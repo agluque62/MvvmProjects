@@ -21,12 +21,25 @@
                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Path=Id}" Margin="2" HorizontalAlignment="Right"/>
             </Grid>
         </DataTemplate>
+        <DataTemplate x:Key="DataTemplateEquipment" >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Equipo:" Margin="10 4 4 10"/>
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Id}" Margin="2" HorizontalAlignment="Right"/>
+            </Grid>
+        </DataTemplate>
     </UserControl.Resources>
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition></RowDefinition>
-            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="60"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
             <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
@@ -36,26 +49,67 @@
             <ColumnDefinition></ColumnDefinition>
             <ColumnDefinition Width="60"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-            
-        <ListBox Grid.Row="2" Grid.Column="0" Grid.RowSpan="2" Name="Flbox" Margin="5 1 0 0"           
+        <ListView Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="4" Margin="5" ItemsSource="{Binding ListOfConfig}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="IP" Width="150">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding VoipAgentIP}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Puerto SIP" Width="150" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding VoipAgentPort}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Ptt On -> SQH On" Width="150" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding PttOn2SqhOn}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Ptt Off -> SQH Off" Width="150" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding PttOff2SqhOff}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <TextBlock Grid.Row="1" Grid.Column="0" Margin="5 2 0 2" Foreground="Black" Text="Frecuencias"/>
+        <ListBox Grid.Row="2" Grid.Column="0" Grid.RowSpan="2" Name="Flbox" Margin="5 0 0 5"           
                       ItemsSource="{Binding Config.SimulatedFrequencies}" 
                       SelectedItem="{Binding SelectedFreq}"                  
-                      ItemTemplate="{StaticResource DataTemplateFreq}"/>
-        
+                      ItemTemplate="{StaticResource DataTemplateFreq}"/>        
         <StackPanel Grid.Row="2" Grid.Column="1" Grid.RowSpan="2" VerticalAlignment="Bottom">
             <Button Margin="5" Command="{Binding AddFreq}">Add</Button>
             <Button Margin="5" Command="{Binding DelFreq}" CommandParameter="{Binding ElementName=Flbox, Path=SelectedIndex}">Del</Button>
         </StackPanel>
-        
-        <ListBox Grid.Row="2" Grid.Column="2" Margin="5" Background="AntiqueWhite"></ListBox>
+
+        <TextBlock Grid.Row="1" Grid.Column="2" Margin="5 2 0 2" Text="Equipos"/>
+        <ListBox Grid.Row="2" Grid.Column="2" Margin="5 0 5 5" Name="Tlbox"
+                 ItemsSource="{Binding SelectedFreq.TxUsers, Mode=TwoWay}"
+                 ItemTemplate="{StaticResource DataTemplateEquipment}"/>
         <StackPanel Grid.Row="2" Grid.Column="3" VerticalAlignment="Bottom">
-            <Button Margin="5">Add</Button>
-            <Button Margin="5">Del</Button>
+            <Button Margin="5" Content="Add" Command="{Binding AddEquipmentTx}"/>
+            <Button Margin="5" Content="Del" 
+                    Command="{Binding DelEquipmentTx}"
+                    CommandParameter="{Binding ElementName=Tlbox, Path=SelectedIndex}"/>
         </StackPanel>
-        <ListBox Grid.Row="3" Grid.Column="2" Margin="5" Background="AliceBlue"></ListBox>
+        <ListBox Grid.Row="3" Grid.Column="2" Margin="5 0 5 5" Name="Rlbox"
+                 ItemsSource="{Binding SelectedFreq.RxUsers}"
+                 ItemTemplate="{StaticResource DataTemplateEquipment}"/>        
         <StackPanel Grid.Row="3" Grid.Column="3" VerticalAlignment="Bottom">
-            <Button Margin="5">Add</Button>
-            <Button Margin="5">Del</Button>
+            <Button Margin="5" Command="{Binding AddEquipmentRx}" Content="Add"/>
+            <Button Margin="5" Command="{Binding DelEquipmentRx}" Content="Del"
+                    CommandParameter="{Binding ElementName=Rlbox, Path=SelectedIndex}"/>
         </StackPanel>
     </Grid>
 </UserControl>

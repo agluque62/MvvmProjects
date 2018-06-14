@@ -13,29 +13,33 @@ namespace RadioVoipSimV2.ViewModel
         public ViewModelMain()
         {
             _activo = new UCMainViewModel();
-            ButtonText1 = "To Config";
+            //_activo = new UCConfigViewModel();
 
-            ChangePage = new DelegateCommandBase((obj) =>
+            Btn01Command = new DelegateCommandBase((obj) =>
             {
                 if (_activo is UCMainViewModel)
                 {
                     (_activo as UCMainViewModel).Dispose();
                     ActiveVm = new UCConfigViewModel();
-                    ButtonText1 = "To Main";
-                    OnPropertyChanged("ButtonText1");
                 }
                 else if (_activo is UCConfigViewModel)
                 {
-                    (_activo as UCConfigViewModel).Dispose();
+                    (_activo as UCConfigViewModel).Save();
                     ActiveVm = new UCMainViewModel();
-                    ButtonText1 = "To Config";
-                    OnPropertyChanged("ButtonText1");
                 }
             });
 
-            Exit = new DelegateCommandBase((obj) =>
+            Btn02Command = new DelegateCommandBase((obj) =>
             {
-                System.Windows.Application.Current.Shutdown();
+                if (_activo is UCMainViewModel)
+                {
+                    System.Windows.Application.Current.Shutdown();
+                }
+                else if (_activo is UCConfigViewModel)
+                {
+                    (_activo as UCConfigViewModel).Cancel();
+                    ActiveVm = new UCMainViewModel();
+                }
             });
         }
 
@@ -59,8 +63,8 @@ namespace RadioVoipSimV2.ViewModel
 
         #region Comandos
 
-        public DelegateCommandBase ChangePage { get; set; }
-        public DelegateCommandBase Exit { get; set; }
+        public DelegateCommandBase Btn01Command { get; set; }
+        public DelegateCommandBase Btn02Command { get; set; }
 
         #endregion Comandos
 

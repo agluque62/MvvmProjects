@@ -58,11 +58,23 @@ namespace CoreSipNet
     public delegate void InfoReceivedCb(int call, string info, uint lenInfo);
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     public delegate void FinWavCb(int call);
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void UpdateOvrCallMembersCb([In] CORESIP_OvrCallMembers members);
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate void InfoCRDCb([In] CORESIP_CRD crd);
+    /// <summary>
+    ///  Received when subscription to conference arrives
+    /// </summary>
+    /// <param name="call"></param>
+    /// <param name="info"></param>
+    /// <param name="lenInfo"></param>
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    public delegate void IncomingSubscribeConfCb(int call, string from, uint lenInfo);
 
+    /*Callback para recibir notificaciones por la subscripcion de presencia*/
+    /*	dst_uri: uri del destino cuyo estado de presencia ha cambiado.
+     *	subscription_status: vale 0 la subscripcion al evento no ha tenido exito. 
+     *	presence_status: vale 0 si no esta presente. 1 si esta presente.
+     */
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+    public delegate void SubPresCb(string dst_uri, int subscription_status, int presence_status);
+    
 
     #endregion
 
@@ -83,14 +95,6 @@ namespace CoreSipNet
         [Description("DA CALL")]
         CORESIP_CALL_DIA,
         CORESIP_CALL_RD,
-
-        /** De Coresip ETM*/
-        CORESIP_CALL_RRC,
-        CORESIP_CALL_OVR,
-        CORESIP_CALL_RECORDING,
-        CORESIP_CALL_RXTXRD,
-        /**************************/
-
         CORESIP_CALL_UNKNOWN
     }
     /// <summary>
@@ -111,6 +115,7 @@ namespace CoreSipNet
     /// <summary>
     /// 
     /// </summary>
+    [Flags]
     public enum CORESIP_CallFlags
     {
         [Description("TxRx")]
@@ -126,12 +131,8 @@ namespace CoreSipNet
         [Description("Echo Canceller")]
         CORESIP_CALL_EC = 0x10,
         [Description("Through external central IP")]
-        CORESIP_CALL_EXTERNAL_IP = 0x20,
+        CORESIP_CALL_EXTERNAL_IP = 0x20
 
-        /** De Coresip ETM*/
-        CORESIP_CALL_NINGUNO = 0x0, // Indica Transceiver
-        CORESIP_CALL_RD_IDLE = 0x12,
-        CORESIP_CALL_RD_TXRX = 0x14
     }
     /// <summary>
     /// 
@@ -152,10 +153,6 @@ namespace CoreSipNet
         CORESIP_CALL_STATE_CONFIRMED,			/**< After ACK is sent/received.	    */
         [Description("Disconnected")]
         CORESIP_CALL_STATE_DISCONNECTED,		/**< Session is terminated.		    */
-
-        /** De Coresip ETM*/
-        CORESIP_CALL_STATE_STATE_DESCONOCIDO,	/** < Estado DESCONOCIDO **/
-        CORESIP_CALL_STATE_DISCONNECTED2		/**< Session LC (Tx) is terminated.		*/
     }
     /// <summary>
     /// 
@@ -212,25 +209,18 @@ namespace CoreSipNet
         CORESIP_SND_MAIN_SPEAKERS = CORESIP_SND_MAX_IN_DEVICES,
         CORESIP_SND_LC_SPEAKER,
         CORESIP_SND_RD_SPEAKER,
-        //CORESIP_SND_INSTRUCTOR_RECORDER,
-        //CORESIP_SND_ALUMN_RECORDER,
-        //CORESIP_SND_RADIO_RECORDER,
-        //CORESIP_SND_LC_RECORDER,
-        //CORESIP_SND_HF_SPEAKER,
-        //CORESIP_SND_HF_RECORDER,
+        CORESIP_SND_INSTRUCTOR_RECORDER,
+        CORESIP_SND_ALUMN_RECORDER,
+        CORESIP_SND_RADIO_RECORDER,
+        CORESIP_SND_LC_RECORDER,
+        CORESIP_SND_HF_SPEAKER,
+        CORESIP_SND_HF_RECORDER,
         CORESIP_SND_UNKNOWN
     }
-    /// <summary>
-    /// 
-    /// </summary>
-    public enum CORESIP_TypeCrdInfo
-    {
-        CORESIP_CRD_SET_PARAMETER,
-        CORESIP_CRD_RECORD,
-        CORESIP_CRD_PAUSE,
-        CORESIP_CRD_PTT,
-        CORESIP_SQ
-    }
+
+    //EDU 20170223
+    public enum CORESIP_FREQUENCY_TYPE { Simple = 0, Dual = 1, FD = 2, ME = 3 }         // 0. Normal, 1: 1+1, 2: FD, 3: EM
+    public enum CORESIP_CLD_CALCULATE_METHOD { Relative, Absolute }
 
     #endregion
 
@@ -246,30 +236,26 @@ namespace CoreSipNet
         public CORESIP_Priority Priority;
         public CORESIP_CallFlags Flags;
 
-        /** */
-        public CORESIP_CallFlags Flags_type;//12/2017
-	    public CORESIP_MediaDir Dir;
-	    public int Codecs;
-	    public int BssMethods;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_FRECUENCY_LENGTH)]
-        public string Frecuency;
-//#if _VOTER_
-//        /** 20160608. VOTER */
-//        public int PreferredCodec = 0;
-//        public int PreferredBss = 0;
-//#endif
-//        //EDU 20170223
-//        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgent.CORESIP_MAX_ZONA_LENGTH + 1)]
-//        public string Zona;
-//        public CORESIP_FREQUENCY_TYPE FrequencyType;
-//        public CORESIP_CLD_CALCULATE_METHOD CLDCalculateMethod;
-//        public int BssWindows;
-//        public bool AudioSync;
-//        public bool AudioInBssWindow;
-//        public bool NotUnassignable;
-//        public int cld_supervision_time;
-//        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgent.CORESIP_MAX_BSS_LENGTH + 1)]
-//        public string bss_method;
+#if _VOTER_
+        /** 20160608. VOTER */
+        public int PreferredCodec = 0;
+        public int PreferredBss = 0;
+#endif
+
+        //EDU 20170223
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_ZONA_LENGTH + 1)]
+        public string Zona;
+
+        public CORESIP_FREQUENCY_TYPE FrequencyType;
+        public CORESIP_CLD_CALCULATE_METHOD CLDCalculateMethod;
+        public int BssWindows;
+        public bool AudioSync;
+        public bool AudioInBssWindow;
+        public bool NotUnassignable;
+        public int cld_supervision_time;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_BSS_LENGTH + 1)]
+        public string bss_method;
     }
     /// <summary>
     /// 
@@ -279,8 +265,10 @@ namespace CoreSipNet
     {
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_URI_LENGTH + 1)]
         public string DstUri;
+
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_URI_LENGTH + 1)]
         public string ReferBy;
+
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_RS_LENGTH + 1)]
         public string RdFr;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_IP_LENGTH + 1)]
@@ -307,8 +295,8 @@ namespace CoreSipNet
         public string DstIp;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_USER_ID_LENGTH + 1)]
         public string DstSubId;
-        //[MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_NAME_LENGTH + 1)]
-        //public string DisplayName;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_NAME_LENGTH + 1)]
+        public string DisplayName;
     }
     /// <summary>
     /// 
@@ -369,10 +357,12 @@ namespace CoreSipNet
     {
         public CORESIP_PttType PttType;
         public ushort PttId;
+        public uint PttMute;
         public uint ClimaxCld;
-        /** */
-        public int Squelch;
-    }
+        public uint Squ;
+    } 
+
+    
     /// <summary>
     /// 
     /// </summary>
@@ -384,17 +374,13 @@ namespace CoreSipNet
         public int Squelch;
         public int Sct;
 
-        ////EDU 20170224
-        //public int rx_rtp_port;
-        //public int rx_qidx;
-        //public bool rx_selected;
-        //public int tx_rtp_port;
-        //public int tx_cld;
-        //public int tx_owd;
-        /** */
-        public int Bss;
-        public int BssMethod;
-        public int BssValue;
+        //EDU 20170224
+        public int rx_rtp_port;
+        public int rx_qidx;
+        public bool rx_selected;
+        public int tx_rtp_port;
+        public int tx_cld;
+        public int tx_owd;
     }
     /// <summary>
     /// 
@@ -426,87 +412,6 @@ namespace CoreSipNet
     /// 
     /// </summary>
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-    public class CORESIP_WG67Info
-    {
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_URI_LENGTH + 1)]
-        public string DstUri;
-
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_REASON_LENGTH + 1)]
-        public string LastReason;
-
-        public int SubscriptionTerminated;
-        public uint SubscribersCount;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = SipAgentNet.CORESIP_MAX_WG67_SUBSCRIBERS)]
-        public CORESIP_WG67SubscriberInfo[] Subscribers;
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-        public struct CORESIP_WG67SubscriberInfo
-        {
-            public ushort PttId;
-
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_URI_LENGTH + 1)]
-            public string SubsUri;
-        }
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-    public class CORESIP_OvrCallMembers
-    {
-        public short MembersCount;
-
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-        public struct CORESIP_Members
-        {
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_URI_LENGTH + 1)]
-            public string Member;
-            public int CallId;
-            bool IncommingCall;
-        }
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = SipAgentNet.CORESIP_MAX_OVR_CALLS_MEMBERS)]
-        public CORESIP_Members[] EstablishedOvrCallMembers;
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-    public class CORESIP_CRD
-    {
-        public CORESIP_TypeCrdInfo _Info;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_CALLREF_LENGTH + 1)]
-        public string CallRef;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_CONNREF_LENGTH + 1)]
-        public string ConnRef;
-        public int Direction;
-        public int Priority;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_URI_LENGTH + 1)]
-        public string CallingNr;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_URI_LENGTH + 1)]
-        public string CallerNr;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_TIME_LENGTH + 1)]
-        public string SetupTime;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_URI_LENGTH + 1)]
-        public string ConnectedNr;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_TIME_LENGTH + 1)]
-        public string ConnectedTime;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_TIME_LENGTH + 1)]
-        public string DisconnectTime;
-        public int DisconnectCause;
-        public int DisconnectSource;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_FRECUENCY_LENGTH1 + 1)]
-        public string FrecuencyId;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_TIME_LENGTH + 1)]
-        public string Squ;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_TIME_LENGTH + 1)]
-        public string Ptt;
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public class CORESIP_Callbacks
     {
         public IntPtr UserData;
@@ -522,14 +427,15 @@ namespace CoreSipNet
         public OptionsReceiveCb OnOptionsReceive;
         public WG67NotifyCb OnWG67Notify;
         public InfoReceivedCb OnInfoReceived;
-        public FinWavCb OnFinWavCb;
-        //public IncomingSubscribeConfCb OnIncomingSubscribeConf;
-        //public SubPresCb OnSubPres;
+        public IncomingSubscribeConfCb OnIncomingSubscribeConf;
+        public SubPresCb OnSubPres;
+/*
 #if _ED137_
-	// PlugTest FAA 05/2011
-		public UpdateOvrCallMembersCb OnUpdateOvrCallMembers; //(CORESIP_EstablishedOvrCallMembers info);
-		public InfoCRDCb OnInfoCrd;								//(CORESIP_CRD InfoCrd);
+        // PlugTest FAA 05/2011
+        public UpdateOvrCallMembersCb OnUpdateOvrCallMembers; //(CORESIP_EstablishedOvrCallMembers info);
+        public InfoCRDCb OnInfoCrd;								//(CORESIP_CRD InfoCrd);
 #endif
+ */
     }
     /// <summary>
     /// 
@@ -542,6 +448,31 @@ namespace CoreSipNet
         public uint KeepAlivePeriod;
         public uint KeepAliveMultiplier;
     }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+    public class CORESIP_WG67Info
+    {
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+        public struct CORESIP_WG67SubscriberInfo
+        {
+            public ushort PttId;
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_URI_LENGTH + 1)]
+            public string SubsUri;
+        }
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_URI_LENGTH + 1)]
+        public string DstUri;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_REASON_LENGTH + 1)]
+        public string LastReason;
+
+        public int SubscriptionTerminated;
+        public uint SubscribersCount;
+
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = SipAgentNet.CORESIP_MAX_WG67_SUBSCRIBERS)]
+        public CORESIP_WG67SubscriberInfo[] Subscribers;
+    }
     
     #endregion
 
@@ -550,56 +481,53 @@ namespace CoreSipNet
     /// </summary>
     public class SipAgentNet
     {
-		public const int SIP_TRYING = 100;
-		public const int SIP_RINGING = 180;
-		public const int SIP_QUEUED = 182;
-		public const int SIP_INTRUSION_IN_PROGRESS = 183;
-		public const int SIP_INTERRUPTION_IN_PROGRESS = 184;
-		public const int SIP_INTERRUPTION_END = 185;
-		public const int SIP_OK = 200;
-		public const int SIP_ACCEPTED = 202;
-		public const int SIP_BAD_REQUEST = 400;
-		public const int SIP_NOT_FOUND = 404;
-		public const int SIP_REQUEST_TIMEOUT = 408;
-		public const int SIP_GONE = 410;
-		public const int SIP_TEMPORARILY_UNAVAILABLE = 480;
-		public const int SIP_BUSY = 486;
-		public const int SIP_NOT_ACCEPTABLE_HERE = 488;
-		public const int SIP_ERROR = 500;
-		public const int SIP_CONGESTION = 503;
-		public const int SIP_DECLINE = 603;
+        public const int SIP_TRYING = 100;
+        public const int SIP_RINGING = 180;
+        public const int SIP_QUEUED = 182;
+        public const int SIP_INTRUSION_IN_PROGRESS = 183;
+        public const int SIP_INTERRUPTION_IN_PROGRESS = 184;
+        public const int SIP_INTERRUPTION_END = 185;
+        public const int SIP_OK = 200;
+        public const int SIP_ACCEPTED = 202;
+        public const int SIP_BAD_REQUEST = 400;
+        public const int SIP_NOT_FOUND = 404;
+        public const int SIP_REQUEST_TIMEOUT = 408;
+        public const int SIP_GONE = 410;
+        public const int SIP_TEMPORARILY_UNAVAILABLE = 480;
+        public const int SIP_BUSY = 486;
+        public const int SIP_NOT_ACCEPTABLE_HERE = 488;
+        public const int SIP_ERROR = 500;
+        public const int SIP_CONGESTION = 503;
+        public const int SIP_DECLINE = 603;
         public const int SIP_UNWANTED = 607;
 
         //private static string UG5K_REC_CONF_FILE = "ug5krec-config.ini";
+        #region Dll Interface
 
-		#region Dll Interface
-
-		public const int CORESIP_MAX_USER_ID_LENGTH = 100;
-		public const int CORESIP_MAX_FILE_PATH_LENGTH = 256;
-		public const int CORESIP_MAX_ERROR_INFO_LENGTH = 512;
+        public const int CORESIP_MAX_USER_ID_LENGTH = 100;
+        public const int CORESIP_MAX_FILE_PATH_LENGTH = 256;
+        public const int CORESIP_MAX_ERROR_INFO_LENGTH = 512;
         public const int CORESIP_MAX_HOSTID_LENGTH = 32;
-		public const int CORESIP_MAX_IP_LENGTH = 25;
-		public const int CORESIP_MAX_URI_LENGTH = 256;
-		public const int CORESIP_MAX_SOUND_DEVICES = 10;
-		public const int CORESIP_MAX_RS_LENGTH = 128;
-		public const int CORESIP_MAX_REASON_LENGTH = 128;
-		public const int CORESIP_MAX_WG67_SUBSCRIBERS = 25;
-		public const int CORESIP_MAX_CODEC_LENGTH = 50;
-		public const int CORESIP_MAX_CONF_USERS = 25;
-		public const int CORESIP_MAX_CONF_STATE_LENGTH = 25;
+        public const int CORESIP_MAX_IP_LENGTH = 25;
+        public const int CORESIP_MAX_URI_LENGTH = 256;
+        public const int CORESIP_MAX_SOUND_DEVICES = 10;
+        public const int CORESIP_MAX_RS_LENGTH = 128;
+        public const int CORESIP_MAX_REASON_LENGTH = 128;
+        public const int CORESIP_MAX_WG67_SUBSCRIBERS = 25;
+        public const int CORESIP_MAX_CODEC_LENGTH = 50;
+        public const int CORESIP_MAX_CONF_USERS = 25;
+        public const int CORESIP_MAX_CONF_STATE_LENGTH = 25;
         public const int CORESIP_MAX_ZONA_LENGTH = 256;     //EDU 20170223
         public const int CORESIP_MAX_BSS_LENGTH = 32;     //EDU 20170223
         public const int CORESIP_MAX_NAME_LENGTH = 20;    //B. Santamaria 20180206
-        public const int CORESIP_MAX_CALLID_LENGTH = 256; 
-   
-        public const int CORESIP_MAX_FRECUENCY_LENGTH = CORESIP_MAX_RS_LENGTH + 1;
+        public const int CORESIP_MAX_CALLID_LENGTH = 256;
 #if _ED137_
-		// PlugTest FAA 05/2011
-		public const int CORESIP_MAX_OVR_CALLS_MEMBERS = 10;
-		public const int CORESIP_CALLREF_LENGTH = 50;
-		public const int CORESIP_CONNREF_LENGTH = 50;
-		public const int CORESIP_TIME_LENGTH = 28;
-		public const int CORESIP_MAX_FRECUENCY_LENGTH1 = 7;
+        // PlugTest FAA 05/2011
+        public const int CORESIP_MAX_OVR_CALLS_MEMBERS = 10;
+        public const int CORESIP_CALLREF_LENGTH = 50;
+        public const int CORESIP_CONNREF_LENGTH = 50;
+        public const int CORESIP_TIME_LENGTH = 28;
+        public const int CORESIP_MAX_FRECUENCY_LENGTH = 7;
 #endif
         /// <summary>
         /// 
@@ -643,12 +571,14 @@ namespace CoreSipNet
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
         class CORESIP_Config
         {
-            //[MarshalAs(UnmanagedType.ByValTStr, SizeConst = CORESIP_MAX_HOSTID_LENGTH + 1)]
-            //public string HostId;
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = CORESIP_MAX_HOSTID_LENGTH + 1)]
+            public string HostId;
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = CORESIP_MAX_IP_LENGTH + 1)]
             public string IpAddress;
             public uint Port;
+
             public CORESIP_Callbacks Cb;
+
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = CORESIP_MAX_CODEC_LENGTH + 1)]
             public string DefaultCodec;
             public uint DefaultDelayBufPframes;
@@ -663,19 +593,27 @@ namespace CoreSipNet
             public uint InvProceedingMonitoringTout;
             public uint InvProceedingDiaTout;
             public uint InvProceedingRdTout;
-            ///* AGL 20131121. Variables para la configuracion del Cancelador de Eco */
-            //public uint EchoTail;
-            //public uint EchoLatency;
-            ///* FM */
 
-            ///// <summary>
-            ///// JCAM 18/01/2016
-            ///// Grabación según norma ED-137
-            ///// </summary>
-            //public uint RecordingEd137;
+            /* AGL 20131121. Variables para la configuracion del Cancelador de Eco */
+            public uint EchoTail;
+            public uint EchoLatency;
+            /* FM */
 
-            //public uint max_calls;		//Máximo número de llamadas que soporta el agente
+            /// <summary>
+            /// JCAM 18/01/2016
+            /// Grabación según norma ED-137
+            /// </summary>
+            public uint RecordingEd137;
+
+            public uint max_calls;		//Máximo número de llamadas que soporta el agente
+            public uint Radio_UA;		//Con valor distinto de 0, indica que se comporta como un agente de radio
         }
+
+        enum CORESIP_RecCmdType : int
+        {
+            CORESIP_REC_RESET = 0 // Ordena reiniciar el grabador
+        };
+
         /// <summary>
         /// 
         /// </summary>
@@ -689,7 +627,7 @@ namespace CoreSipNet
         };
 
         #region Prototipos de funciones.
-        const string coresip = "coresip";
+        const string coresip = "coresip-voter";
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
         static extern int CORESIP_Init([In] CORESIP_Config info, out CORESIP_Error error);
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
@@ -701,13 +639,54 @@ namespace CoreSipNet
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
         static extern int CORESIP_SetParams([In] CORESIP_Params info, out CORESIP_Error error);
 
+        /**
+         *	CORESIP_CreateAccount. Registra una cuenta SIP en el Módulo. @ref SipAgent::CreateAccount
+         *	@param	acc			Puntero a la sip URI que se crea como agente.
+         *	@param	defaultAcc	Marca si esta cuenta pasa a ser la Cuenta por Defecto.
+         *	@param	accId		Puntero a el identificador de cuenta asociado.
+         *	@param	error		Puntero @ref CORESIP_Error a la Estructura de error
+         *	@return				Codigo de Error
+         */
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
         static extern int CORESIP_CreateAccount([In] string acc, int defaultAcc, out int accId, out CORESIP_Error error);
+
+        /**
+         *	CORESIP_CreateAccountProxyRouting. Registra una cuenta SIP en el Módulo y los paquetes sip se enrutan por el proxy. @ref SipAgent::CreateAccount
+         *	@param	acc			Puntero a la sip URI que se crea como agente.
+         *	@param	defaultAcc	Marca si esta cuenta pasa a ser la Cuenta por Defecto.
+         *	@pa ram	accId		Puntero a el identificador de cuenta asociado.
+         *  @param	proxy_ip	Si es distinto de NULL. IP del proxy Donde se quieren enrutar los paquetes.
+         *	@param	error		Puntero @ref CORESIP_Error a la Estructura de error
+         *	@return				Codigo de Error
+         */
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
-        static extern int CORESIP_DestroyAccount(int accId, out CORESIP_Error error);
+        static extern int CORESIP_CreateAccountProxyRouting([In] string acc, int defaultAcc, out int accId, [In] string proxy_ip, out CORESIP_Error error);
+
+        /**
+         *	CreateAccountAndRegisterInProxy. Crea una cuenta y se registra en el SIP proxy. Los paquetes sip se rutean por el SIP proxy también.
+         *	@param	acc			Puntero al Numero de Abonado (usuario). NO a la uri.
+         *	@param	defaultAcc	Si es diferente a '0', indica que se creará la cuenta por Defecto.
+         *	@param	accId		Puntero a el identificador de cuenta asociado que retorna.
+         *	@param	proxy_ip	IP del proxy.
+         *	@param	expire_seg  Tiempo en el que expira el registro en segundos.
+         *	@param	username	Si no es necesario autenticación, este parametro será NULL
+         *	@param  pass		Password. Si no es necesario autenticación, este parametro será NULL
+         *	@param	error		Puntero @ref CORESIP_Error a la Estructura de error
+         *	@return				Codigo de Error
+         */
+        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
+        static extern int CORESIP_CreateAccountAndRegisterInProxy([In] string acc, int defaultAcc, out int accId, string proxy_ip,
+                                                                uint expire_seg, string username, string pass, string displayName, out CORESIP_Error error);
+
 
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
+        static extern int CORESIP_DestroyAccount(int accId, out CORESIP_Error error);
+        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
         static extern int CORESIP_AddSndDevice([In] CORESIP_SndDeviceInfo info, out int dev, out CORESIP_Error error);
+        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
+        static extern int CORESIP_CreateWavPlayer([In] string file, int loop, out int wavPlayer, out CORESIP_Error error);
+        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
+        static extern int CORESIP_DestroyWavPlayer(int wavPlayer, out CORESIP_Error error);
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
         static extern int CORESIP_CreateRdRxPort([In] CORESIP_RdRxPortInfo info, string localIp, out int mcastPort, out CORESIP_Error error);
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
@@ -726,16 +705,6 @@ namespace CoreSipNet
         static extern int CORESIP_SetVolume(int id, int volume, out CORESIP_Error error);
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
         static extern int CORESIP_GetVolume(int dev, out int volume, out CORESIP_Error error);
-
-        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
-        static extern int CORESIP_CreateWavPlayer([In] string file, int loop, out int wavPlayer, out CORESIP_Error error);
-        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
-        static extern int CORESIP_DestroyWavPlayer(int wavPlayer, out CORESIP_Error error);
-        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
-        static extern int CORESIP_CreateWavRecorder([In] string file, out int wavPlayer, out CORESIP_Error error);
-        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
-        static extern int CORESIP_DestroyWavRecorder(int wavPlayer, out CORESIP_Error error);		
-
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
         static extern int CORESIP_CallMake([In] CORESIP_CallInfo info, [In] CORESIP_CallOutInfo outInfo, out int call, out CORESIP_Error error);
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
@@ -760,55 +729,71 @@ namespace CoreSipNet
         static extern int CORESIP_TransferNotify(IntPtr evSub, int code, out CORESIP_Error error);
 
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
+        static extern int CORESIP_SendOptionsMsg([In] string dst, StringBuilder callid, out CORESIP_Error error);
+        //Envía OPTIONS directamente sin pasar por el proxy
+
+        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
+        static extern int CORESIP_SendOptionsMsgProxy([In] string dst, StringBuilder callid, out CORESIP_Error error);
+        //Envía OPTIONS pasando por el proxy
+
+        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
+        static extern int CORESIP_CreateWavRecorder([In] string file, out int wavPlayer, out CORESIP_Error error);
+        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
+        static extern int CORESIP_DestroyWavRecorder(int wavPlayer, out CORESIP_Error error);
+
+        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
         static extern int CORESIP_CreateWG67Subscription(string dst, ref IntPtr wg67, ref CORESIP_Error error);
+
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
         static extern int CORESIP_DestroyWG67Subscription(IntPtr wg67, ref CORESIP_Error error);
 
+        /** AGL */
+        [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+        public delegate void WavRemoteEnd(IntPtr obj);
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
-        static extern int CORESIP_SendOptionsMsg([In] string dst, StringBuilder callid, out CORESIP_Error error);
+        static extern int CORESIP_Wav2RemoteStart([In] string file, string id, string ip, int port, ref WavRemoteEnd cbend, ref CORESIP_Error error);
+        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
+        static extern int CORESIP_Wav2RemoteEnd(IntPtr obj, ref CORESIP_Error error);
 
+        /* GRABACION VOIP START */
+        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
+        static extern int CORESIP_RdPttEvent(bool on, [In] string freqId, int dev, out CORESIP_Error error, CORESIP_PttType priority);
 
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
-        static extern int CORESIP_CallSq(int call, [In]  CORESIP_PttInfo info, out CORESIP_Error error);
+        static extern int CORESIP_RdSquEvent(bool on, [In] string freqId, [In] string resourceId, [In] string bssMethod, uint bssQidx, out CORESIP_Error error);
+
+        //Metodo para enviar un comando al grabador
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
-        static extern int CORESIP_SetTipoGRS(int accId, [In]  CORESIP_CallFlags flags, out CORESIP_Error error);
+        static extern int CORESIP_RecorderCmd(CORESIP_RecCmdType cmd, out CORESIP_Error error);
+        /* GRABACION VOIP END */
+
+        /*Funciones para gestion de presencia por subscripcion al evento de presencia*/
         [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
-        static extern int CORESIP_SetImpairments(int accId, [In]  CORESIP_Impairments flags, out CORESIP_Error error);  
+        static extern int CORESIP_CreatePresenceSubscription(string dest_uri, out CORESIP_Error error);
+
+        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
+        static extern int CORESIP_DestroyPresenceSubscription(string dest_uri, out CORESIP_Error error);
+
+        /**
+         * CORESIP_EchoCancellerLCMic.	...
+         * Activa/desactiva cancelador de eco altavoz LC y Microfonos. Sirve para el modo manos libres 
+         * Por defecto esta desactivado en la coresip
+         * @param	on						true - activa / false - desactiva
+         * @return	CORESIP_OK OK, CORESIP_ERROR  error.
+         */
+        [DllImport(coresip, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi, ExactSpelling = true)]
+        static extern int CORESIP_EchoCancellerLCMic(bool on, out CORESIP_Error error);        
         
         #endregion
         #endregion
 
         #region eventos
-        static LogCb OnLog;
+		static LogCb OnLog;
         public static event LogCb Log
         {
             add { OnLog += value; }
             remove { OnLog -= value; }
         }
-#if _ED137_
-        // PlugTest FAA 05/2011
-        /// <summary>
-        /// 
-        /// </summary>
-        static UpdateOvrCallMembersCb OnUpdateOvrCallMembers;
-        public static event UpdateOvrCallMembersCb UpdateOvrCallMembers
-        {
-            add { OnUpdateOvrCallMembers += value; }
-            remove { OnUpdateOvrCallMembers -= value; }
-        }
-
-        // PlugTest FAA 05/2011
-        /// <summary>
-        /// 
-        /// </summary>
-        static InfoCRDCb OnInfoCrd;
-        public static event InfoCRDCb InfoCRD
-        {
-            add { OnInfoCrd += value; }
-            remove { OnInfoCrd -= value; }
-        }
-#endif
-
         /// <summary>
         /// 
         /// </summary>
@@ -827,15 +812,16 @@ namespace CoreSipNet
             add { /*_Cb.*/OnKaTimeout += value; }
             remove { /*_Cb.*/OnKaTimeout -= value; }
         }
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //static IncomingSubscribeConfCb OnIncomingSubscribeConf;
-        //public static event IncomingSubscribeConfCb IncomingSubscribeConf
-        //{
-        //    add {/*_Cb.*/OnIncomingSubscribeConf += value; }
-        //    remove {/*_Cb.*/OnIncomingSubscribeConf -= value; }
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        static IncomingSubscribeConfCb OnIncomingSubscribeConf;
+        public static event IncomingSubscribeConfCb IncomingSubscribeConf
+        {
+            add {/*_Cb.*/OnIncomingSubscribeConf += value; }
+            remove {/*_Cb.*/OnIncomingSubscribeConf -= value; }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -913,15 +899,15 @@ namespace CoreSipNet
             add { /*_Cb.*/OnOptionsReceive += value; }
             remove { /*_Cb.*/OnOptionsReceive -= value; }
         }
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        //static SubPresCb OnSubPres;
-        //public static event SubPresCb SubPres
-        //{
-        //    add {/*_Cb.*/OnSubPres += value; }
-        //    remove {/*_Cb.*/OnSubPres -= value; }
-        //}
+        /// <summary>
+        /// 
+        /// </summary>
+        static SubPresCb OnSubPres;
+        public static event SubPresCb SubPres
+        {
+            add {/*_Cb.*/OnSubPres += value; }
+            remove {/*_Cb.*/OnSubPres -= value; }
+        }
         #endregion
 
         #region Public Members
@@ -961,12 +947,13 @@ namespace CoreSipNet
                 cfg.InvProceedingRdTout = Settings.Default.InvProceedingRdTout;
 
                 // AGL 20131121.
-                //cfg.EchoTail = Settings.Default.EchoTail;
-                //cfg.EchoLatency = Settings.Default.EchoLatency;               // FM           
+                cfg.EchoTail = 100; // Settings.Default.EchoTail;
+                cfg.EchoLatency = 0; // Settings.Default.EchoLatency;               // FM           
                 ///// JCAM 18/01/2016
                 ///// Grabación según norma ED-137
-                //cfg.RecordingEd137 = Settings.Default.RecordingEd137;
-                //cfg.max_calls = max_calls;     // Maximo número de llamadas por defecto en el puesto
+                cfg.RecordingEd137 = 0; // Settings.Default.RecordingEd137;
+                cfg.max_calls = max_calls;     // Maximo número de llamadas por defecto en el puesto
+                cfg.Radio_UA = 1;       //Es un agente radio
 
                 CORESIP_Error err;
                 if (CORESIP_Init(cfg, out err) != 0)
@@ -1817,18 +1804,21 @@ namespace CoreSipNet
         /// </summary>
         /// <param name="callId"></param>
         /// <param name="sqh"></param>
-        public static void SqhOnOffSet(int callId, bool sqh)
+        public static void SqhOnOffSet(int callId, bool sqh, 
+            CORESIP_PttType tipoptt = CORESIP_PttType.CORESIP_PTT_OFF, ushort pttId = 0)
         {
             CORESIP_Error err;
             CORESIP_PttInfo info = new CORESIP_PttInfo()
             {
-                Squelch = sqh ? 1 : 0
+                Squ = (sqh ? (uint) 1 : (uint) 0)
             };
 
+            info.PttType = tipoptt;
+            info.PttId = pttId;
 
-            if (CORESIP_CallSq(callId, info, out err) != 0)
+            if (CORESIP_CallPtt(callId, info, out err) != 0)
             {
-                throw new Exception("SipAgent.PttOff SqhOnOffSet: " + err.Info);
+                throw new Exception("SqhOnOffSet: " + err.Info);
             }
         }
 
@@ -1882,47 +1872,58 @@ namespace CoreSipNet
             _Cb.OnLog = new LogCb((p1, p2, p3) =>
             {
                 //if (Settings.Default.SipLogLevel <= 3)
-                OnLog?.Invoke(p1, p2, p3);
+                if (OnLog != null)
+                    OnLog(p1, p2, p3);
             });
             _Cb.OnKaTimeout = new KaTimeoutCb((p1) =>
             {
-                OnKaTimeout?.Invoke(p1);
+                if (OnKaTimeout != null)
+                    OnKaTimeout(p1);
             });
             _Cb.OnRdInfo = new RdInfoCb((p1, p2) =>
             {
-                OnRdInfo?.Invoke(p1, p2);
+                if (OnRdInfo != null)
+                    OnRdInfo(p1, p2);
             });
             _Cb.OnCallState = new CallStateCb((p1, p2, p3) =>
             {
-                OnCallState?.Invoke(p1, p2, p3);
+                if (OnCallState != null)
+                    OnCallState(p1, p2, p3);
             });
             _Cb.OnCallIncoming = new CallIncomingCb((p1, p2, p3, p4) =>
             {
-                OnCallIncoming?.Invoke(p1, p2, p3, p4);
+                if (OnCallIncoming != null)
+                    OnCallIncoming(p1, p2, p3, p4);
             });
             _Cb.OnTransferRequest = new TransferRequestCb((p1, p2, p3) =>
             {
-                OnTransferRequest?.Invoke(p1, p2, p3);
+                if (OnTransferRequest != null)
+                    OnTransferRequest(p1, p2, p3);
             });
             _Cb.OnTransferStatus = new TransferStatusCb((p1, p2) =>
             {
-                OnTransferStatus?.Invoke(p1, p2);
+                if (OnTransferStatus != null)
+                    OnTransferStatus(p1, p2);
             });
             _Cb.OnConfInfo = new ConfInfoCb((p1, p2) =>
             {
-                OnConfInfo?.Invoke(p1, p2);
+                if (OnConfInfo != null)
+                    OnConfInfo(p1, p2);
             });
             _Cb.OnOptionsReceive = new OptionsReceiveCb((p1) =>
             {
-                OnOptionsReceive?.Invoke(p1);
+                if (OnOptionsReceive != null)
+                    OnOptionsReceive(p1);
             });
             _Cb.OnWG67Notify = new WG67NotifyCb((p1, p2, p3) =>
             {
-                OnWG67Notify?.Invoke(p1, p2, p3);
+                if (OnWG67Notify != null)
+                    OnWG67Notify(p1, p2, p3);
             });
             _Cb.OnInfoReceived = new InfoReceivedCb((p1, p2, p3) =>
             {
-                OnInfoReceived?.Invoke(p1, p2, p3);
+                if (OnInfoReceived != null)
+                    OnInfoReceived(p1, p2, p3);
             });
             //_Cb.OnIncomingSubscribeConf = new IncomingSubscribeConfCb((p1, p2, p3) =>
             //{

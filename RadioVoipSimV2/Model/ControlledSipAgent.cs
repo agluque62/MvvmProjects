@@ -105,15 +105,64 @@ namespace RadioVoipSimV2.Model
                 LogException(x, "PttSet Exception");
             }
         }
-        public void SquelchSet(int callid, bool valor)
+        public void SquelchSet(int callid, bool valor,
+            CORESIP_PttType tipoptt = CORESIP_PttType.CORESIP_PTT_OFF, ushort pttId = 0)
         {
             try
             {
-                SipAgentNet.SqhOnOffSet(callid, valor);
+                SipAgentNet.SqhOnOffSet(callid, valor, tipoptt, pttId);
             }
             catch (Exception x)
             {
                 LogException(x, "SquelchSet Exception");
+            }
+        }
+
+        public int CreateWavPlayer(string file, bool loop)
+        {
+            int wavplayer = -1;
+            try
+            {
+                wavplayer = SipAgentNet.CreateWavPlayer(file, loop);
+            }
+            catch (Exception x)
+            {
+                LogException(x, "CreateWavPlayer Exception");
+                wavplayer = -1;
+            }
+            return wavplayer;
+        }
+        public void DestroyWavPlayer(int wavplayer)
+        {
+            try
+            {
+                SipAgentNet.DestroyWavPlayer(wavplayer);
+            }
+            catch (Exception x)
+            {
+                LogException(x, "DestroyWavPlayer Exception");
+            }
+        }
+        public void MixerLink(int srcId, int dstId)
+        {
+            try
+            {
+                SipAgentNet.MixerLink(srcId, dstId);
+            }
+            catch (Exception x)
+            {
+                LogException(x, "MixerLink Exception");
+            }
+        }
+        public void MixerUnlink(int srcId, int dstId)
+        {
+            try
+            {
+                SipAgentNet.MixerUnlink(srcId, dstId);
+            }
+            catch (Exception x)
+            {
+                LogException(x, "MixerUnlink Exception");
             }
         }
         public string SendOptionsMsg(string OptionsUri)
@@ -184,10 +233,6 @@ namespace RadioVoipSimV2.Model
                 case CORESIP_CallState.CORESIP_CALL_STATE_CONNECTING:
                 case CORESIP_CallState.CORESIP_CALL_STATE_EARLY:
                 case CORESIP_CallState.CORESIP_CALL_STATE_NULL:
-                    break;
-                case CORESIP_CallState.CORESIP_CALL_STATE_STATE_DESCONOCIDO:
-                    break;
-                case CORESIP_CallState.CORESIP_CALL_STATE_DISCONNECTED2:
                     break;
             }
         }

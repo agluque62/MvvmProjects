@@ -21,6 +21,7 @@ namespace RadioVoipSimV2.Model
         private bool _aircrafSquelch;
         private bool _scvSquelch;
         private SimulatedFrequecy _freq;
+        private int _squWavPlayer;
 
         public SipSession(string user, bool isTx = false)
         {
@@ -59,27 +60,30 @@ namespace RadioVoipSimV2.Model
         {
             get
             {
-                return CallId!=-1 &( AircrafSquelch || ScvSquelch);
+                return CallId != -1 & (AircrafSquelch || ScvSquelch);
             }
             set
             {
+                if (Freq != null) Freq.Squelch = value;
                 OnPropertyChanged("Squelch");
-                if (Freq!=null) Freq.Squelch = value;
             }
         }
         public bool Ptt
         {
             get => _ptt;
-            set {
+            set
+            {
                 _ptt = value;
                 OnPropertyChanged("Ptt");
                 if (Freq != null) Freq.Ptt = value;
             }
         }
+
         public bool Error
         {
             get => _error;
-            set {
+            set
+            {
                 _error = value;
                 OnPropertyChanged("Error");
                 if (Freq != null) Freq.Status = FrequencyStatus.Error;
@@ -91,10 +95,20 @@ namespace RadioVoipSimV2.Model
             get => _aircrafSquelch;
             set { _aircrafSquelch = value; OnPropertyChanged("AircrafSquelch"); Squelch = value; }
         }
+
         public bool ScvSquelch
         {
             get => _scvSquelch;
             set { _scvSquelch = value; OnPropertyChanged("ScvSquelch"); Squelch = value; }
+        }
+
+        public int LocalSessionAudio
+        {
+            get => _squWavPlayer;
+            set
+            {
+                _squWavPlayer = value;
+            }
         }
 
         public void Reset()

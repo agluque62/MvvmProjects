@@ -24,10 +24,52 @@ namespace RadioVoipSimV2.ViewModel
             Title = String.Format("Simulador de Equipos Radio Voip. Nucleo 2018. [{0}:{1}]", Config.VoipAgentIP, Config.VoipAgentPort);
             Btn01Text = "Config";
             Btn02Text = "Salir";
+
+            ForceSquelchCmd = new DelegateCommandBase((obj) =>
+            {
+                if (obj is SipSession)
+                {
+                    var ses = (obj as SipSession);
+                    if (ses.Habilitado == true && ses.IsTx == false)
+                    {
+                        if (ses.CallId != -1)
+                        {
+                            ses.AircrafSquelch = !ses.AircrafSquelch;
+
+                            if (LocalAudioPlayer != -1 && !ses.ScvSquelch)
+                            {
+                                if (ses.AircrafSquelch)
+                                    SipAgent.MixerLink(LocalAudioPlayer, ses.CallId);
+                                else if (!ses.AircrafSquelch)
+                                    SipAgent.MixerUnlink(LocalAudioPlayer, ses.CallId);
+                            }
+
+                            SipAgent.SquelchSet(ses.CallId, ses.Squelch);
+                        }
+                    }
+                }
+            });
+
+            EnableDisableCmd = new DelegateCommandBase((obj) => {
+                if (obj is SipSession)
+                {
+                    var ses = (obj as SipSession);
+                    if (ses.CallId != -1)
+                    {
+                        SipAgent.HangupCall(ses.CallId, SipAgentNet.SIP_OK);
+                        ses.Reset();
+                    }
+                    ses.Habilitado = !ses.Habilitado;
+                }
+            });
         }
 
         public void Dispose()
         {
+            if (LocalAudioPlayer != -1)
+            {
+                SipAgent.DestroyWavPlayer(LocalAudioPlayer);
+            }
             SipAgent.End();
             Unload();
         }
@@ -71,6 +113,7 @@ namespace RadioVoipSimV2.ViewModel
         private System.Threading.SynchronizationContext _uiContext = null;
         private DelegateCommandBase _forceSquelchCmd;
         private DelegateCommandBase _enableDisableCmd;
+        private int LocalAudioPlayer = -1;
 
         private void Load()
         {
@@ -104,34 +147,6 @@ namespace RadioVoipSimV2.ViewModel
                 SelectedFreq = Frequencies.Count > 0 ? Frequencies[0] : null;
             });
 
-            ForceSquelchCmd = new DelegateCommandBase((obj) =>
-            {
-                if (obj is SipSession)
-                {
-                    var ses = (obj as SipSession);
-                    if (ses.Habilitado==true && ses.IsTx == false)
-                    {
-                        if (ses.CallId != -1)
-                        {
-                            ses.AircrafSquelch = !ses.AircrafSquelch;
-                            SipAgent.SquelchSet(ses.CallId, ses.Squelch);
-                        }
-                    }
-                }
-            });
-
-            EnableDisableCmd = new DelegateCommandBase((obj)=>{
-                if (obj is SipSession)
-                {
-                    var ses = (obj as SipSession);
-                    if (ses.CallId != -1)
-                    {
-                        SipAgent.HangupCall(ses.CallId, SipAgentNet.SIP_OK);
-                        ses.Reset();
-                    }
-                    ses.Habilitado = !ses.Habilitado;
-                }
-            });
         }
 
         private void Unload()
@@ -173,6 +188,7 @@ namespace RadioVoipSimV2.ViewModel
 
             SipAgent.Init();
             SipAgent.Start();
+            LocalAudioPlayer = SipAgent.CreateWavPlayer(".\\Resources\\Hold.wav", true);
         }
 
         private void ProcessIncomingCall(int callid, string touser)
@@ -233,7 +249,7 @@ namespace RadioVoipSimV2.ViewModel
             }
         }
 
-        private void ProcessPtton(int callid, CORESIP_PttType pttType, int pttId)
+        private void ProcessPtton(int callid, CORESIP_PttType pttType, ushort pttId)
         {
             SimulatedFrequecy freq;
             SipSession ses;
@@ -241,7 +257,7 @@ namespace RadioVoipSimV2.ViewModel
             {
                 if (ses.IsTx && !ses.Error)
                 {
-                    SipAgent.PttSet(callid, pttType, (ushort)pttId);
+                    SipAgent.PttSet(callid, pttType, pttId);
                     /** Replicar los SQH */
                     Task.Run(() =>
                     {
@@ -251,7 +267,12 @@ namespace RadioVoipSimV2.ViewModel
                             if (s.CallId != -1)
                             {
                                 s.ScvSquelch = true;
-                                SipAgent.SquelchSet(s.CallId, s.Squelch);
+
+                                if (s.AircrafSquelch && LocalAudioPlayer != -1)
+                                    SipAgent.MixerUnlink(LocalAudioPlayer, s.CallId);
+
+                                SipAgent.MixerLink(ses.CallId, s.CallId);
+                                SipAgent.SquelchSet(s.CallId, s.Squelch, pttType, pttId);
                             }
                         });
 
@@ -279,6 +300,11 @@ namespace RadioVoipSimV2.ViewModel
                             if (s.CallId != -1)
                             {
                                 s.ScvSquelch = false;
+                                SipAgent.MixerUnlink(ses.CallId, s.CallId);
+
+                                if (s.AircrafSquelch && LocalAudioPlayer != -1)
+                                    SipAgent.MixerLink(LocalAudioPlayer, s.CallId);
+
                                 SipAgent.SquelchSet(s.CallId, s.Squelch);
                             }
                         });

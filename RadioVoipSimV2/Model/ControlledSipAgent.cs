@@ -12,6 +12,7 @@ namespace RadioVoipSimV2.Model
 
     public class ControlledSipAgent
     {
+        #region Publicas.
         public enum SipAgentEvents { IncomingCall, CallConnected, CallDisconnected, PttOn, PttOff, KaTimeout }
 
         public void Init()
@@ -185,6 +186,7 @@ namespace RadioVoipSimV2.Model
         public uint SipPort { get; set; }
 
         public event Action<SipAgentEvents, int, string, CORESIP_RdInfo> SipAgentEvent=null;
+        #endregion Publicas.
 
         #region Protegidas.
         protected void LogException(Exception x, string msg, params object[] par)

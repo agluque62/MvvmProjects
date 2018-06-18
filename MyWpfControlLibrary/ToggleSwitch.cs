@@ -7,7 +7,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 
-namespace MyWpfControlLibrary.ToggleSwitch
+namespace MyWpfControlLibrary
 {
     public class ToggleSwitch : ToggleButton
     {

@@ -7,6 +7,7 @@
              xmlns:vm="clr-namespace:RadioVoipSimV2.ViewModel"
              xmlns:m="clr-namespace:RadioVoipSimV2.Model"
              xmlns:uc="clr-namespace:MyWpfControlLibrary;assembly=MyWpfControlLibrary"
+             xmlns:uc1="clr-namespace:MyWpfControlLibrary.ToggleSwitch;assembly=MyWpfControlLibrary"
              xmlns:p="clr-namespace:RadioVoipSimV2.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="500">
@@ -152,6 +153,15 @@
                                         Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.ForceSquelchCmd}"
                                         CommandParameter="{Binding}"
                                         Visibility="{Binding IsTx, Converter={StaticResource HideConverter}}"/>
+                                <!--<uc1:ToggleSwitch Margin="0 0 0 6"
+                                        HeaderHorizontalAlignment="Stretch" Width="50" HorizontalAlignment="Center"
+                                        SwitchContentPlacement="Right"
+                                        CheckedText="Yes" UncheckedText="No"
+                                        IsChecked="{Binding AircrafSquelch, Mode=TwoWay}"
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.ForceSquelchCmd}"
+                                        CommandParameter="{Binding}"
+                                        Visibility="{Binding IsTx, Converter={StaticResource HideConverter}}"                                                  
+                                        />-->
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace MyWpfControlLibrary.ToggleSwitch.Converters
+namespace MyWpfControlLibrary.Converters
 {
     public class ToggleSwitchOffsetConverter : IValueConverter
     {

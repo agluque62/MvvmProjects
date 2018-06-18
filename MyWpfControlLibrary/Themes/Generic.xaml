@@ -2,11 +2,11 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:sys="clr-namespace:System;assembly=mscorlib"
-    xmlns:cv="clr-namespace:MyWpfControlLibrary.ToggleSwitch.Converters"
-    xmlns:cc="clr-namespace:MyWpfControlLibrary.ToggleSwitch">
+    xmlns:cv="clr-namespace:MyWpfControlLibrary.Converters"
+    xmlns:cc="clr-namespace:MyWpfControlLibrary.ToggleSwitch" >
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="pack://application:,,,/MyWpfControlLibrary;component/ToggleSwitch/Resources/ColorStyles.Xaml"/>
+        <ResourceDictionary Source="pack://application:,,,/MyWpfControlLibrary;component/Resources/ColorStyles.Xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <cv:ToggleSwitchOffsetConverter x:Key="PC"/>

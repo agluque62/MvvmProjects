@@ -48,15 +48,26 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
-    <Page Include="MyLed.xaml">
+    <Compile Include="ToggleSwitch\Converters\ToggleSwitchOffsetConverter.cs" />
+    <Compile Include="ToggleSwitch\Extensions\DependencyObjectExtension.cs" />
+    <Compile Include="ToggleSwitch\ToggleSwitch.cs" />
+    <Page Include="MyLed\MyLed.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
     <Compile Include="Converters\Converters.cs" />
-    <Compile Include="MyLed.xaml.cs">
+    <Compile Include="MyLed\MyLed.xaml.cs">
       <DependentUpon>MyLed.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ToggleSwitch\Resources\ColorStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="ToggleSwitch\Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs">

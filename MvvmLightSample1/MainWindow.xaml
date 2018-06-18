@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ignore="http://www.galasoft.ch/ignore"
+        xmlns:uc="clr-namespace:MyWpfControlLibrary;assembly=MyWpfControlLibrary"
         mc:Ignorable="d ignore"
         Height="300"
         Width="300"
@@ -19,14 +20,23 @@
     </Window.Resources>
 
     <Grid x:Name="LayoutRoot">
-
-        <TextBlock FontSize="36"
+        <StackPanel>
+            <TextBlock FontSize="36"
                    FontWeight="Bold"
                    Foreground="Purple"
                    Text="{Binding WelcomeTitle}"
                    VerticalAlignment="Center"
                    HorizontalAlignment="Center"
                    TextWrapping="Wrap" />
+            <Button Content="boton"/>
+            <ToggleButton Content="toggle button"/>
+            <uc:ToggleSwitch Margin="0 0 0 6"
+                         HeaderHorizontalAlignment="Stretch" Width="200" HorizontalAlignment="Right"
+                         SwitchContentPlacement="Right"
+                         Content="Show Gridlines"
+                         CheckedText="Yes" UncheckedText="No"
+                         IsChecked="{Binding ShowGridlines, Mode=TwoWay}"/>
+        </StackPanel>
 
     </Grid>
 </Window>

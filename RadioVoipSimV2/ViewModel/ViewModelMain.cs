@@ -33,6 +33,7 @@ namespace RadioVoipSimV2.ViewModel
             {
                 if (_activo is UCMainViewModel)
                 {
+                    (_activo as UCMainViewModel).Dispose();
                     System.Windows.Application.Current.Shutdown();
                 }
                 else if (_activo is UCConfigViewModel)

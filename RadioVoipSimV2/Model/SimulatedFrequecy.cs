@@ -40,14 +40,14 @@ namespace RadioVoipSimV2.Model
                 OnPropertyChanged("Squelch");
             }
         }
-        public /*ObservableCollection*/List<SimulatedRadioEquipment> Sessions { get => _sessions; set => _sessions = value; }
+        public /*ObservableCollection*/List<SimulatedRadioEquipment> Equipments { get => _sessions; set => _sessions = value; }
         public FrequencyStatus Status
         {
             get
             {
-                int ConnectedTxs = Sessions.Where(t => t.IsTx && t.CallId != -1).ToList().Count();
-                int ConnectedRxs = Sessions.Where(t => t.IsTx==false && t.CallId != -1).ToList().Count();
-                int InError = Sessions.Where(s => s.Error).ToList().Count;
+                int ConnectedTxs = Equipments.Where(t => t.IsTx && t.CallId != -1).ToList().Count();
+                int ConnectedRxs = Equipments.Where(t => t.IsTx==false && t.CallId != -1).ToList().Count();
+                int InError = Equipments.Where(s => s.Error).ToList().Count;
 
                 return (ConnectedTxs == 0 && ConnectedRxs == 0) ? FrequencyStatus.NotOperational :
                     (InError > 0) ? FrequencyStatus.Error :

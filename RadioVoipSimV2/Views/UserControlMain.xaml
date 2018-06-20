@@ -76,7 +76,7 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <ListView Grid.Row="1" Grid.Column="1" ItemsSource="{Binding SelectedFreq.Sessions}" >
+        <ListView Grid.Row="1" Grid.Column="1" ItemsSource="{Binding SelectedFreq.Equipments}" >
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="USER" Width="150">

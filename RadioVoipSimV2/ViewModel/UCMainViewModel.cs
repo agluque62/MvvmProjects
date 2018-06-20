@@ -20,6 +20,7 @@ namespace RadioVoipSimV2.ViewModel
 
             Load();
             SipAgentInitAndStart();
+            SnmpAgentInitAndStart();
 
             Title = String.Format("Simulador de Equipos Radio Voip. Nucleo 2018. [{0}:{1}]", Config.VoipAgentIP, Config.VoipAgentPort);
             Btn01Text = "Config";
@@ -49,7 +50,8 @@ namespace RadioVoipSimV2.ViewModel
                 }
             });
 
-            EnableDisableCmd = new DelegateCommandBase((obj) => {
+            EnableDisableCmd = new DelegateCommandBase((obj) =>
+            {
                 if (obj is SimulatedRadioEquipment)
                 {
                     var ses = (obj as SimulatedRadioEquipment);
@@ -65,11 +67,18 @@ namespace RadioVoipSimV2.ViewModel
 
         public void Dispose()
         {
+            /** Cerrar el Agente SNMP*/
+            SnmpAgent.Close();
+            Mib.Dispose();
+
+            /** Cerrar el Agente SIP */
             if (LocalAudioPlayer != -1)
             {
                 SipAgent.DestroyWavPlayer(LocalAudioPlayer);
             }
             SipAgent.End();
+
+            /** Descargar Datos */
             Unload();
         }
 
@@ -113,12 +122,27 @@ namespace RadioVoipSimV2.ViewModel
         private DelegateCommandBase _forceSquelchCmd;
         private DelegateCommandBase _enableDisableCmd;
         private int LocalAudioPlayer = -1;
+        private SnmpAgent.EquipmentsMib _mib;
+
+        public SnmpAgent.EquipmentsMib Mib { get => _mib; set => _mib = value; }
 
         private void Load()
         {
             AppConfig.GetAppConfig((cfg, error) =>
             {
                 Config = cfg;
+
+                /** Configuracion SNMP. Creacion de la MIB */
+                Mib = new SnmpAgent.EquipmentsMib(cfg.Snmp.BaseOid, /*cfg.EquipmentsCount*/11)
+                {
+                    QueryOid = cfg.Snmp.QueryOid,
+                    AnswerOid = cfg.Snmp.AnswerOid
+                };
+                /** */
+                Mib.NotifyExternalChange += (equipmentId) =>
+                {
+
+                };
 
                 Frequencies = new /*ObservableCollection*/List<SimulatedFrequecy>();
                 foreach (var f in cfg.SimulatedFrequencies)
@@ -128,29 +152,41 @@ namespace RadioVoipSimV2.ViewModel
                         Config = f,
                         Ptt = false,
                         Squelch = false,
-                        Sessions = new /*ObservableCollection*/List<SimulatedRadioEquipment>()
-                    };
-                    /** Añadir los Usuarios de tx */
-                    foreach(var tx in f.TxUsers)
-                    {
-                        frequency.Sessions.Add(new SimulatedRadioEquipment(tx.Id, true)
-                        {
-                            Config = tx,
-                            FreqObject = frequency,
-                            TuneIn = frequency.Config.Id
-                        });
-                    };
-                    /** Añadir los usuarios de rx */
-                    foreach(var rx in f.RxUsers)
-                    {
-                        frequency.Sessions.Add(new SimulatedRadioEquipment(rx.Id)
-                        {
-                            Config = rx,
-                            FreqObject = frequency,
-                            TuneIn = frequency.Config.Id
-                        });
+                        Equipments = new /*ObservableCollection*/List<SimulatedRadioEquipment>()
                     };
 
+                    var equipments = cfg.EquipmentsInFreq(f);
+                    /** Añadir los equipos */
+                    equipments.ForEach(e =>
+                    {
+                        var se = new SimulatedRadioEquipment(e.Id, e.TxOrRx == 1)
+                        {
+                            Config = e,
+                            FreqObject = frequency,
+                            TuneIn = frequency.Config.Id
+                        };
+
+                        /** Añadir el equipo a la frecuencia */
+                        frequency.Equipments.Add(se);
+
+                        /** Añadir el equipo a la MIB */
+                        Mib.AddEquipment((table) =>
+                        {
+                            table.AddEquipment(
+                                e.Id,
+                                e.TxOrRx,                       // transmisor
+                                se.Band=="VHF" ? 0 : 1,         // vhf
+                                0,                              // modo main/rsva
+                                frequency.Config.Id,
+                                e.ChSp,
+                                e.FrOff,
+                                e.Mod,
+                                e.Pwr,
+                                0);
+                        });
+
+                    });
+                    /** Añadir la Frecuencia */
                     Frequencies.Add(frequency);
                 }
                 SelectedFreq = Frequencies.Count > 0 ? Frequencies[0] : null;
@@ -171,27 +207,27 @@ namespace RadioVoipSimV2.ViewModel
                 /** Ejecutar los eventos en el contexto UI */
                 //_uiContext.Send(x =>
                 //{
-                    switch (ev)
-                    {
-                        case ControlledSipAgent.SipAgentEvents.IncomingCall:
-                            ProcessIncomingCall(call, id);
-                            break;
-                        case ControlledSipAgent.SipAgentEvents.CallConnected:
-                            ProcessCallConnected(call);
-                            break;
-                        case ControlledSipAgent.SipAgentEvents.CallDisconnected:
-                            ProcessCallConnected(call);
-                            break;
-                        case ControlledSipAgent.SipAgentEvents.KaTimeout:
-                            ProcessKATimeout(call);
-                            break;
-                        case ControlledSipAgent.SipAgentEvents.PttOn:
-                            ProcessPtton(call, rdinfo.PttType, rdinfo.PttId);
-                            break;
-                        case ControlledSipAgent.SipAgentEvents.PttOff:
-                            ProcessPttoff(call);
-                            break;
-                    }
+                switch (ev)
+                {
+                    case ControlledSipAgent.SipAgentEvents.IncomingCall:
+                        ProcessIncomingCall(call, id);
+                        break;
+                    case ControlledSipAgent.SipAgentEvents.CallConnected:
+                        ProcessCallConnected(call);
+                        break;
+                    case ControlledSipAgent.SipAgentEvents.CallDisconnected:
+                        ProcessCallConnected(call);
+                        break;
+                    case ControlledSipAgent.SipAgentEvents.KaTimeout:
+                        ProcessKATimeout(call);
+                        break;
+                    case ControlledSipAgent.SipAgentEvents.PttOn:
+                        ProcessPtton(call, rdinfo.PttType, rdinfo.PttId);
+                        break;
+                    case ControlledSipAgent.SipAgentEvents.PttOff:
+                        ProcessPttoff(call);
+                        break;
+                }
                 //}, null);
             };
 
@@ -271,7 +307,7 @@ namespace RadioVoipSimV2.ViewModel
                     Task.Run(() =>
                     {
                         Task.Delay(Config.PttOn2SqhOn).Wait();
-                        ses.FreqObject.Sessions.Where(s => s.IsTx == false).ToList().ForEach(s =>
+                        ses.FreqObject.Equipments.Where(s => s.IsTx == false).ToList().ForEach(s =>
                         {
                             if (s.CallId != -1)
                             {
@@ -304,7 +340,7 @@ namespace RadioVoipSimV2.ViewModel
                     Task.Run(() =>
                     {
                         Task.Delay(Config.PttOff2SqhOff).Wait();
-                        ses.FreqObject.Sessions.Where(s => s.IsTx == false).ToList().ForEach(s =>
+                        ses.FreqObject.Equipments.Where(s => s.IsTx == false).ToList().ForEach(s =>
                         {
                             if (s.CallId != -1)
                             {
@@ -327,7 +363,7 @@ namespace RadioVoipSimV2.ViewModel
         {
             foreach (var f in Frequencies)
             {
-                foreach (var u in f.Sessions)
+                foreach (var u in f.Equipments)
                 {
                     if (u.Name == userid && u.CallId == -1)
                     {
@@ -345,7 +381,7 @@ namespace RadioVoipSimV2.ViewModel
         {
             foreach (var f in Frequencies)
             {
-                foreach (var u in f.Sessions)
+                foreach (var u in f.Equipments)
                 {
                     if (u.CallId == callid)
                     {
@@ -362,6 +398,13 @@ namespace RadioVoipSimV2.ViewModel
         private SimulatedFrequecy FindFrequency(string userid)
         {
             return null;
+        }
+
+        private void SnmpAgentInitAndStart()
+        {
+            SnmpAgent.Init(Config.Snmp.AgentIp, null, Config.Snmp.AgentPort, 162);
+            Mib.Prepare();
+            SnmpAgent.Start();
         }
 
     }

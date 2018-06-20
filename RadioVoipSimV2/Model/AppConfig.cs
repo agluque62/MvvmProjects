@@ -31,6 +31,16 @@ namespace RadioVoipSimV2.Model
             public int ChSp { get; set; }
             public int Pwr { get; set; }
             public int Mod { get; set; }
+            public int TxOrRx { get; set; }
+        }
+
+        public class SnmpConfig
+        {
+            public string AgentIp { get; set; }
+            public int AgentPort { get; set; }
+            public string BaseOid { get; set; }
+            public string QueryOid { get; set; }
+            public string AnswerOid { get; set; }
         }
 
         private string _voipAgentIP;
@@ -38,12 +48,14 @@ namespace RadioVoipSimV2.Model
         private ObservableCollection<FrequencyConfig> _simulatedFrequencies;
         private int _pttOn2SqhOn;
         private int _pttOff2SqhOff;
+        private SnmpConfig _snmp;
 
         public string VoipAgentIP { get => _voipAgentIP; set => _voipAgentIP = value; }
         public int VoipAgentPort { get => _voipAgentPort; set => _voipAgentPort = value; }
         public ObservableCollection<FrequencyConfig> SimulatedFrequencies { get => _simulatedFrequencies; set => _simulatedFrequencies = value; }
         public int PttOn2SqhOn { get => _pttOn2SqhOn; set => _pttOn2SqhOn = value; }
         public int PttOff2SqhOff { get => _pttOff2SqhOff; set => _pttOff2SqhOff = value; }
+        public SnmpConfig Snmp { get => _snmp; set => _snmp = value; }
 
         public static void GetAppConfig(Action<AppConfig, Exception> callback)
         {
@@ -68,7 +80,15 @@ namespace RadioVoipSimV2.Model
             }
             else
             {
-                callback(JsonConvert.DeserializeObject<AppConfig>(File.ReadAllText(FileName)), null);
+                AppConfig appConfig = JsonConvert.DeserializeObject<AppConfig>(File.ReadAllText(FileName));
+                foreach(var f in appConfig.SimulatedFrequencies)
+                {
+                    foreach (var t in f.TxUsers)
+                        t.TxOrRx = 1;
+                    foreach (var r in f.RxUsers)
+                        r.TxOrRx = 0;
+                }
+                callback(appConfig, null);
             }
         }
         public static void SetAppConfig(AppConfig cfg)
@@ -80,6 +100,33 @@ namespace RadioVoipSimV2.Model
             else
             {
                 File.WriteAllText(FileName, JsonConvert.SerializeObject(cfg, Formatting.Indented));
+            }
+        }
+
+
+        public List<EquipmentConfig> EquipmentsInFreq(FrequencyConfig f)
+        {
+            List<EquipmentConfig> equipments = new List<EquipmentConfig>();
+
+            equipments.AddRange(new List<EquipmentConfig>((IEnumerable<EquipmentConfig>)f.TxUsers));
+            equipments.AddRange(new List<EquipmentConfig>((IEnumerable<EquipmentConfig>)f.RxUsers));
+
+            return equipments;
+        }
+
+        public int EquipmentsCount
+        {
+            get
+            {
+                int count = 0;
+                foreach(var f in _simulatedFrequencies)
+                {
+                    foreach (var t in f.TxUsers)
+                        count++;
+                    foreach (var r in f.RxUsers)
+                        count++;
+                }
+                return count;
             }
         }
     }

@@ -136,6 +136,9 @@
     <Content Include="NLog.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="ndf.ndfsim.mib">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="NLog.xsd">
       <SubType>Designer</SubType>
     </None>

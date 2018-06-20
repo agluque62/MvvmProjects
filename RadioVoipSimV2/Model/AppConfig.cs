@@ -19,6 +19,7 @@ namespace RadioVoipSimV2.Model
         public class FrequencyConfig
         {
             public string Id { get; set; }
+            public string Band { get; set; }
             public ObservableCollection<EquipmentConfig> TxUsers { get; set; }
             public ObservableCollection<EquipmentConfig> RxUsers { get; set; }
         }
@@ -26,6 +27,10 @@ namespace RadioVoipSimV2.Model
         public class EquipmentConfig
         {
             public string Id { get; set; }
+            public int FrOff { get; set; }
+            public int ChSp { get; set; }
+            public int Pwr { get; set; }
+            public int Mod { get; set; }
         }
 
         private string _voipAgentIP;

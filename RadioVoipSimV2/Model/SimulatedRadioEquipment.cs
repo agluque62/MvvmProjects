@@ -9,7 +9,7 @@ using CoreSipNet;
 
 namespace RadioVoipSimV2.Model 
 {
-    public class SipSession : ViewModelBase
+    public class SimulatedRadioEquipment : ViewModelBase
     {
         private string _name;
         private bool _isTx;
@@ -23,7 +23,7 @@ namespace RadioVoipSimV2.Model
         private SimulatedFrequecy _freq;
         private int _squWavPlayer;
 
-        public SipSession(string user, bool isTx = false)
+        public SimulatedRadioEquipment(string user, bool isTx = false)
         {
             Name = user;
             IsTx = isTx;
@@ -44,7 +44,7 @@ namespace RadioVoipSimV2.Model
                 OnPropertyChanged("Habilitado");
             }
         }
-        public SimulatedFrequecy Freq { get => _freq; set => _freq = value; }
+        public SimulatedFrequecy FreqObject { get => _freq; set => _freq = value; }
 
         public int CallId { get => _callId; set => _callId = value; }
         public CORESIP_CallState State
@@ -64,7 +64,7 @@ namespace RadioVoipSimV2.Model
             }
             set
             {
-                if (Freq != null) Freq.Squelch = value;
+                if (FreqObject != null) FreqObject.Squelch = value;
                 OnPropertyChanged("Squelch");
             }
         }
@@ -75,7 +75,7 @@ namespace RadioVoipSimV2.Model
             {
                 _ptt = value;
                 OnPropertyChanged("Ptt");
-                if (Freq != null) Freq.Ptt = value;
+                if (FreqObject != null) FreqObject.Ptt = value;
             }
         }
 
@@ -86,7 +86,7 @@ namespace RadioVoipSimV2.Model
             {
                 _error = value;
                 OnPropertyChanged("Error");
-                if (Freq != null) Freq.Status = FrequencyStatus.Error;
+                if (FreqObject != null) FreqObject.Status = FrequencyStatus.Error;
             }
         }
 
@@ -119,5 +119,18 @@ namespace RadioVoipSimV2.Model
             Error = false;
             ScvSquelch = false;
         }
+
+        public string Band
+        {
+            get
+            {
+                return FreqObject?.Config.Band;
+            }
+        }
+
+        public string TuneIn { get; set; }
+
+        public AppConfig.EquipmentConfig Config { get; set; }
+
     }
 }

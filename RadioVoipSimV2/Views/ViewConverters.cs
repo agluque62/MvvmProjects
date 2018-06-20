@@ -77,4 +77,37 @@ namespace RadioVoipSimV2.Views
             throw new NotImplementedException();
         }
     }
+
+    public class OnOffConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool)
+            {
+                return (object)((bool)value ? "On" : "Off");
+            }
+            throw new NotImplementedException();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class SiNoConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value is bool)
+            {
+                return (object)((bool)value ? "Si" : "No");
+            }
+            throw new NotImplementedException();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

@@ -27,15 +27,14 @@ namespace RadioVoipSimV2.ViewModel
 
             ForceSquelchCmd = new DelegateCommandBase((obj) =>
             {
-                if (obj is SipSession)
+                if (obj is SimulatedRadioEquipment)
                 {
-                    var ses = (obj as SipSession);
+                    var ses = (obj as SimulatedRadioEquipment);
                     if (ses.Habilitado == true && ses.IsTx == false)
                     {
+                        ses.AircrafSquelch = !ses.AircrafSquelch;
                         if (ses.CallId != -1)
                         {
-                            ses.AircrafSquelch = !ses.AircrafSquelch;
-
                             if (LocalAudioPlayer != -1 && !ses.ScvSquelch)
                             {
                                 if (ses.AircrafSquelch)
@@ -51,9 +50,9 @@ namespace RadioVoipSimV2.ViewModel
             });
 
             EnableDisableCmd = new DelegateCommandBase((obj) => {
-                if (obj is SipSession)
+                if (obj is SimulatedRadioEquipment)
                 {
-                    var ses = (obj as SipSession);
+                    var ses = (obj as SimulatedRadioEquipment);
                     if (ses.CallId != -1)
                     {
                         SipAgent.HangupCall(ses.CallId, SipAgentNet.SIP_OK);
@@ -129,17 +128,27 @@ namespace RadioVoipSimV2.ViewModel
                         Config = f,
                         Ptt = false,
                         Squelch = false,
-                        Sessions = new /*ObservableCollection*/List<SipSession>()
+                        Sessions = new /*ObservableCollection*/List<SimulatedRadioEquipment>()
                     };
                     /** Añadir los Usuarios de tx */
                     foreach(var tx in f.TxUsers)
                     {
-                        frequency.Sessions.Add(new SipSession(tx.Id, true) { Freq = frequency });
+                        frequency.Sessions.Add(new SimulatedRadioEquipment(tx.Id, true)
+                        {
+                            Config = tx,
+                            FreqObject = frequency,
+                            TuneIn = frequency.Config.Id
+                        });
                     };
                     /** Añadir los usuarios de rx */
                     foreach(var rx in f.RxUsers)
                     {
-                        frequency.Sessions.Add(new SipSession(rx.Id) { Freq = frequency });
+                        frequency.Sessions.Add(new SimulatedRadioEquipment(rx.Id)
+                        {
+                            Config = rx,
+                            FreqObject = frequency,
+                            TuneIn = frequency.Config.Id
+                        });
                     };
 
                     Frequencies.Add(frequency);
@@ -194,7 +203,7 @@ namespace RadioVoipSimV2.ViewModel
         private void ProcessIncomingCall(int callid, string touser)
         {
             SimulatedFrequecy freq;
-            SipSession ses;
+            SimulatedRadioEquipment ses;
             if (FindFrequencyAndUser(touser, out freq, out ses))
             {
                 if (ses.Habilitado)
@@ -215,7 +224,7 @@ namespace RadioVoipSimV2.ViewModel
         private void ProcessCallConnected(int callid)
         {
             SimulatedFrequecy freq;
-            SipSession ses;
+            SimulatedRadioEquipment ses;
             if (FindFrequencyAndUser(callid, out freq, out ses))
             {
                 ses.State = CORESIP_CallState.CORESIP_CALL_STATE_CONFIRMED;
@@ -230,7 +239,7 @@ namespace RadioVoipSimV2.ViewModel
         private void ProcessCallDisconnected(int callid)
         {
             SimulatedFrequecy freq;
-            SipSession ses;
+            SimulatedRadioEquipment ses;
             if (FindFrequencyAndUser(callid, out freq, out ses))
             {
                 ses.Reset();
@@ -241,7 +250,7 @@ namespace RadioVoipSimV2.ViewModel
         private void ProcessKATimeout(int callid)
         {
             SimulatedFrequecy freq;
-            SipSession ses;
+            SimulatedRadioEquipment ses;
             if (FindFrequencyAndUser(callid, out freq, out ses))
             {
                 SipAgent.HangupCall(callid, SipAgentNet.SIP_ERROR);
@@ -252,7 +261,7 @@ namespace RadioVoipSimV2.ViewModel
         private void ProcessPtton(int callid, CORESIP_PttType pttType, ushort pttId)
         {
             SimulatedFrequecy freq;
-            SipSession ses;
+            SimulatedRadioEquipment ses;
             if (FindFrequencyAndUser(callid, out freq, out ses))
             {
                 if (ses.IsTx && !ses.Error)
@@ -262,7 +271,7 @@ namespace RadioVoipSimV2.ViewModel
                     Task.Run(() =>
                     {
                         Task.Delay(Config.PttOn2SqhOn).Wait();
-                        ses.Freq.Sessions.Where(s => s.IsTx == false).ToList().ForEach(s =>
+                        ses.FreqObject.Sessions.Where(s => s.IsTx == false).ToList().ForEach(s =>
                         {
                             if (s.CallId != -1)
                             {
@@ -285,7 +294,7 @@ namespace RadioVoipSimV2.ViewModel
         private void ProcessPttoff(int callid)
         {
             SimulatedFrequecy freq;
-            SipSession ses;
+            SimulatedRadioEquipment ses;
             if (FindFrequencyAndUser(callid, out freq, out ses))
             {
                 if (ses.IsTx && !ses.Error)
@@ -295,7 +304,7 @@ namespace RadioVoipSimV2.ViewModel
                     Task.Run(() =>
                     {
                         Task.Delay(Config.PttOff2SqhOff).Wait();
-                        ses.Freq.Sessions.Where(s => s.IsTx == false).ToList().ForEach(s =>
+                        ses.FreqObject.Sessions.Where(s => s.IsTx == false).ToList().ForEach(s =>
                         {
                             if (s.CallId != -1)
                             {
@@ -314,7 +323,7 @@ namespace RadioVoipSimV2.ViewModel
             }
         }
 
-        private bool FindFrequencyAndUser(string userid, out SimulatedFrequecy freq, out SipSession ses)
+        private bool FindFrequencyAndUser(string userid, out SimulatedFrequecy freq, out SimulatedRadioEquipment ses)
         {
             foreach (var f in Frequencies)
             {
@@ -332,7 +341,7 @@ namespace RadioVoipSimV2.ViewModel
             return false;
         }
 
-        private bool FindFrequencyAndUser(int callid, out SimulatedFrequecy freq, out SipSession ses)
+        private bool FindFrequencyAndUser(int callid, out SimulatedFrequecy freq, out SimulatedRadioEquipment ses)
         {
             foreach (var f in Frequencies)
             {

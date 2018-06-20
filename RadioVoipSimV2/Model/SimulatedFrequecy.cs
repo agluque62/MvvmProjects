@@ -12,7 +12,7 @@ namespace RadioVoipSimV2.Model
     public enum FrequencyStatus { NotOperational, Operational, Degraded, Error }
     public class SimulatedFrequecy : ViewModelBase
     {
-        private /*ObservableCollection*/List<SipSession> _sessions;
+        private /*ObservableCollection*/List<SimulatedRadioEquipment> _sessions;
         private AppConfig.FrequencyConfig _config;
         public  AppConfig.FrequencyConfig Config { get => _config; set => _config = value; }
 
@@ -40,7 +40,7 @@ namespace RadioVoipSimV2.Model
                 OnPropertyChanged("Squelch");
             }
         }
-        public /*ObservableCollection*/List<SipSession> Sessions { get => _sessions; set => _sessions = value; }
+        public /*ObservableCollection*/List<SimulatedRadioEquipment> Sessions { get => _sessions; set => _sessions = value; }
         public FrequencyStatus Status
         {
             get

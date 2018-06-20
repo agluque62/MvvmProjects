@@ -7,14 +7,17 @@
              xmlns:vm="clr-namespace:RadioVoipSimV2.ViewModel"
              xmlns:m="clr-namespace:RadioVoipSimV2.Model"
              xmlns:uc="clr-namespace:MyWpfControlLibrary;assembly=MyWpfControlLibrary"
-             xmlns:uc1="clr-namespace:MyWpfControlLibrary.ToggleSwitch;assembly=MyWpfControlLibrary"
+             xmlns:ToggleSwitch="clr-namespace:ToggleSwitch;assembly=ToggleSwitch" 
              xmlns:p="clr-namespace:RadioVoipSimV2.Properties"
              mc:Ignorable="d" 
              d:DesignHeight="400" d:DesignWidth="500">
     <UserControl.Resources>
         <local:SessionConnectedViewConverter x:Key="SessionConnectedViewConverters"/>
         <local:VisibilityConverter x:Key="VisibilityConverter"/>
-        <local:HideConverter x:Key="HideConverter"></local:HideConverter>
+        <local:HideConverter x:Key="HideConverter"/>
+        <local:OnOffConverter x:Key="OnOffConverter"/>
+        <local:SiNoConverter x:Key="SiNoConverte"/>
+
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -133,9 +136,10 @@
                     <GridViewColumn Header="Enable" Width="50">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Content="{Binding Habilitado}"
-                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.EnableDisableCmd}"
-                                        CommandParameter="{Binding}"/>
+                                <ToggleButton Width="30"
+                                    Content="{Binding Habilitado, Converter={StaticResource SiNoConverte} }"                                    
+                                    Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.EnableDisableCmd}"                                    
+                                    CommandParameter="{Binding}"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -149,19 +153,11 @@
                     <GridViewColumn Header="SQH" Width="50">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Content="{Binding AircrafSquelch}"
+                                <ToggleButton Width="30" 
+                                        Content="{Binding AircrafSquelch, Converter={StaticResource OnOffConverter}}" 
                                         Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.ForceSquelchCmd}"
                                         CommandParameter="{Binding}"
                                         Visibility="{Binding IsTx, Converter={StaticResource HideConverter}}"/>
-                                <!--<uc1:ToggleSwitch Margin="0 0 0 6"
-                                        HeaderHorizontalAlignment="Stretch" Width="50" HorizontalAlignment="Center"
-                                        SwitchContentPlacement="Right"
-                                        CheckedText="Yes" UncheckedText="No"
-                                        IsChecked="{Binding AircrafSquelch, Mode=TwoWay}"
-                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.ForceSquelchCmd}"
-                                        CommandParameter="{Binding}"
-                                        Visibility="{Binding IsTx, Converter={StaticResource HideConverter}}"                                                  
-                                        />-->
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

@@ -1,99 +1,241 @@
 {
     "VoipAgentIP": "192.168.0.129",
-    "VoipAgentPort":7060,
-  "SimulatedFrequencies": [
-    {
-      "Id": "125.000",
-      "TxUsers": [
-        { "Id": "STX00" },
-        { "Id": "STX01" }
-      ],
-      "RxUsers": [
-        { "Id": "SRX00" },
-        { "Id": "SRX01" }
-      ]
-    },
-    {
-      "Id": "125.200",
-      "TxUsers": [
-        { "Id": "STX02" }
-      ],
-      "RxUsers": [
-        { "Id": "SRX02" }
-      ]
-    },
-    {
-      "Id": "125.300",
-      "TxUsers": [
-        { "Id": "STX03" }
-      ],
-      "RxUsers": [
-        { "Id": "SRX03" }
-      ]
-    },
-    {
-      "Id": "125.400",
-      "TxUsers": [
-        { "Id": "STX04" }
-      ],
-      "RxUsers": [
-        { "Id": "SRX04" }
-      ]
-    },
-    {
-      "Id": "125.500",
-      "TxUsers": [
-        { "Id": "STX05" }
-      ],
-      "RxUsers": [
-        { "Id": "SRX05" }
-      ]
-    },
-    {
-      "Id": "125.600",
-      "TxUsers": [
-        { "Id": "STX06" }
-      ],
-      "RxUsers": [
-        { "Id": "SRX06" }
-      ]
-    },
-    {
-      "Id": "125.700",
-      "TxUsers": [
-        { "Id": "STX07" }
-      ],
-      "RxUsers": [
-        { "Id": "SRX07" }
-      ]
-    },
-    {
-      "Id": "125.800",
-      "TxUsers": [
-        { "Id": "STX08" }
-      ],
-      "RxUsers": [
-        { "Id": "SRX08" }
-      ]
-    },
-    {
-      "Id": "125.900",
-      "TxUsers": [
-        { "Id": "STX09" }
-      ],
-      "RxUsers": [
-        { "Id": "SRX09" }
-      ]
-    },
-    {
-      "Id": "126.000",
-      "TxUsers": [
-        { "Id": "STR01" }
-      ],
-      "RxUsers": [
-        { "Id": "STR02" }
-      ]
-    }
+    "VoipAgentPort":7060,  
+    "SimulatedFrequencies": [
+      {
+        "Id": "125.000",
+        "Band": "VHF",
+        "TxUsers": [
+          {
+            "Id": "STX00",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          },
+          {
+            "Id": "STX01",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ],
+        "RxUsers": [
+          {
+            "Id": "SRX00",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          },
+          {
+            "Id": "SRX01",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ]
+      },
+      {
+        "Id": "125.200",
+        "Band": "VHF",
+        "TxUsers": [
+          {
+            "Id": "STX02",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ],
+        "RxUsers": [
+          {
+            "Id": "SRX02",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ]
+      },
+      {
+        "Id": "125.300",
+        "Band": "VHF",
+        "TxUsers": [
+          {
+            "Id": "STX03",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ],
+        "RxUsers": [
+          {
+            "Id": "SRX03",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ]
+      },
+      {
+        "Id": "125.400",
+        "Band": "VHF",
+        "TxUsers": [
+          {
+            "Id": "STX04",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ],
+        "RxUsers": [
+          {
+            "Id": "SRX04",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ]
+      },
+      {
+        "Id": "125.500",
+        "Band": "VHF",
+        "TxUsers": [
+          {
+            "Id": "STX05",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ],
+        "RxUsers": [
+          {
+            "Id": "SRX05",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ]
+      },
+      {
+        "Id": "125.600",
+        "Band": "VHF",
+        "TxUsers": [
+          {
+            "Id": "STX06",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ],
+        "RxUsers": [
+          {
+            "Id": "SRX06",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ]
+      },
+      {
+        "Id": "125.700",
+        "Band": "VHF",
+        "TxUsers": [
+          {
+            "Id": "STX07",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ],
+        "RxUsers": [
+          {
+            "Id": "SRX07",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ]
+      },
+      {
+        "Id": "125.800",
+        "Band": "VHF",
+        "TxUsers": [
+          {
+            "Id": "STX08",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ],
+        "RxUsers": [
+          {
+            "Id": "SRX08",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ]
+      },
+      {
+        "Id": "125.900",
+        "Band": "VHF",
+        "TxUsers": [
+          {
+            "Id": "STX09",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ],
+        "RxUsers": [
+          {
+            "Id": "SRX09",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ]
+      },
+      {
+        "Id": "126.000",
+        "Band": "VHF",
+        "TxUsers": [
+          {
+            "Id": "STR01",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ],
+        "RxUsers": [
+          {
+            "Id": "STR02",
+            "FrOff": 0,
+            "ChSp": 0,
+            "Pwr": 0,
+            "Mod": 0
+          }
+        ]
+      }
   ],
   "PttOn2SqhOn": 50,
   "PttOff2SqhOff": 50

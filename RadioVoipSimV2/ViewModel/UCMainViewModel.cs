@@ -114,16 +114,26 @@ namespace RadioVoipSimV2.ViewModel
             }
         }
 
+        public List<SimulatedRadioEquipment> StandbyEquipments
+        {
+            get => _standbyEquipments;
+            set
+            {
+                _standbyEquipments = value;
+                OnPropertyChanged("StandbyEquipments");
+            }
+        }
+
         private AppConfig _config;
         private ControlledSipAgent _sipAgent;
         private /*ObservableCollection*/List<SimulatedFrequecy> _frecuencies;
+        private List<SimulatedRadioEquipment> _standbyEquipments;
         private SimulatedFrequecy _selectedFreq;
         private System.Threading.SynchronizationContext _uiContext = null;
         private DelegateCommandBase _forceSquelchCmd;
         private DelegateCommandBase _enableDisableCmd;
         private int LocalAudioPlayer = -1;
         private SnmpAgent.EquipmentsMib _mib;
-
         public SnmpAgent.EquipmentsMib Mib { get => _mib; set => _mib = value; }
 
         private void Load()
@@ -159,7 +169,7 @@ namespace RadioVoipSimV2.ViewModel
                     /** Añadir los equipos */
                     equipments.ForEach(e =>
                     {
-                        var se = new SimulatedRadioEquipment(e.Id, e.TxOrRx == 1)
+                        var se = new SimulatedRadioEquipment(e.Id, e.Type=="Tx")
                         {
                             Config = e,
                             FreqObject = frequency,
@@ -174,7 +184,7 @@ namespace RadioVoipSimV2.ViewModel
                         {
                             table.AddEquipment(
                                 e.Id,
-                                e.TxOrRx,                       // transmisor
+                                e.Type=="Tx" ? 1 : 0,           // transmisor
                                 se.Band=="VHF" ? 0 : 1,         // vhf
                                 0,                              // modo main/rsva
                                 frequency.Config.Id,
@@ -184,14 +194,41 @@ namespace RadioVoipSimV2.ViewModel
                                 e.Pwr,
                                 0);
                         });
-
                     });
                     /** Añadir la Frecuencia */
                     Frequencies.Add(frequency);
                 }
+
+                /** Añadir los equipos en reserva */
+                StandbyEquipments = new List<SimulatedRadioEquipment>();
+                foreach(var e in Config.StandbyEquipments)
+                {
+                    var se = new SimulatedRadioEquipment(e.Id, e.Type=="Tx")
+                    {
+                        Config = e,
+                        FreqObject = null,
+                        TuneIn = "None"
+                    };
+                    StandbyEquipments.Add(se);
+
+                    /** Añadirlos tambien a la MIB */
+                    Mib.AddEquipment((table) =>
+                    {
+                        table.AddEquipment(
+                            e.Id,
+                            e.Type == "Tx" ? 1 : 0,          // transmisor
+                            e.Band == "VHF" ? 0 : 1,         // vhf
+                            1,                               // modo main/rsva
+                            "",
+                            0,
+                            0,
+                            0,
+                            0,
+                            0);
+                    });
+                }
                 SelectedFreq = Frequencies.Count > 0 ? Frequencies[0] : null;
             });
-
         }
 
         private void Unload()

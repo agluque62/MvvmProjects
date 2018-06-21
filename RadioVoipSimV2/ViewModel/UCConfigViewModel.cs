@@ -43,8 +43,8 @@ namespace RadioVoipSimV2.ViewModel
                 Config.SimulatedFrequencies.Add(new AppConfig.FrequencyConfig()
                 {
                     Id = "100.000",
-                    RxUsers = new ObservableCollection<AppConfig.EquipmentConfig>(),
-                    TxUsers = new ObservableCollection<AppConfig.EquipmentConfig>()
+                    RxUsers = new ObservableCollection<AppConfig.MainEquipmentConfig>(),
+                    TxUsers = new ObservableCollection<AppConfig.MainEquipmentConfig>()
                 });
                 OnPropertyChanged("Config");
             });
@@ -65,7 +65,7 @@ namespace RadioVoipSimV2.ViewModel
             {
                 if (SelectedFreq != null)
                 {
-                    SelectedFreq.TxUsers.Add(new AppConfig.EquipmentConfig() { Id = "TXNEW" });
+                    SelectedFreq.TxUsers.Add(new AppConfig.MainEquipmentConfig() { Id = "TXNEW" });
                     OnPropertyChanged("SelectedFreq");
                 }
             });
@@ -83,7 +83,7 @@ namespace RadioVoipSimV2.ViewModel
             {
                 if (SelectedFreq != null)
                 {
-                    SelectedFreq.RxUsers.Add(new AppConfig.EquipmentConfig() { Id = "RXNEW" });
+                    SelectedFreq.RxUsers.Add(new AppConfig.MainEquipmentConfig() { Id = "RXNEW" });
                     OnPropertyChanged("SelectedFreq");
                 }
             });

@@ -124,13 +124,14 @@ namespace RadioVoipSimV2.Model
         {
             get
             {
-                return FreqObject?.Config.Band;
+                return (Config is AppConfig.MainEquipmentConfig) ? FreqObject?.Config.Band : 
+                    (Config as AppConfig.StandbyEquipmentConfig).Band;
             }
         }
 
         public string TuneIn { get; set; }
 
-        public AppConfig.EquipmentConfig Config { get; set; }
+        public EquipmentConfig Config { get; set; }
 
     }
 }

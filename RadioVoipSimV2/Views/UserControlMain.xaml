@@ -10,7 +10,7 @@
              xmlns:ToggleSwitch="clr-namespace:ToggleSwitch;assembly=ToggleSwitch" 
              xmlns:p="clr-namespace:RadioVoipSimV2.Properties"
              mc:Ignorable="d" 
-             d:DesignHeight="400" d:DesignWidth="500">
+             d:DesignHeight="600" d:DesignWidth="500" >
     <UserControl.Resources>
         <local:SessionConnectedViewConverter x:Key="SessionConnectedViewConverters"/>
         <local:VisibilityConverter x:Key="VisibilityConverter"/>
@@ -22,6 +22,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="32"></RowDefinition>
+            <RowDefinition Height="150"></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -29,7 +30,7 @@
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Top">Frecuencias Simuladas</Label>
-        <ListView Grid.Row="1" ItemsSource="{Binding Frequencies}" SelectedItem="{Binding SelectedFreq, Mode=TwoWay}">
+        <ListView Grid.Row="1" Grid.RowSpan="2" ItemsSource="{Binding Frequencies}" SelectedItem="{Binding SelectedFreq, Mode=TwoWay}">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="FRQ" Width="150">
@@ -164,5 +165,100 @@
                 </GridView>
             </ListView.View>
         </ListView>
+        <Grid Grid.Row="2" Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="32"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Label Grid.Row="0" Height="32" Content="Equipos en Reserva"/>
+            <ListView Grid.Row="1" ItemsSource="{Binding StandbyEquipments}" >
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="USER" Width="150">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Label Tag="{Binding}" Content="{Binding Name}" FontWeight="Bold">
+                                        <Label.Style>
+                                            <Style>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding State, Converter={StaticResource SessionConnectedViewConverters}}" Value="True">
+                                                        <Setter Property="Label.Foreground" Value="Green"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Error}" Value="True">
+                                                        <Setter Property="Label.Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Habilitado}" Value="False">
+                                                        <Setter Property="Label.Foreground" Value="Gray"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Label.Style>
+
+                                    </Label>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="PTT/SQH" Width="60">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <uc:Led IsActive="{Binding Ptt}" ColorNull="Gray" ColorOff="DarkRed" ColorOn="Red" Width="16" Height="16" >
+                                            <uc:Led.Style>
+                                                <Style>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsTx}" Value="False">
+                                                            <Setter Property="CheckBox.Visibility" Value="Hidden"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </uc:Led.Style>
+                                        </uc:Led>
+                                        <uc:Led IsActive="{Binding Squelch}" ColorNull="Gray" ColorOff="Green" ColorOn="GreenYellow" Width="16" Height="16">
+                                            <uc:Led.Style>
+                                                <Style>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsTx}" Value="True">
+                                                            <Setter Property="CheckBox.Visibility" Value="Hidden"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </uc:Led.Style>
+                                        </uc:Led>
+                                    </Grid>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Enable" Width="50">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ToggleButton Width="30"
+                                    Content="{Binding Habilitado, Converter={StaticResource SiNoConverte} }"                                    
+                                    Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.EnableDisableCmd}"                                    
+                                    CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Error" Width="50">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox Tag="{Binding}" IsThreeState="False"  IsChecked="{Binding Error, Mode=TwoWay}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="SQH" Width="50">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ToggleButton Width="30" 
+                                        Content="{Binding AircrafSquelch, Converter={StaticResource OnOffConverter}}" 
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.ForceSquelchCmd}"
+                                        CommandParameter="{Binding}"
+                                        Visibility="{Binding IsTx, Converter={StaticResource HideConverter}}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
     </Grid>
 </UserControl>

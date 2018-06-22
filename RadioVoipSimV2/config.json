@@ -217,11 +217,11 @@
       ]
     },
     {
-      "Id": "126.000",
+      "Id": "127.000",
       "Band": "VHF",
       "TxUsers": [
         {
-          "Id": "STR01",
+          "Id": "MTX01",
           "FrOff": 0,
           "ChSp": 0,
           "Pwr": 0,
@@ -230,7 +230,7 @@
       ],
       "RxUsers": [
         {
-          "Id": "STR02",
+          "Id": "MRX01",
           "FrOff": 0,
           "ChSp": 0,
           "Pwr": 0,
@@ -241,22 +241,12 @@
   ],
   "StandbyEquipments": [
     {
-      "Id": "SBXTX1",
+      "Id": "RTX01",
       "Type": "Tx",
       "Band": "VHF"
     },
     {
-      "Id": "SBXTX2",
-      "Type": "Tx",
-      "Band": "VHF"
-    },
-    {
-      "Id": "SBXRX1",
-      "Type": "Rx",
-      "Band": "VHF"
-    },
-    {
-      "Id": "SBXRX2",
+      "Id": "RRX01",
       "Type": "Rx",
       "Band": "VHF"
     }

@@ -149,9 +149,40 @@ namespace RadioVoipSimV2.ViewModel
                     AnswerOid = cfg.Snmp.AnswerOid
                 };
                 /** */
+                Mib.NotifyReady += () =>
+                {
+                    /** Llevar los estados de la MIB a los estados de la aplicacion */
+                    AllEquipments.ForEach((eq) =>
+                    {
+                        Mib.equipments.EquipmentExtendedDataGet(eq.Name, (noerror, frqId, status, data) =>
+                        {
+                            if (noerror)
+                            {
+                                eq.RemoteControlStatus = (RemoteControlStatusValues)status;
+                                eq.TuneIn = frqId;
+                                eq.RemoteControlExtendedData = data;
+                            }
+                        });
+                    });                    
+                };
+
+                /** */
                 Mib.NotifyExternalChange += (equipmentId) =>
                 {
-
+                    /** Cambia el estado de asignacion */
+                    var eq = AllEquipments.Where(e => e.Name == equipmentId).FirstOrDefault();
+                    if (eq != null)
+                    {
+                        Mib.equipments.EquipmentExtendedDataGet(equipmentId, (noerror, frqId, status, data) =>
+                        {
+                            if (noerror)
+                            {
+                                eq.RemoteControlStatus = (RemoteControlStatusValues)status;
+                                eq.TuneIn = frqId;
+                                eq.RemoteControlExtendedData = data;
+                            }
+                        });
+                    }
                 };
 
                 Frequencies = new /*ObservableCollection*/List<SimulatedFrequecy>();
@@ -194,6 +225,8 @@ namespace RadioVoipSimV2.ViewModel
                                 e.Pwr,
                                 0);
                         });
+
+                        se.NotifyRemoteControlChange += OnRemoteControlChange;
                     });
                     /** Añadir la Frecuencia */
                     Frequencies.Add(frequency);
@@ -226,6 +259,7 @@ namespace RadioVoipSimV2.ViewModel
                             0,
                             0);
                     });
+                    se.NotifyRemoteControlChange += OnRemoteControlChange;
                 }
                 SelectedFreq = Frequencies.Count > 0 ? Frequencies[0] : null;
             });
@@ -275,14 +309,13 @@ namespace RadioVoipSimV2.ViewModel
 
         private void ProcessIncomingCall(int callid, string touser)
         {
-            SimulatedFrequecy freq;
-            SimulatedRadioEquipment ses;
-            if (FindFrequencyAndUser(touser, out freq, out ses))
+            SimulatedRadioEquipment equipment = FindEquipment(touser);
+            if (equipment != null)
             {
-                if (ses.Habilitado)
+                if (equipment.Habilitado)
                 {
-                    ses.CallId = callid;
-                    ses.State = CORESIP_CallState.CORESIP_CALL_STATE_INCOMING;
+                    equipment.CallId = callid;
+                    equipment.State = CORESIP_CallState.CORESIP_CALL_STATE_INCOMING;
                     SipAgent.AnswerCall(callid, SipAgentNet.SIP_OK);
                 }
                 else
@@ -296,55 +329,53 @@ namespace RadioVoipSimV2.ViewModel
 
         private void ProcessCallConnected(int callid)
         {
-            SimulatedFrequecy freq;
-            SimulatedRadioEquipment ses;
-            if (FindFrequencyAndUser(callid, out freq, out ses))
+            SimulatedRadioEquipment equipment = FindEquipment(callid);
+            if (equipment != null)
             {
-                ses.State = CORESIP_CallState.CORESIP_CALL_STATE_CONFIRMED;
+                equipment.State = CORESIP_CallState.CORESIP_CALL_STATE_CONFIRMED;
                 /** Recuperar el sqh forzado */
-                ses.Squelch = true;
-                SipAgent.SquelchSet(ses.CallId, ses.Squelch);
+                equipment.Squelch = true;
+                SipAgent.SquelchSet(equipment.CallId, equipment.Squelch);
 
-                freq.Status = FrequencyStatus.Operational;
+                if (equipment.FreqObject != null)
+                    equipment.FreqObject.Status = FrequencyStatus.Operational;
             }
         }
 
         private void ProcessCallDisconnected(int callid)
         {
-            SimulatedFrequecy freq;
-            SimulatedRadioEquipment ses;
-            if (FindFrequencyAndUser(callid, out freq, out ses))
+            SimulatedRadioEquipment equipment = FindEquipment(callid);
+            if (equipment != null)
             {
-                ses.Reset();
-                freq.Status = FrequencyStatus.NotOperational;
+                equipment.Reset();
+                if (equipment.FreqObject != null)
+                    equipment.FreqObject.Status = FrequencyStatus.NotOperational;
             }
         }
 
         private void ProcessKATimeout(int callid)
         {
-            SimulatedFrequecy freq;
-            SimulatedRadioEquipment ses;
-            if (FindFrequencyAndUser(callid, out freq, out ses))
+            SimulatedRadioEquipment equipment = FindEquipment(callid);
+            if (equipment != null)
             {
                 SipAgent.HangupCall(callid, SipAgentNet.SIP_ERROR);
-                ses.Reset();
+                equipment.Reset();
             }
         }
 
         private void ProcessPtton(int callid, CORESIP_PttType pttType, ushort pttId)
         {
-            SimulatedFrequecy freq;
-            SimulatedRadioEquipment ses;
-            if (FindFrequencyAndUser(callid, out freq, out ses))
+            SimulatedRadioEquipment equipment = FindEquipment(callid);
+            if (equipment != null)
             {
-                if (ses.IsTx && !ses.Error)
+                if (equipment.IsTx && !equipment.Error)
                 {
                     SipAgent.PttSet(callid, pttType, pttId);
                     /** Replicar los SQH */
                     Task.Run(() =>
                     {
                         Task.Delay(Config.PttOn2SqhOn).Wait();
-                        ses.FreqObject.Equipments.Where(s => s.IsTx == false).ToList().ForEach(s =>
+                        equipment.FreqObject.Equipments.Where(s => s.IsTx == false).ToList().ForEach(s =>
                         {
                             if (s.CallId != -1)
                             {
@@ -353,36 +384,35 @@ namespace RadioVoipSimV2.ViewModel
                                 if (s.AircrafSquelch && LocalAudioPlayer != -1)
                                     SipAgent.MixerUnlink(LocalAudioPlayer, s.CallId);
 
-                                SipAgent.MixerLink(ses.CallId, s.CallId);
+                                SipAgent.MixerLink(equipment.CallId, s.CallId);
                                 SipAgent.SquelchSet(s.CallId, s.Squelch, pttType, pttId);
                             }
                         });
 
                     });
-                    ses.Ptt = true;
+                    equipment.Ptt = true;
                 }
             }
         }
 
         private void ProcessPttoff(int callid)
         {
-            SimulatedFrequecy freq;
-            SimulatedRadioEquipment ses;
-            if (FindFrequencyAndUser(callid, out freq, out ses))
+            SimulatedRadioEquipment equipment = FindEquipment(callid);
+            if (equipment != null)
             {
-                if (ses.IsTx && !ses.Error)
+                if (equipment.IsTx && !equipment.Error)
                 {
                     SipAgent.PttSet(callid, CORESIP_PttType.CORESIP_PTT_OFF);
                     /** Replicar los SQH */
                     Task.Run(() =>
                     {
                         Task.Delay(Config.PttOff2SqhOff).Wait();
-                        ses.FreqObject.Equipments.Where(s => s.IsTx == false).ToList().ForEach(s =>
+                        equipment.FreqObject.Equipments.Where(s => s.IsTx == false).ToList().ForEach(s =>
                         {
                             if (s.CallId != -1)
                             {
                                 s.ScvSquelch = false;
-                                SipAgent.MixerUnlink(ses.CallId, s.CallId);
+                                SipAgent.MixerUnlink(equipment.CallId, s.CallId);
 
                                 if (s.AircrafSquelch && LocalAudioPlayer != -1)
                                     SipAgent.MixerLink(LocalAudioPlayer, s.CallId);
@@ -391,50 +421,45 @@ namespace RadioVoipSimV2.ViewModel
                             }
                         });
                     });
-                    ses.Ptt = false;
+                    equipment.Ptt = false;
                 }
             }
         }
 
-        private bool FindFrequencyAndUser(string userid, out SimulatedFrequecy freq, out SimulatedRadioEquipment ses)
+        private SimulatedRadioEquipment FindEquipment(string userid)
         {
-            foreach (var f in Frequencies)
+            /** Busco en los equipos Main */
+            var main = Frequencies.SelectMany(f => f.Equipments).Where(e => e.Name == userid && e.CallId == -1).FirstOrDefault();
+            if (main != null)
+                return main;
+
+            /** Busco en los equipos reserva */
+            var stby = StandbyEquipments.Where(e => e.Name == userid && e.CallId == -1).FirstOrDefault();
+            
+            /** Busco la frecuencia asociada y la añado a la referencia */
+            if (stby != null)
             {
-                foreach (var u in f.Equipments)
-                {
-                    if (u.Name == userid && u.CallId == -1)
-                    {
-                        freq = f;
-                        ses = u;
-                        return true;
-                    }
-                }
+                stby.FreqObject = Frequencies.Where(f => f.Config.Id == stby.TuneIn).FirstOrDefault();                
             }
-            freq = null; ses = null;
-            return false;
+            return stby;
         }
 
-        private bool FindFrequencyAndUser(int callid, out SimulatedFrequecy freq, out SimulatedRadioEquipment ses)
+        private SimulatedRadioEquipment FindEquipment(int callid)
         {
-            foreach (var f in Frequencies)
+            /** Busco en los equipos Main */
+            var main = Frequencies.SelectMany(f => f.Equipments).Where(e => e.CallId == callid).FirstOrDefault();
+            if (main != null)
+                return main;
+
+            /** Busco en los equipos reserva */
+            var stby = StandbyEquipments.Where(e => e.CallId == callid).FirstOrDefault();
+
+            /** Busco la frecuencia asociada y la añado a la referencia */
+            if (stby != null)
             {
-                foreach (var u in f.Equipments)
-                {
-                    if (u.CallId == callid)
-                    {
-                        freq = f;
-                        ses = u;
-                        return true;
-                    }
-                }
+                stby.FreqObject = Frequencies.Where(f => f.Config.Id == stby.TuneIn).FirstOrDefault();
             }
-            freq = null; ses = null;
-            return false;
-        }
-
-        private SimulatedFrequecy FindFrequency(string userid)
-        {
-            return null;
+            return stby;
         }
 
         private void SnmpAgentInitAndStart()
@@ -442,6 +467,21 @@ namespace RadioVoipSimV2.ViewModel
             SnmpAgent.Init(Config.Snmp.AgentIp, null, Config.Snmp.AgentPort, 162);
             Mib.Prepare();
             SnmpAgent.Start();
+        }
+
+        private void OnRemoteControlChange(String id, RemoteControlStatusValues change)
+        {
+            Mib.equipments.EquipmentStatusSet(id, (int)change);
+        }
+
+        private List<SimulatedRadioEquipment> AllEquipments
+        {
+            get
+            {
+                var eqs = Frequencies.SelectMany(f => f.Equipments).ToList();
+                eqs.AddRange(StandbyEquipments);
+                return eqs;
+            }
         }
 
     }

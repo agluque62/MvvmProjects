@@ -262,6 +262,7 @@ namespace RadioVoipSimV2.Model
 
             public void Handle(ISnmpContext context, ObjectStore store)
             {
+                setHandler.Handle(context, store);
                 try
                 {
                     PduSetReceived(context);
@@ -269,7 +270,7 @@ namespace RadioVoipSimV2.Model
                 catch (Exception) { }
                 finally
                 {
-                    setHandler.Handle(context, store);
+                    //setHandler.Handle(context, store);
                 }
             }
             SetMessageHandler setHandler = new SetMessageHandler();
@@ -467,13 +468,44 @@ namespace RadioVoipSimV2.Model
                 return false;
             }
 
+            public int EquipmentStatusGet(String Id)
+            {
+                List<MibObject> items = EquipmentObjects(Id);
+                if (items != null && items.Count == ColCount)
+                {
+                    return (items[10] as SnmpIntObject).Value;
+                }
+                return 0;
+            }
+
+            public void EquipmentExtendedDataGet(string id, Action<bool, string, int, string> cb)
+            {
+                List<MibObject> items = EquipmentObjects(id);
+                if (items != null && items.Count == ColCount)
+                {
+                    cb(true,                                                // Ok
+                        (items[5] as SnmpStringObject).Value,               // Frecuencia
+                        (items[10] as SnmpIntObject).Value,                 // Estado
+                        string.Format("P:{0}, O:{1}, M:{2}, C:{3}",         // Data...
+                                      (items[9] as SnmpIntObject).Value,
+                                      (items[8] as SnmpIntObject).Value,
+                                      (items[7] as SnmpIntObject).Value,
+                                      (items[6] as SnmpIntObject).Value)
+                        );
+                }
+                else
+                {
+                    cb(false, "", 0, "");
+                }
+            }
+
             public void GlobalStatusSave()
             {
                 var status = (from id in equipment2Index
                               select new JStatusItem()
                               {
                                   Id = id,
-                                  status = 0
+                                  status = EquipmentStatusGet(id)
                               }).ToList();
                 File.WriteAllText(Filename, JsonConvert.SerializeObject(status, Formatting.Indented));
             }
@@ -502,6 +534,7 @@ namespace RadioVoipSimV2.Model
             public List<MibObject> Mib { get; set; }
             public EquipmentTable equipments { get; set; }
             public event Action<String> NotifyExternalChange = null;
+            public event Action NotifyReady = null;
 
             public EquipmentsMib(string baseOid, int equipmentsCount)
             {
@@ -533,6 +566,8 @@ namespace RadioVoipSimV2.Model
                 equipments.GlobalStatusLoad();
 
                 SnmpAgent.PduSetReceived += PduSetReceived_handler;
+
+                NotifyReady?.Invoke();
             }
 
             public void GetEquipmentData(string equipmentId, Action<string, int> callback)

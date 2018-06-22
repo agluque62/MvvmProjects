@@ -80,10 +80,27 @@
         <ListView Grid.Row="1" Grid.Column="1" ItemsSource="{Binding SelectedFreq.Equipments}" >
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="USER" Width="150">
+                    <GridViewColumn Header="Enable" Width="50">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Label Tag="{Binding}" Content="{Binding Name}" FontWeight="Bold">
+                                <ToggleButton Width="30"
+                                    Content="{Binding Habilitado, Converter={StaticResource SiNoConverte} }"                                    
+                                    Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.EnableDisableCmd}"                                    
+                                    CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Error" Width="50">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <CheckBox Tag="{Binding}" IsThreeState="False"  IsChecked="{Binding Error, Mode=TwoWay}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="USER" Width="120">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Label Tag="{Binding}" Content="{Binding NameAndTuneIn}" FontWeight="Bold">
                                     <Label.Style>
                                         <Style>
                                             <Style.Triggers>
@@ -99,7 +116,6 @@
                                             </Style.Triggers>
                                         </Style>
                                     </Label.Style>
-
                                 </Label>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>                    
@@ -134,23 +150,6 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Enable" Width="50">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <ToggleButton Width="30"
-                                    Content="{Binding Habilitado, Converter={StaticResource SiNoConverte} }"                                    
-                                    Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.EnableDisableCmd}"                                    
-                                    CommandParameter="{Binding}"/>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="Error" Width="50">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <CheckBox Tag="{Binding}" IsThreeState="False"  IsChecked="{Binding Error, Mode=TwoWay}"/>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
                     <GridViewColumn Header="SQH" Width="50">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
@@ -159,6 +158,36 @@
                                         Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.ForceSquelchCmd}"
                                         CommandParameter="{Binding}"
                                         Visibility="{Binding IsTx, Converter={StaticResource HideConverter}}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Remote Control" Width="100">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <ComboBox SelectedValue="{Binding RemoteControlStatus, Mode=TwoWay}" ItemsSource="{Binding RemoteControlStatusStrings}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Data" Width="130">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Label Tag="{Binding}" Content="{Binding RemoteControlExtendedData, Mode=TwoWay}" FontWeight="Bold">
+                                    <Label.Style>
+                                        <Style>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding State, Converter={StaticResource SessionConnectedViewConverters}}" Value="True">
+                                                    <Setter Property="Label.Foreground" Value="Green"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Error}" Value="True">
+                                                    <Setter Property="Label.Foreground" Value="Red"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Habilitado}" Value="False">
+                                                    <Setter Property="Label.Foreground" Value="Gray"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Label.Style>
+                                </Label>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -174,10 +203,27 @@
             <ListView Grid.Row="1" ItemsSource="{Binding StandbyEquipments}" >
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="USER" Width="150">
+                        <GridViewColumn Header="Enable" Width="50">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Label Tag="{Binding}" Content="{Binding Name}" FontWeight="Bold">
+                                    <ToggleButton Width="30"
+                                    Content="{Binding Habilitado, Converter={StaticResource SiNoConverte} }"                                    
+                                    Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.EnableDisableCmd}"                                    
+                                    CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Error" Width="50">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox Tag="{Binding}" IsThreeState="False"  IsChecked="{Binding Error, Mode=TwoWay}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="USER" Width="120">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Label Tag="{Binding}" FontWeight="Bold" Content="{Binding NameAndTuneIn }">
                                         <Label.Style>
                                             <Style>
                                                 <Style.Triggers>
@@ -228,23 +274,6 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="Enable" Width="50">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <ToggleButton Width="30"
-                                    Content="{Binding Habilitado, Converter={StaticResource SiNoConverte} }"                                    
-                                    Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.EnableDisableCmd}"                                    
-                                    CommandParameter="{Binding}"/>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Header="Error" Width="50">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <CheckBox Tag="{Binding}" IsThreeState="False"  IsChecked="{Binding Error, Mode=TwoWay}"/>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
                         <GridViewColumn Header="SQH" Width="50">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
@@ -253,6 +282,36 @@
                                         Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.ForceSquelchCmd}"
                                         CommandParameter="{Binding}"
                                         Visibility="{Binding IsTx, Converter={StaticResource HideConverter}}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Remote Control" Width="100">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ComboBox SelectedValue="{Binding RemoteControlStatus, Mode=TwoWay}" ItemsSource="{Binding RemoteControlStatusStrings}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Data" Width="130">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Label Tag="{Binding}" Content="{Binding RemoteControlExtendedData, Mode=TwoWay}" FontWeight="Bold">
+                                        <Label.Style>
+                                            <Style>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding State, Converter={StaticResource SessionConnectedViewConverters}}" Value="True">
+                                                        <Setter Property="Label.Foreground" Value="Green"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Error}" Value="True">
+                                                        <Setter Property="Label.Foreground" Value="Red"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Habilitado}" Value="False">
+                                                        <Setter Property="Label.Foreground" Value="Gray"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Label.Style>
+                                    </Label>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>

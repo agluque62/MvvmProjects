@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using NLog;
 using CoreSipNet;
 
-namespace RadioVoipSimV2.Model
+namespace RadioVoipSimV2.Services
 {
 
     public class ControlledSipAgent
@@ -74,6 +74,7 @@ namespace RadioVoipSimV2.Model
         {
             try
             {
+                LoggingService.From().Debug("AnswerCall {0}, {1}", callid, code);
                 SipAgentNet.AnswerCall(callid, code);
             }
             catch (Exception x)
@@ -85,6 +86,7 @@ namespace RadioVoipSimV2.Model
         {
             try
             {
+                LoggingService.From().Debug("HangupCall {0}, {1}", callid, code);
                 SipAgentNet.HangupCall(callid, code);
             }
             catch (Exception x)
@@ -218,10 +220,12 @@ namespace RadioVoipSimV2.Model
         #region Callbacks
         private void OnCallIncoming(int call, int call2replace, CORESIP_CallInfo info, CORESIP_CallInInfo inInfo)
         {
+            LoggingService.From().Debug("OnCallIncoming {0}, {1}", call, inInfo.DstId);
             SipAgentEvent?.Invoke(SipAgentEvents.IncomingCall, call, inInfo.DstId, null);
         }
         private void OnCallState(int call, CORESIP_CallInfo info, CORESIP_CallStateInfo stateInfo)
         {
+            LoggingService.From().Debug("OnCallState {0}, {1}, {2}", call, stateInfo.State, stateInfo.LastCode);
             switch (stateInfo.State)
             {
                 case CORESIP_CallState.CORESIP_CALL_STATE_DISCONNECTED:
@@ -240,6 +244,7 @@ namespace RadioVoipSimV2.Model
         }
         private void OnRdInfo(int call, CORESIP_RdInfo info)
         {
+            LoggingService.From().Debug("OnRdInfo {0}, {1}, {2}, {3}", call, info.PttType, info.PttId, info.Squelch);
             switch (info.PttType)
             {
                 case CORESIP_PttType.CORESIP_PTT_NORMAL:
@@ -256,6 +261,7 @@ namespace RadioVoipSimV2.Model
         }
         private void OnKaTimeout(int call)
         {
+            LoggingService.From().Debug("OnKaTimeout {0}", call);
             SipAgentEvent?.Invoke(SipAgentEvents.KaTimeout, call, "", null);
         }
         private void OnOptionsReceive(string fromUri/*, string callid, int statusCodem, string supported, string allow*/)
@@ -265,5 +271,7 @@ namespace RadioVoipSimV2.Model
         {
         }
         #endregion Callbacks
+
+        protected Logger log = LogManager.GetLogger("SipAgent");
     }
 }

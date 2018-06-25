@@ -72,10 +72,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Model\AppConfig.cs" />
-    <Compile Include="Model\ControlledSipAgent.cs" />
+    <Compile Include="Services\ControlledSipAgent.cs" />
     <Compile Include="Model\SimulatedFrequecy.cs" />
     <Compile Include="Model\SimulatedRadioEquipment.cs" />
-    <Compile Include="Model\SnmpAgent.cs" />
+    <Compile Include="Services\LoggingService.cs" />
+    <Compile Include="Services\SnmpAgent.cs" />
     <Compile Include="ViewModel\UCConfigViewModel.cs" />
     <Compile Include="ViewModel\UCMainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelMain.cs" />

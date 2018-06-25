@@ -44,7 +44,7 @@
                                                     <Setter Property="Label.Foreground" Value="Gray"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding Status}" Value="{x:Static m:FrequencyStatus.Operational}">
-                                                    <Setter Property="Label.Foreground" Value="Green"/>
+                                                    <Setter Property="Label.Foreground" Value="YellowGreen"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding Status}" Value="{x:Static m:FrequencyStatus.Degraded}">
                                                     <Setter Property="Label.Foreground" Value="Orange"/>
@@ -105,7 +105,7 @@
                                         <Style>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding State, Converter={StaticResource SessionConnectedViewConverters}}" Value="True">
-                                                    <Setter Property="Label.Foreground" Value="Green"/>
+                                                    <Setter Property="Label.Foreground" Value="YellowGreen"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding Error}" Value="True">
                                                     <Setter Property="Label.Foreground" Value="Red"/>
@@ -228,7 +228,7 @@
                                             <Style>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding State, Converter={StaticResource SessionConnectedViewConverters}}" Value="True">
-                                                        <Setter Property="Label.Foreground" Value="Green"/>
+                                                        <Setter Property="Label.Foreground" Value="YellowGreen"/>
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Error}" Value="True">
                                                         <Setter Property="Label.Foreground" Value="Red"/>

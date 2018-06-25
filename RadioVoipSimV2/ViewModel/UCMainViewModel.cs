@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using RadioVoipSimV2.MvvmFramework;
 using RadioVoipSimV2.Model;
+using RadioVoipSimV2.Services;
 using CoreSipNet;
 
 namespace RadioVoipSimV2.ViewModel
@@ -287,7 +288,7 @@ namespace RadioVoipSimV2.ViewModel
                         ProcessCallConnected(call);
                         break;
                     case ControlledSipAgent.SipAgentEvents.CallDisconnected:
-                        ProcessCallConnected(call);
+                        ProcessCallDisconnected(call);
                         break;
                     case ControlledSipAgent.SipAgentEvents.KaTimeout:
                         ProcessKATimeout(call);
@@ -344,12 +345,14 @@ namespace RadioVoipSimV2.ViewModel
 
         private void ProcessCallDisconnected(int callid)
         {
+            LoggingService.From().Debug("ProcessCallDisconnected {0}", callid);
             SimulatedRadioEquipment equipment = FindEquipment(callid);
             if (equipment != null)
             {
                 equipment.Reset();
                 if (equipment.FreqObject != null)
                     equipment.FreqObject.Status = FrequencyStatus.NotOperational;
+            LoggingService.From().Debug("CallDisconnected {0} Procesed", callid);
             }
         }
 
@@ -375,7 +378,14 @@ namespace RadioVoipSimV2.ViewModel
                     Task.Run(() =>
                     {
                         Task.Delay(Config.PttOn2SqhOn).Wait();
-                        equipment.FreqObject.Equipments.Where(s => s.IsTx == false).ToList().ForEach(s =>
+                        /** Replicacion en los equipos main */
+                        List<SimulatedRadioEquipment> equipments = equipment.FreqObject.Equipments.Where(s => s.IsTx == false).ToList();
+                        /** Replicacion en los equipos reserva */
+                        equipments.AddRange(StandbyEquipments.Where(
+                            stby => stby.IsTx == false && 
+                            stby.FreqObject != null &&                         
+                            stby.TuneIn == equipment.TuneIn).ToList());
+                        equipments.ForEach(s =>
                         {
                             if (s.CallId != -1)
                             {
@@ -407,19 +417,30 @@ namespace RadioVoipSimV2.ViewModel
                     Task.Run(() =>
                     {
                         Task.Delay(Config.PttOff2SqhOff).Wait();
-                        equipment.FreqObject.Equipments.Where(s => s.IsTx == false).ToList().ForEach(s =>
+                        if (equipment.FreqObject != null)
                         {
-                            if (s.CallId != -1)
+                            /** Replicacion en los equipos main */
+                            List<SimulatedRadioEquipment> equipments = equipment.FreqObject.Equipments.Where(s => s.IsTx == false).ToList();
+                            /** Replicacion en los equipos reserva */
+                            equipments.AddRange(StandbyEquipments.Where(
+                                stby => stby.IsTx == false &&
+                                stby.FreqObject != null &&
+                                stby.TuneIn == equipment.TuneIn).ToList());
+
+                            equipments.ForEach(s =>
                             {
-                                s.ScvSquelch = false;
-                                SipAgent.MixerUnlink(equipment.CallId, s.CallId);
+                                if (s.CallId != -1)
+                                {
+                                    s.ScvSquelch = false;
+                                    SipAgent.MixerUnlink(equipment.CallId, s.CallId);
 
-                                if (s.AircrafSquelch && LocalAudioPlayer != -1)
-                                    SipAgent.MixerLink(LocalAudioPlayer, s.CallId);
+                                    if (s.AircrafSquelch && LocalAudioPlayer != -1)
+                                        SipAgent.MixerLink(LocalAudioPlayer, s.CallId);
 
-                                SipAgent.SquelchSet(s.CallId, s.Squelch);
-                            }
-                        });
+                                    SipAgent.SquelchSet(s.CallId, s.Squelch);
+                                }
+                            });
+                        }
                     });
                     equipment.Ptt = false;
                 }

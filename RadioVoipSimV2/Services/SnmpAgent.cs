@@ -18,7 +18,7 @@ using NLog;
 
 using Newtonsoft.Json;
 
-namespace RadioVoipSimV2.Model
+namespace RadioVoipSimV2.Services
 {
     public class SnmpAgent
     {

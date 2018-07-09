@@ -49,6 +49,28 @@ namespace RadioVoipSimV2.ViewModel
                         }
                     }
                 }
+                if (obj is SimulatedFrequecy)
+                {
+                    var frequency = obj as SimulatedFrequecy;
+                    var receivers = frequency.Equipments.Where(eq => eq.Habilitado == true && eq.IsTx == false).ToList();
+                    receivers.ForEach(receiver =>
+                    {
+                        receiver.AircrafSquelch = !receiver.AircrafSquelch;
+                        if (receiver.CallId != -1)
+                        {
+                            if (LocalAudioPlayer != -1 && !receiver.ScvSquelch)
+                            {
+                                if (receiver.AircrafSquelch)
+                                    SipAgent.MixerLink(LocalAudioPlayer, receiver.CallId);
+                                else if (!receiver.AircrafSquelch)
+                                    SipAgent.MixerUnlink(LocalAudioPlayer, receiver.CallId);
+                            }
+
+                            SipAgent.SquelchSet(receiver.CallId, receiver.Squelch);
+                        }
+                    });
+                    frequency.AircrafSquelch = !frequency.AircrafSquelch;
+                }
             });
 
             EnableDisableCmd = new DelegateCommandBase((obj) =>

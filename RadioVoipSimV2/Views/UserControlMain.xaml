@@ -26,7 +26,7 @@
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="250"></ColumnDefinition>
+            <ColumnDefinition Width="300"></ColumnDefinition>
             <ColumnDefinition></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Top">Frecuencias Simuladas</Label>
@@ -71,6 +71,17 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <uc:Led  IsActive="{Binding Squelch, Mode=TwoWay}" ColorNull="Gray" ColorOff="Green" ColorOn="GreenYellow" Width="16" Height="16" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="AIR" Width="50">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <ToggleButton Width="30" 
+                                        Content="{Binding AircrafSquelch, Converter={StaticResource OnOffConverter}}" 
+                                        Command="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=DataContext.ForceSquelchCmd}"
+                                        CommandParameter="{Binding}"
+                                        Visibility="{Binding IsTx, Converter={StaticResource HideConverter}}"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -150,7 +161,7 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="SQH" Width="50">
+                    <!--<GridViewColumn Header="SQH" Width="50">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <ToggleButton Width="30" 
@@ -160,7 +171,7 @@
                                         Visibility="{Binding IsTx, Converter={StaticResource HideConverter}}"/>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
+                    </GridViewColumn>-->
                     <GridViewColumn Header="Remote Control" Width="100">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
@@ -274,7 +285,7 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
-                        <GridViewColumn Header="SQH" Width="50">
+                        <!--<GridViewColumn Header="SQH" Width="50">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <ToggleButton Width="30" 
@@ -284,7 +295,7 @@
                                         Visibility="{Binding IsTx, Converter={StaticResource HideConverter}}"/>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
+                        </GridViewColumn>-->
                         <GridViewColumn Header="Remote Control" Width="100">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>

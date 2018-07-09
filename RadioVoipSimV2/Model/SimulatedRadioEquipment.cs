@@ -95,6 +95,14 @@ namespace RadioVoipSimV2.Model
             get => _aircrafSquelch;
             set { _aircrafSquelch = value; OnPropertyChanged("AircrafSquelch"); Squelch = value; }
         }
+        //public bool AircrafSquelch
+        //{
+        //    get
+        //    {
+        //        return FreqObject != null ? FreqObject.AircrafSquelch : false;
+        //    }
+        //    set { /*_aircrafSquelch = value; */OnPropertyChanged("AircrafSquelch"); /*Squelch = value;*/ }
+        //}
         public bool ScvSquelch
         {
             get => _scvSquelch;

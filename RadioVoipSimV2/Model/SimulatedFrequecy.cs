@@ -14,7 +14,9 @@ namespace RadioVoipSimV2.Model
     {
         private /*ObservableCollection*/List<SimulatedRadioEquipment> _sessions;
         private AppConfig.FrequencyConfig _config;
-        public  AppConfig.FrequencyConfig Config { get => _config; set => _config = value; }
+        private bool _aircrafSquelch;
+
+        public AppConfig.FrequencyConfig Config { get => _config; set => _config = value; }
 
         public bool Ptt
         {
@@ -46,7 +48,7 @@ namespace RadioVoipSimV2.Model
             get
             {
                 int ConnectedTxs = Equipments.Where(t => t.IsTx && t.CallId != -1).ToList().Count();
-                int ConnectedRxs = Equipments.Where(t => t.IsTx==false && t.CallId != -1).ToList().Count();
+                int ConnectedRxs = Equipments.Where(t => t.IsTx == false && t.CallId != -1).ToList().Count();
                 int InError = Equipments.Where(s => s.Error).ToList().Count;
 
                 return (ConnectedTxs == 0 && ConnectedRxs == 0) ? FrequencyStatus.NotOperational :
@@ -59,6 +61,11 @@ namespace RadioVoipSimV2.Model
                 OnPropertyChanged("Status");
             }
         }
-        
+
+        public bool AircrafSquelch
+        {
+            get => _aircrafSquelch;
+            set { _aircrafSquelch = value; OnPropertyChanged("AircrafSquelch"); Squelch = value; }
+        }
     }
 }

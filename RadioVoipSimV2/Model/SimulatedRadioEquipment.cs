@@ -58,6 +58,18 @@ namespace RadioVoipSimV2.Model
                 OnPropertyChanged("State");
             }
         }
+        //public bool Squelch
+        //{
+        //    get
+        //    {
+        //        return CallId != -1 & (AircrafSquelch || ScvSquelch);
+        //    }
+        //    set
+        //    {
+        //        if (FreqObject != null) FreqObject.Squelch = value;
+        //        OnPropertyChanged("Squelch");
+        //    }
+        //}
         public bool Squelch
         {
             get

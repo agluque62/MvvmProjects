@@ -52,7 +52,8 @@ namespace RadioVoipSimV2.ViewModel
                 if (obj is SimulatedFrequecy)
                 {
                     var frequency = obj as SimulatedFrequecy;
-                    var receivers = frequency.Equipments.Where(eq => eq.Habilitado == true && eq.IsTx == false).ToList();
+                    //var receivers = frequency.Equipments.Where(eq => eq.Habilitado == true && eq.IsTx == false).ToList();
+                    var receivers = AllEquipments.Where(eq => eq.FreqObject==frequency && eq.Habilitado == true && eq.IsTx == false).ToList();
                     receivers.ForEach(receiver =>
                     {
                         receiver.AircrafSquelch = !receiver.AircrafSquelch;
@@ -216,7 +217,8 @@ namespace RadioVoipSimV2.ViewModel
                         Config = f,
                         Ptt = false,
                         Squelch = false,
-                        Equipments = new /*ObservableCollection*/List<SimulatedRadioEquipment>()
+                        MainEquipments = new /*ObservableCollection*/List<SimulatedRadioEquipment>(),
+                        StanbyEquipments = new List<SimulatedRadioEquipment>()
                     };
 
                     var equipments = cfg.EquipmentsInFreq(f);
@@ -231,7 +233,7 @@ namespace RadioVoipSimV2.ViewModel
                         };
 
                         /** Añadir el equipo a la frecuencia */
-                        frequency.Equipments.Add(se);
+                        frequency.MainEquipments.Add(se);
 
                         /** Añadir el equipo a la MIB */
                         Mib.AddEquipment((table) =>
@@ -284,6 +286,13 @@ namespace RadioVoipSimV2.ViewModel
                     });
                     se.NotifyRemoteControlChange += OnRemoteControlChange;
                 }
+
+                /** Añadir la Referencia de los Reserva a las Frecuencias */
+                Frequencies.ForEach(f =>
+                {
+                    f.StanbyEquipments.AddRange(StandbyEquipments);
+                });
+
                 SelectedFreq = Frequencies.Count > 0 ? Frequencies[0] : null;
             });
         }
@@ -357,7 +366,9 @@ namespace RadioVoipSimV2.ViewModel
             {
                 equipment.State = CORESIP_CallState.CORESIP_CALL_STATE_CONFIRMED;
                 /** Recuperar el sqh forzado */
+                equipment.AircrafSquelch = (equipment.FreqObject != null) ? equipment.FreqObject.AircrafSquelch : equipment.AircrafSquelch;
                 equipment.Squelch = true;
+
                 SipAgent.SquelchSet(equipment.CallId, equipment.Squelch);
 
                 if (equipment.FreqObject != null)
@@ -401,7 +412,7 @@ namespace RadioVoipSimV2.ViewModel
                     {
                         Task.Delay(Config.PttOn2SqhOn).Wait();
                         /** Replicacion en los equipos main */
-                        List<SimulatedRadioEquipment> equipments = equipment.FreqObject.Equipments.Where(s => s.IsTx == false).ToList();
+                        List<SimulatedRadioEquipment> equipments = equipment.FreqObject.MainEquipments.Where(s => s.IsTx == false).ToList();
                         /** Replicacion en los equipos reserva */
                         equipments.AddRange(StandbyEquipments.Where(
                             stby => stby.IsTx == false && 
@@ -442,7 +453,7 @@ namespace RadioVoipSimV2.ViewModel
                         if (equipment.FreqObject != null)
                         {
                             /** Replicacion en los equipos main */
-                            List<SimulatedRadioEquipment> equipments = equipment.FreqObject.Equipments.Where(s => s.IsTx == false).ToList();
+                            List<SimulatedRadioEquipment> equipments = equipment.FreqObject.MainEquipments.Where(s => s.IsTx == false).ToList();
                             /** Replicacion en los equipos reserva */
                             equipments.AddRange(StandbyEquipments.Where(
                                 stby => stby.IsTx == false &&
@@ -472,13 +483,12 @@ namespace RadioVoipSimV2.ViewModel
         private SimulatedRadioEquipment FindEquipment(string userid)
         {
             /** Busco en los equipos Main */
-            var main = Frequencies.SelectMany(f => f.Equipments).Where(e => e.Name == userid && e.CallId == -1).FirstOrDefault();
+            var main = Frequencies.SelectMany(f => f.MainEquipments).Where(e => e.Name == userid && e.CallId == -1).FirstOrDefault();
             if (main != null)
                 return main;
 
             /** Busco en los equipos reserva */
-            var stby = StandbyEquipments.Where(e => e.Name == userid && e.CallId == -1).FirstOrDefault();
-            
+            var stby = StandbyEquipments.Where(e => e.Name == userid && e.CallId == -1).FirstOrDefault();            
             /** Busco la frecuencia asociada y la añado a la referencia */
             if (stby != null)
             {
@@ -490,13 +500,12 @@ namespace RadioVoipSimV2.ViewModel
         private SimulatedRadioEquipment FindEquipment(int callid)
         {
             /** Busco en los equipos Main */
-            var main = Frequencies.SelectMany(f => f.Equipments).Where(e => e.CallId == callid).FirstOrDefault();
+            var main = Frequencies.SelectMany(f => f.MainEquipments).Where(e => e.CallId == callid).FirstOrDefault();
             if (main != null)
                 return main;
 
             /** Busco en los equipos reserva */
             var stby = StandbyEquipments.Where(e => e.CallId == callid).FirstOrDefault();
-
             /** Busco la frecuencia asociada y la añado a la referencia */
             if (stby != null)
             {
@@ -521,7 +530,7 @@ namespace RadioVoipSimV2.ViewModel
         {
             get
             {
-                var eqs = Frequencies.SelectMany(f => f.Equipments).ToList();
+                var eqs = Frequencies.SelectMany(f => f.MainEquipments).ToList();
                 eqs.AddRange(StandbyEquipments);
                 return eqs;
             }

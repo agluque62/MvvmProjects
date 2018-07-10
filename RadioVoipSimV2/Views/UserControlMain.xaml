@@ -88,7 +88,7 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <ListView Grid.Row="1" Grid.Column="1" ItemsSource="{Binding SelectedFreq.Equipments}" >
+        <ListView Grid.Row="1" Grid.Column="1" ItemsSource="{Binding SelectedFreq.MainEquipments}" >
             <ListView.View>
                 <GridView>
                     <GridViewColumn Header="Enable" Width="50">

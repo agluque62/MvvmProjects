@@ -73,7 +73,8 @@ namespace RadioVoipSimV2.Model
         {
             get
             {
-                var equipments = MainEquipments;
+                var equipments = new List<SimulatedRadioEquipment>(  MainEquipments);
+
                 var stbyEquipments = StanbyEquipments.Where(e => e.FreqObject == this && e.CallId != -1).ToList();
                 equipments.AddRange(stbyEquipments);
                 return equipments;

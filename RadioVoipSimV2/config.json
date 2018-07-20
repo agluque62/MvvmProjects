@@ -1,6 +1,6 @@
 {
   "VoipAgentIP": "192.168.0.129",
-  "VoipAgentPort": 7060,
+  "VoipAgentPort": 5060,
   "PttOn2SqhOn": 50,
   "PttOff2SqhOff": 50,
   "SimulatedFrequencies": [

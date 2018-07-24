@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RadioVoipSimV2", "RadioVoip
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyWpfControlLibrary", "MyWpfControlLibrary\MyWpfControlLibrary.csproj", "{678B39B1-249E-4940-8B8D-CBFDB345AE70}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitsTestProject", "UnitsTestProject\UnitsTestProject.csproj", "{37752576-079C-4768-8386-D6CEFE5FFFEC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{678B39B1-249E-4940-8B8D-CBFDB345AE70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{678B39B1-249E-4940-8B8D-CBFDB345AE70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{678B39B1-249E-4940-8B8D-CBFDB345AE70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37752576-079C-4768-8386-D6CEFE5FFFEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37752576-079C-4768-8386-D6CEFE5FFFEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37752576-079C-4768-8386-D6CEFE5FFFEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37752576-079C-4768-8386-D6CEFE5FFFEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

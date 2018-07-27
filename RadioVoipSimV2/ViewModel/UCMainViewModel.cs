@@ -404,7 +404,7 @@ namespace RadioVoipSimV2.ViewModel
             SimulatedRadioEquipment equipment = FindEquipment(callid);
             if (equipment != null)
             {
-                if (equipment.IsTx && !equipment.Error)
+                if (equipment.IsTx && !equipment.Error) // Los Tx en Error no replican el PTT
                 {
                     SipAgent.PttSet(callid, pttType, pttId);
                     /** Replicar los SQH */
@@ -420,7 +420,7 @@ namespace RadioVoipSimV2.ViewModel
                             stby.TuneIn == equipment.TuneIn).ToList());
                         equipments.ForEach(s =>
                         {
-                            if (s.CallId != -1)
+                            if (s.CallId != -1 && !s.Error) // Los Rx en Error no replican el SQH
                             {
                                 s.ScvSquelch = true;
 

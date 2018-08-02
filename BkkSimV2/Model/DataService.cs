@@ -23,7 +23,7 @@ namespace BkkSimV2.Model
             // Use this to connect to the actual data service
 
             var item = new DataItem("Welcome to MVVM Light");
-            callback(item, null);
+            callback?.Invoke(item, null);
         }
 
         public void GetAppConfig(Action<AppConfig, Exception> callback)
@@ -33,12 +33,12 @@ namespace BkkSimV2.Model
                 if (File.Exists(ConfigFile))
                 {
                     var config = JsonConvert.DeserializeObject<AppConfig>(File.ReadAllText(ConfigFile));
-                    callback(config, null);
+                    callback?.Invoke(config, null);
                 }
             }
             catch (Exception x)
             {
-                callback(null, x);
+                callback?.Invoke(null, x);
             }
         }
 
@@ -54,13 +54,17 @@ namespace BkkSimV2.Model
                         {
                             Users = JsonConvert.DeserializeObject<WorkingUsers>(File.ReadAllText(WorkingUsersFile));
                         }
+                        else
+                        {
+                            Users = new WorkingUsers() { Users = new List<WorkingUser>() };
+                        }
                     }
-                    callback(Users, null);
+                    callback?.Invoke(Users, null);
                 }
             }
             catch (Exception x)
             {
-                callback(null, x);
+                callback?.Invoke(null, x);
             }
         }
 
@@ -71,12 +75,11 @@ namespace BkkSimV2.Model
                 lock (wulocker)
                 {
                     File.WriteAllText(WorkingUsersFile, JsonConvert.SerializeObject(Users));
-                    callback(null);
                 }
             }
             catch (Exception x)
             {
-                callback(x);
+                callback?.Invoke(x);
             }
         }
 
@@ -102,7 +105,6 @@ namespace BkkSimV2.Model
                     Users?.Users.Remove(user);
                 }
             }
-            throw new NotImplementedException();
         }
 
         private WorkingUsers Users { get => _users; set => _users = value; }

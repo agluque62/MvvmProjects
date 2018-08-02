@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyWpfControlLibrary", "MyWp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitsTestProject", "UnitsTestProject\UnitsTestProject.csproj", "{37752576-079C-4768-8386-D6CEFE5FFFEC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BkkSimV2", "BkkSimV2\BkkSimV2.csproj", "{B9E0F6D0-AB35-49F2-92AB-A3898C4CE39C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{37752576-079C-4768-8386-D6CEFE5FFFEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37752576-079C-4768-8386-D6CEFE5FFFEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37752576-079C-4768-8386-D6CEFE5FFFEC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9E0F6D0-AB35-49F2-92AB-A3898C4CE39C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9E0F6D0-AB35-49F2-92AB-A3898C4CE39C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9E0F6D0-AB35-49F2-92AB-A3898C4CE39C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9E0F6D0-AB35-49F2-92AB-A3898C4CE39C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

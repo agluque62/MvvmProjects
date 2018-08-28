@@ -15,7 +15,7 @@ namespace RadioVoipSimV2.Services
         #region Publicas.
         public enum SipAgentEvents { IncomingCall, CallConnected, CallDisconnected, PttOn, PttOff, KaTimeout }
 
-        public void Init()
+        public void Init(int maxcall=32)
         {
             try
             {
@@ -25,19 +25,11 @@ namespace RadioVoipSimV2.Services
                 SipAgentNet.KaTimeout += OnKaTimeout;
                 SipAgentNet.OptionsReceive += OnOptionsReceive;
                 SipAgentNet.InfoReceived += OnInfoReceived;
-
-                SipAgentNet.Log += (p1, p2, p3) =>
-                {
-                    if (p1 <= CoresipLogLevel)
-                    {
-                        LogManager.GetLogger("ControlledSipAgent").
-                            Debug("CoreSipNet Log Level {0}: {1}", p1, p2);
-                    }
-                };
+                SipAgentNet.Log += OnLog;
 
                 SipAgentNet.Init(settings, "ROIPSIM",
                     IpBase,
-                    SipPort);
+                    SipPort, (uint)maxcall);
             }
             catch (Exception x)
             {
@@ -59,7 +51,16 @@ namespace RadioVoipSimV2.Services
         {
             try
             {
+                SipAgentNet.CallState -= OnCallState;
+                SipAgentNet.CallIncoming -= OnCallIncoming;
+                SipAgentNet.RdInfo -= OnRdInfo;
+                SipAgentNet.KaTimeout -= OnKaTimeout;
+                SipAgentNet.OptionsReceive -= OnOptionsReceive;
+                SipAgentNet.InfoReceived -= OnInfoReceived;
+
                 SipAgentNet.End();
+
+                SipAgentNet.Log -= OnLog;
             }
             catch (Exception x)
             {
@@ -269,6 +270,17 @@ namespace RadioVoipSimV2.Services
         }
         private void OnInfoReceived(int call, string info, uint lenInfo)
         {
+        }
+        private void OnLog(int p1, string p2, int p3)
+        {
+            if (p1 <= CoresipLogLevel)
+            {
+                if (p2.Contains("FrecDesp::GetQidx") == false)
+                {
+                    LogManager.GetLogger("ControlledSipAgent").
+                        Debug("CoreSipNet Log Level {0}: {1}", p1, p2);
+                }
+            }
         }
         #endregion Callbacks
 

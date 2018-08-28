@@ -19,7 +19,7 @@ namespace RadioVoipSimV2.Model
 
     public class AppConfig
     {
-        const string FileName = "config.json";
+        static string FileName = Properties.Settings.Default.ConfigFile; //  "config.json";
 
         public class FrequencyConfig
         {

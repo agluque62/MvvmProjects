@@ -1,0 +1,261 @@
+{
+  "VoipAgentIP": "192.168.0.129",
+  "VoipAgentPort": 7060,
+  "PttOn2SqhOn": 50,
+  "PttOff2SqhOff": 50,
+  "SimulatedFrequencies": [
+    {
+      "Id": "125.000",
+      "Band": "VHF",
+      "TxUsers": [
+        {
+          "Id": "STX00",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        },
+        {
+          "Id": "STX01",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ],
+      "RxUsers": [
+        {
+          "Id": "SRX00",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        },
+        {
+          "Id": "SRX01",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ]
+    },
+    {
+      "Id": "125.200",
+      "Band": "VHF",
+      "TxUsers": [
+        {
+          "Id": "STX02",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ],
+      "RxUsers": [
+        {
+          "Id": "SRX02",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ]
+    },
+    {
+      "Id": "125.300",
+      "Band": "VHF",
+      "TxUsers": [
+        {
+          "Id": "STX03",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ],
+      "RxUsers": [
+        {
+          "Id": "SRX03",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ]
+    },
+    {
+      "Id": "125.400",
+      "Band": "VHF",
+      "TxUsers": [
+        {
+          "Id": "STX04",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ],
+      "RxUsers": [
+        {
+          "Id": "SRX04",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ]
+    },
+    {
+      "Id": "125.500",
+      "Band": "VHF",
+      "TxUsers": [
+        {
+          "Id": "STX05",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ],
+      "RxUsers": [
+        {
+          "Id": "SRX05",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ]
+    },
+    {
+      "Id": "125.600",
+      "Band": "VHF",
+      "TxUsers": [
+        {
+          "Id": "STX06",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ],
+      "RxUsers": [
+        {
+          "Id": "SRX06",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ]
+    },
+    {
+      "Id": "125.700",
+      "Band": "VHF",
+      "TxUsers": [
+        {
+          "Id": "STX07",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ],
+      "RxUsers": [
+        {
+          "Id": "SRX07",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ]
+    },
+    {
+      "Id": "125.800",
+      "Band": "VHF",
+      "TxUsers": [
+        {
+          "Id": "STX08",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ],
+      "RxUsers": [
+        {
+          "Id": "SRX08",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ]
+    },
+    {
+      "Id": "125.900",
+      "Band": "VHF",
+      "TxUsers": [
+        {
+          "Id": "STX09",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ],
+      "RxUsers": [
+        {
+          "Id": "SRX09",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ]
+    },
+    {
+      "Id": "127.000",
+      "Band": "VHF",
+      "TxUsers": [
+        {
+          "Id": "MTX01",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ],
+      "RxUsers": [
+        {
+          "Id": "MRX01",
+          "FrOff": 0,
+          "ChSp": 0,
+          "Pwr": 0,
+          "Mod": 0
+        }
+      ]
+    }
+  ],
+  "StandbyEquipments": [
+    {
+      "Id": "RTX01",
+      "Type": "Tx",
+      "Band": "VHF"
+    },
+    {
+      "Id": "RRX01",
+      "Type": "Rx",
+      "Band": "VHF"
+    }
+  ],
+  "Snmp": {
+    "AgentIp": "192.168.0.129",
+    "AgentPort": 161,
+    "BaseOid": ".1.3.6.1.4.1.7916.8.4.1.3.1",
+    "QueryOid": ".1.3.6.1.4.1.7916.8.4.1.1.0",
+    "AnswerOid": ".1.3.6.1.4.1.7916.8.4.1.2.0"
+  }
+}

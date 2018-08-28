@@ -996,7 +996,6 @@ namespace CoreSipNet
         {
             if (IsStarted || IsInitialized)
             {
-
                 CORESIP_End();
                 _Accounts.Clear();
                 IsInitialized = IsStarted = false;

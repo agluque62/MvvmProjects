@@ -14,96 +14,104 @@ namespace RadioVoipSimV2.ViewModel
 {
     class UCMainViewModel : ViewModelBase
     {
+        //private object locker = new object();
 
         public UCMainViewModel()
         {
-            _uiContext = System.Threading.SynchronizationContext.Current;
-
-            Load();
-            SipAgentInitAndStart();
-            SnmpAgentInitAndStart();
-
-            Title = String.Format("Simulador de Equipos Radio Voip. Nucleo 2018. [{0}:{1}]", Config.VoipAgentIP, Config.VoipAgentPort);
-            Btn01Text = "Config";
-            Btn02Text = "Salir";
-
-            ForceSquelchCmd = new DelegateCommandBase((obj) =>
+            //lock (locker)
             {
-                if (obj is SimulatedRadioEquipment)
+                _uiContext = System.Threading.SynchronizationContext.Current;
+
+                Load();
+                SipAgentInitAndStart();
+                SnmpAgentInitAndStart();
+
+                Title = String.Format("Simulador de Equipos Radio Voip. Nucleo 2018. [{0}:{1}]", Config.VoipAgentIP, Config.VoipAgentPort);
+                Btn01Text = "Config";
+                Btn02Text = "Salir";
+
+                ForceSquelchCmd = new DelegateCommandBase((obj) =>
                 {
-                    var ses = (obj as SimulatedRadioEquipment);
-                    if (ses.Habilitado == true && ses.IsTx == false)
+                    if (obj is SimulatedRadioEquipment)
                     {
-                        ses.AircrafSquelch = !ses.AircrafSquelch;
+                        var ses = (obj as SimulatedRadioEquipment);
+                        if (ses.Habilitado == true && ses.IsTx == false)
+                        {
+                            ses.AircrafSquelch = !ses.AircrafSquelch;
+                            if (ses.CallId != -1)
+                            {
+                                if (LocalAudioPlayer != -1 && !ses.ScvSquelch)
+                                {
+                                    if (ses.AircrafSquelch)
+                                        SipAgent.MixerLink(LocalAudioPlayer, ses.CallId);
+                                    else if (!ses.AircrafSquelch)
+                                        SipAgent.MixerUnlink(LocalAudioPlayer, ses.CallId);
+                                }
+
+                                SipAgent.SquelchSet(ses.CallId, ses.Squelch);
+                            }
+                        }
+                    }
+                    if (obj is SimulatedFrequecy)
+                    {
+                        var frequency = obj as SimulatedFrequecy;
+                    //var receivers = frequency.Equipments.Where(eq => eq.Habilitado == true && eq.IsTx == false).ToList();
+                    var receivers = AllEquipments.Where(eq => eq.FreqObject == frequency && eq.Habilitado == true && eq.IsTx == false).ToList();
+                        receivers.ForEach(receiver =>
+                        {
+                            receiver.AircrafSquelch = !receiver.AircrafSquelch;
+                            if (receiver.CallId != -1)
+                            {
+                                if (LocalAudioPlayer != -1 && !receiver.ScvSquelch)
+                                {
+                                    if (receiver.AircrafSquelch)
+                                        SipAgent.MixerLink(LocalAudioPlayer, receiver.CallId);
+                                    else if (!receiver.AircrafSquelch)
+                                        SipAgent.MixerUnlink(LocalAudioPlayer, receiver.CallId);
+                                }
+
+                                SipAgent.SquelchSet(receiver.CallId, receiver.Squelch);
+                            }
+                        });
+                        frequency.AircrafSquelch = !frequency.AircrafSquelch;
+                    }
+                });
+
+                EnableDisableCmd = new DelegateCommandBase((obj) =>
+                {
+                    if (obj is SimulatedRadioEquipment)
+                    {
+                        var ses = (obj as SimulatedRadioEquipment);
                         if (ses.CallId != -1)
                         {
-                            if (LocalAudioPlayer != -1 && !ses.ScvSquelch)
-                            {
-                                if (ses.AircrafSquelch)
-                                    SipAgent.MixerLink(LocalAudioPlayer, ses.CallId);
-                                else if (!ses.AircrafSquelch)
-                                    SipAgent.MixerUnlink(LocalAudioPlayer, ses.CallId);
-                            }
-
-                            SipAgent.SquelchSet(ses.CallId, ses.Squelch);
+                            SipAgent.HangupCall(ses.CallId, SipAgentNet.SIP_OK);
+                            ses.Reset();
                         }
+                        ses.Habilitado = !ses.Habilitado;
                     }
-                }
-                if (obj is SimulatedFrequecy)
-                {
-                    var frequency = obj as SimulatedFrequecy;
-                    //var receivers = frequency.Equipments.Where(eq => eq.Habilitado == true && eq.IsTx == false).ToList();
-                    var receivers = AllEquipments.Where(eq => eq.FreqObject==frequency && eq.Habilitado == true && eq.IsTx == false).ToList();
-                    receivers.ForEach(receiver =>
-                    {
-                        receiver.AircrafSquelch = !receiver.AircrafSquelch;
-                        if (receiver.CallId != -1)
-                        {
-                            if (LocalAudioPlayer != -1 && !receiver.ScvSquelch)
-                            {
-                                if (receiver.AircrafSquelch)
-                                    SipAgent.MixerLink(LocalAudioPlayer, receiver.CallId);
-                                else if (!receiver.AircrafSquelch)
-                                    SipAgent.MixerUnlink(LocalAudioPlayer, receiver.CallId);
-                            }
-
-                            SipAgent.SquelchSet(receiver.CallId, receiver.Squelch);
-                        }
-                    });
-                    frequency.AircrafSquelch = !frequency.AircrafSquelch;
-                }
-            });
-
-            EnableDisableCmd = new DelegateCommandBase((obj) =>
-            {
-                if (obj is SimulatedRadioEquipment)
-                {
-                    var ses = (obj as SimulatedRadioEquipment);
-                    if (ses.CallId != -1)
-                    {
-                        SipAgent.HangupCall(ses.CallId, SipAgentNet.SIP_OK);
-                        ses.Reset();
-                    }
-                    ses.Habilitado = !ses.Habilitado;
-                }
-            });
+                });
+            }
         }
-
         public void Dispose()
         {
-            /** Cerrar el Agente SNMP*/
-            SnmpAgent.Close();
-            Mib.Dispose();
-
-            /** Cerrar el Agente SIP */
-            if (LocalAudioPlayer != -1)
+            //lock (locker)
             {
-                SipAgent.DestroyWavPlayer(LocalAudioPlayer);
-            }
-            SipAgent.End();
+                /** Cerrar el Agente SNMP*/
+                SnmpAgent.Close();
+                Mib.Dispose();
 
-            /** Descargar Datos */
-            Unload();
+                /** OJO!!! Cerrar el Agente SIP */
+                //if (LocalAudioPlayer != -1)
+                //{
+                //    SipAgent.DestroyWavPlayer(LocalAudioPlayer);
+                //}
+
+                SipAgent.End();
+                LocalAudioPlayer = -1;
+
+                /** Descargar Datos */
+                Unload();
+            }
         }
 
         public DelegateCommandBase ForceSquelchCmd { get => _forceSquelchCmd; set => _forceSquelchCmd = value; }
@@ -307,34 +315,33 @@ namespace RadioVoipSimV2.ViewModel
             SipAgent = new ControlledSipAgent() { IpBase = Config.VoipAgentIP, SipPort = (uint)Config.VoipAgentPort, CoresipLogLevel = 3 };
             SipAgent.SipAgentEvent += (ev, call, id, rdinfo) =>
             {
-                /** Ejecutar los eventos en el contexto UI */
-                //_uiContext.Send(x =>
-                //{
-                switch (ev)
+                //lock (locker)
                 {
-                    case ControlledSipAgent.SipAgentEvents.IncomingCall:
-                        ProcessIncomingCall(call, id);
-                        break;
-                    case ControlledSipAgent.SipAgentEvents.CallConnected:
-                        ProcessCallConnected(call);
-                        break;
-                    case ControlledSipAgent.SipAgentEvents.CallDisconnected:
-                        ProcessCallDisconnected(call);
-                        break;
-                    case ControlledSipAgent.SipAgentEvents.KaTimeout:
-                        ProcessKATimeout(call);
-                        break;
-                    case ControlledSipAgent.SipAgentEvents.PttOn:
-                        ProcessPtton(call, rdinfo.PttType, rdinfo.PttId, rdinfo.PttMute);
-                        break;
-                    case ControlledSipAgent.SipAgentEvents.PttOff:
-                        ProcessPttoff(call);
-                        break;
+                    switch (ev)
+                    {
+                        case ControlledSipAgent.SipAgentEvents.IncomingCall:
+                            ProcessIncomingCall(call, id);
+                            break;
+                        case ControlledSipAgent.SipAgentEvents.CallConnected:
+                            ProcessCallConnected(call);
+                            break;
+                        case ControlledSipAgent.SipAgentEvents.CallDisconnected:
+                            ProcessCallDisconnected(call);
+                            break;
+                        case ControlledSipAgent.SipAgentEvents.KaTimeout:
+                            ProcessKATimeout(call);
+                            break;
+                        case ControlledSipAgent.SipAgentEvents.PttOn:
+                            ProcessPtton(call, rdinfo.PttType, rdinfo.PttId, rdinfo.PttMute);
+                            break;
+                        case ControlledSipAgent.SipAgentEvents.PttOff:
+                            ProcessPttoff(call);
+                            break;
+                    }
                 }
-                //}, null);
             };
 
-            SipAgent.Init();
+            SipAgent.Init(AllEquipments.Count + 5);
             SipAgent.Start();
             LocalAudioPlayer = SipAgent.CreateWavPlayer(".\\Resources\\Hold.wav", true);
         }

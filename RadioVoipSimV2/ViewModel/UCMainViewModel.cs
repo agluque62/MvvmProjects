@@ -325,7 +325,7 @@ namespace RadioVoipSimV2.ViewModel
                         ProcessKATimeout(call);
                         break;
                     case ControlledSipAgent.SipAgentEvents.PttOn:
-                        ProcessPtton(call, rdinfo.PttType, rdinfo.PttId);
+                        ProcessPtton(call, rdinfo.PttType, rdinfo.PttId, rdinfo.PttMute);
                         break;
                     case ControlledSipAgent.SipAgentEvents.PttOff:
                         ProcessPttoff(call);
@@ -399,41 +399,45 @@ namespace RadioVoipSimV2.ViewModel
             }
         }
 
-        private void ProcessPtton(int callid, CORESIP_PttType pttType, ushort pttId)
+        private void ProcessPtton(int callid, CORESIP_PttType pttType, ushort pttId, int pttMute)
         {
             SimulatedRadioEquipment equipment = FindEquipment(callid);
             if (equipment != null)
             {
                 if (equipment.IsTx && !equipment.Error) // Los Tx en Error no replican el PTT
                 {
-                    SipAgent.PttSet(callid, pttType, pttId);
-                    /** Replicar los SQH */
-                    Task.Run(() =>
+                    SipAgent.PttSet(callid, pttType, pttId, pttMute);
+                    /** Los PTT-MUTE no replican SQH ni marcan PTT-ACTIVO */
+                    if (pttMute == 0)
                     {
-                        Task.Delay(Config.PttOn2SqhOn).Wait();
-                        /** Replicacion en los equipos main */
-                        List<SimulatedRadioEquipment> equipments = equipment.FreqObject.MainEquipments.Where(s => s.IsTx == false).ToList();
-                        /** Replicacion en los equipos reserva */
-                        equipments.AddRange(StandbyEquipments.Where(
-                            stby => stby.IsTx == false && 
-                            stby.FreqObject != null &&                         
-                            stby.TuneIn == equipment.TuneIn).ToList());
-                        equipments.ForEach(s =>
+                        /** Replicar los SQH */
+                        Task.Run(() =>
                         {
-                            if (s.CallId != -1 && !s.Error) // Los Rx en Error no replican el SQH
+                            Task.Delay(Config.PttOn2SqhOn).Wait();
+                        /** Replicacion en los equipos main */
+                            List<SimulatedRadioEquipment> equipments = equipment.FreqObject.MainEquipments.Where(s => s.IsTx == false).ToList();
+                        /** Replicacion en los equipos reserva */
+                            equipments.AddRange(StandbyEquipments.Where(
+                                stby => stby.IsTx == false &&
+                                stby.FreqObject != null &&
+                                stby.TuneIn == equipment.TuneIn).ToList());
+                            equipments.ForEach(s =>
                             {
-                                s.ScvSquelch = true;
+                                if (s.CallId != -1 && !s.Error) // Los Rx en Error no replican el SQH
+                                {
+                                    s.ScvSquelch = true;
 
-                                if (s.AircrafSquelch && LocalAudioPlayer != -1)
-                                    SipAgent.MixerUnlink(LocalAudioPlayer, s.CallId);
+                                    if (s.AircrafSquelch && LocalAudioPlayer != -1)
+                                        SipAgent.MixerUnlink(LocalAudioPlayer, s.CallId);
 
-                                SipAgent.MixerLink(equipment.CallId, s.CallId);
-                                SipAgent.SquelchSet(s.CallId, s.Squelch, pttType, pttId);
-                            }
+                                    SipAgent.MixerLink(equipment.CallId, s.CallId);
+                                    SipAgent.SquelchSet(s.CallId, s.Squelch, pttType, pttId);
+                                }
+                            });
+
                         });
-
-                    });
-                    equipment.Ptt = true;
+                        equipment.Ptt = true;
+                    }
                 }
             }
         }

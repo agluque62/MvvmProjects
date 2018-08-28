@@ -94,14 +94,14 @@ namespace RadioVoipSimV2.Services
                 LogException(x, "AnswerCall Exception");
             }
         }
-        public void PttSet(int callid, CORESIP_PttType tipo, ushort pttId = 0)
+        public void PttSet(int callid, CORESIP_PttType tipo, ushort pttId = 0, int pttMute=0)
         {
             try
             {
                 if (tipo == CORESIP_PttType.CORESIP_PTT_OFF)
                     SipAgentNet.PttOff(callid);
                 else
-                    SipAgentNet.PttOn(callid, pttId, tipo);
+                    SipAgentNet.PttOn(callid, pttId, tipo, pttMute);
             }
             catch (Exception x)
             {

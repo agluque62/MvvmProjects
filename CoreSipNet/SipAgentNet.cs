@@ -285,6 +285,7 @@ namespace CoreSipNet
         public string SrcId;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_IP_LENGTH + 1)]
         public string SrcIp;
+        public uint SrcPort;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_USER_ID_LENGTH + 1)]
         public string SrcSubId;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = SipAgentNet.CORESIP_MAX_RS_LENGTH + 1)]
@@ -371,6 +372,7 @@ namespace CoreSipNet
     {
         public CORESIP_PttType PttType;
         public ushort PttId;
+        public int PttMute;
         public int Squelch;
         public int Sct;
 
@@ -1618,12 +1620,13 @@ namespace CoreSipNet
         /// <param name="callId"></param>
         /// <param name="pttId"></param>
         /// <param name="pttType"></param>
-        public static void PttOn(int callId, ushort pttId, CORESIP_PttType pttType)
+        public static void PttOn(int callId, ushort pttId, CORESIP_PttType pttType, int PttMute)
         {
             CORESIP_PttInfo info = new CORESIP_PttInfo();
 
             info.PttType = pttType;
             info.PttId = pttId;
+            info.PttMute = (PttMute == 0) ? (uint) 0 : (uint) 1;
 
             CORESIP_Error err;
 
@@ -1805,7 +1808,7 @@ namespace CoreSipNet
         /// <param name="callId"></param>
         /// <param name="sqh"></param>
         public static void SqhOnOffSet(int callId, bool sqh, 
-            CORESIP_PttType tipoptt = CORESIP_PttType.CORESIP_PTT_OFF, ushort pttId = 0)
+            CORESIP_PttType tipoptt = CORESIP_PttType.CORESIP_PTT_OFF, ushort pttId = 0, uint PttMute = 0)
         {
             CORESIP_Error err;
             CORESIP_PttInfo info = new CORESIP_PttInfo()
@@ -1815,6 +1818,7 @@ namespace CoreSipNet
 
             info.PttType = tipoptt;
             info.PttId = pttId;
+            info.PttMute = PttMute;
 
             if (CORESIP_CallPtt(callId, info, out err) != 0)
             {

@@ -109,7 +109,7 @@ namespace BkkSimV2.Services
         public BkkWebSocketServer(IDataService dataService, string ip, int port) : 
             base (System.Net.IPAddress.Parse(ip), port)
         {
-            AddWebSocketService<BkkWebSocketService>("/test", () =>
+            AddWebSocketService<BkkWebSocketService>("/pbx/ws", () =>
             {
                 return new BkkWebSocketService()
                 {

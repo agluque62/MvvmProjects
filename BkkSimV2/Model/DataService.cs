@@ -35,6 +35,10 @@ namespace BkkSimV2.Model
                     var config = JsonConvert.DeserializeObject<AppConfig>(File.ReadAllText(ConfigFile));
                     callback?.Invoke(config, null);
                 }
+                else
+                {
+                    callback?.Invoke(new AppConfig() { Ip = "127.0.0.1", Port=8080, RegistrationRefreshPeriod=60 }, null);
+                }
             }
             catch (Exception x)
             {

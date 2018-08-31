@@ -85,6 +85,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\converters.cs" />
     <Compile Include="Design\DesignDataService.cs" />
     <Compile Include="Model\DataItems.cs" />
     <Compile Include="Model\DataService.cs" />

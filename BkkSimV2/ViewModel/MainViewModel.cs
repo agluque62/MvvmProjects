@@ -1,5 +1,8 @@
 ﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
+
 using BkkSimV2.Model;
+using BkkSimV2.Services;
 
 namespace BkkSimV2.ViewModel
 {
@@ -13,35 +16,20 @@ namespace BkkSimV2.ViewModel
     {
         private readonly IDataService _dataService;
 
-        /// <summary>
-        /// The <see cref="WelcomeTitle" /> property's name.
-        /// </summary>
-        public const string WelcomeTitlePropertyName = "WelcomeTitle";
-
-        private string _welcomeTitle = string.Empty;
-
-        /// <summary>
-        /// Gets the WelcomeTitle property.
-        /// Changes to that property's value raise the PropertyChanged event. 
-        /// </summary>
-        public string WelcomeTitle
-        {
-            get
-            {
-                return _welcomeTitle;
-            }
-            set
-            {
-                Set(ref _welcomeTitle, value);
-            }
-        }
-
+        private BkkWebSocketServer _wss = null;
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
         public MainViewModel(IDataService dataService)
         {
             _dataService = dataService;
+
+            /** */
+            _dataService.GetAppConfig((cfg, x) =>
+            {
+                _wss = new BkkWebSocketServer(_dataService, cfg.Ip, cfg.Port);
+            });
+
             _dataService.GetData(
                 (item, error) =>
                 {
@@ -50,9 +38,32 @@ namespace BkkSimV2.ViewModel
                         // Report error here
                         return;
                     }
-
-                    WelcomeTitle = item.Title;
                 });
+
+            IsStarted = false;
+
+            /** Programacion de los comandos UI */
+            AppExit = new RelayCommand(() =>
+            {
+                /** TODO. Llamar a Dispose */
+                if (IsStarted) _wss.Stop();
+                System.Windows.Application.Current.Shutdown();
+            });
+
+            AppStartStop = new RelayCommand(() =>
+            {
+                if (IsStarted) _wss.Stop();
+                else _wss.Start();
+
+                IsStarted = !IsStarted;
+                RaisePropertyChanged("IsStarted");
+            });
+
+            AppAddUser = new RelayCommand(() =>
+            {
+                /** TODO */
+            });
+
         }
 
         ////public override void Cleanup()
@@ -61,5 +72,18 @@ namespace BkkSimV2.ViewModel
 
         ////    base.Cleanup();
         ////}
+        ///
+
+        #region Propiedades para UI
+
+            public bool IsStarted { get; set; }
+            
+        #endregion
+
+        #region Comandos para UI
+            public RelayCommand AppExit { get; set; }
+            public RelayCommand AppStartStop { get; set; }
+            public RelayCommand AppAddUser { get; set; }
+        #endregion
     }
 }

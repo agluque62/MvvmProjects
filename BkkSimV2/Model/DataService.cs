@@ -18,6 +18,18 @@ namespace BkkSimV2.Model
         private WorkingUsers _users = null;
         private object wulocker = new object();
 
+        public DataService()
+        {
+            if (File.Exists(WorkingUsersFile))
+            {
+                Users = JsonConvert.DeserializeObject<WorkingUsers>(File.ReadAllText(WorkingUsersFile));
+            }
+            else
+            {
+                Users = new WorkingUsers() { Users = new List<WorkingUser>() };
+            }
+        }
+
         public void GetData(Action<DataItem, Exception> callback)
         {
             // Use this to connect to the actual data service
@@ -52,17 +64,6 @@ namespace BkkSimV2.Model
             {
                 lock (wulocker)
                 {
-                    if (Users == null)
-                    {
-                        if (File.Exists(WorkingUsersFile))
-                        {
-                            Users = JsonConvert.DeserializeObject<WorkingUsers>(File.ReadAllText(WorkingUsersFile));
-                        }
-                        else
-                        {
-                            Users = new WorkingUsers() { Users = new List<WorkingUser>() };
-                        }
-                    }
                     callback?.Invoke(Users, null);
                 }
             }
@@ -78,7 +79,10 @@ namespace BkkSimV2.Model
             {
                 lock (wulocker)
                 {
-                    File.WriteAllText(WorkingUsersFile, JsonConvert.SerializeObject(Users));
+                    if (Users != null)
+                    {
+                        File.WriteAllText(WorkingUsersFile, JsonConvert.SerializeObject(Users));
+                    }
                 }
             }
             catch (Exception x)
@@ -94,7 +98,7 @@ namespace BkkSimV2.Model
                 var exist = Users?.Users?.Any(u => u.Name == nameofuser);
                 if (exist!=null && exist==false)
                 {
-                    Users?.Users.Add(new WorkingUser() { Name = nameofuser, Registered = false, Status = UserStatus.Disconnect });
+                    Users?.Users.Add(new WorkingUser() { Name = nameofuser, /*Registered = false, */Status = UserStatus.Available });
                 }
             }
         }
@@ -109,6 +113,16 @@ namespace BkkSimV2.Model
                     Users?.Users.Remove(user);
                 }
             }
+        }
+
+        public bool WorkingUserExist(string nameofuser)
+        {
+            lock (wulocker)
+            {
+                var exist = Users?.Users?.Any(u => u.Name == nameofuser);
+                return exist==null ? false : (bool)exist;
+            }
+            throw new NotImplementedException();
         }
 
         private WorkingUsers Users { get => _users; set => _users = value; }

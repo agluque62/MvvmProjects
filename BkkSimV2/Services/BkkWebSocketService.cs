@@ -70,10 +70,13 @@ namespace BkkSimV2.Services
                             {
                                 DataService?.GetWorkingUsers((data, ex) =>
                                 {
-                                    /** Envio lo registrados */
-                                    Send(MessageService.RegisteredMsg(data.Users));
-                                    /** Envio los estados */
-                                    Send(MessageService.StatusMsg(data.Users));
+                                    if (ex == null)
+                                    {
+                                        /** Envio lo registrados */
+                                        Send(MessageService.RegisteredMsg(data.Users));
+                                        /** Envio los estados */
+                                        Send(MessageService.StatusMsg(data.Users));
+                                    }
                                 });
                             }
                         }

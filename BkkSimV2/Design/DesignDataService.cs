@@ -30,10 +30,10 @@ namespace BkkSimV2.Design
             {
                 Users = new System.Collections.Generic.List<WorkingUser>()
                 {
-                    new WorkingUser(){Name="User01", Registered=false, Status= UserStatus.Disconnect},
-                    new WorkingUser(){Name="User02", Registered=false, Status= UserStatus.Disconnect},
-                    new WorkingUser(){Name="User03", Registered=false, Status= UserStatus.Disconnect},
-                    new WorkingUser(){Name="User04", Registered=false, Status= UserStatus.Disconnect},
+                    new WorkingUser(){Name="User01", /*Registered=false, */Status= UserStatus.Available},
+                    new WorkingUser(){Name="User02", /*Registered=false, */Status= UserStatus.Available},
+                    new WorkingUser(){Name="User03", /*Registered=false, */Status= UserStatus.Available},
+                    new WorkingUser(){Name="User04", /*Registered=false, */Status= UserStatus.Available},
                 }
             }, null);
         }
@@ -49,6 +49,11 @@ namespace BkkSimV2.Design
         }
 
         public void DelWorkingUser(string nameofuser, Action<Exception> callback)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool WorkingUserExist(string nameofuser)
         {
             throw new NotImplementedException();
         }

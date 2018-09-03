@@ -38,6 +38,7 @@ namespace BkkSimV2.ViewModel
                 SimpleIoc.Default.Register<IDataService, DataService>();
             }
 
+
             SimpleIoc.Default.Register<MainViewModel>();
         }
 

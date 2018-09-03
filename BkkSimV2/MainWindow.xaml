@@ -6,7 +6,7 @@
         xmlns:conv="clr-namespace:BkkSimV2.Converters"
         xmlns:ignore="http://www.galasoft.ch/ignore"
         mc:Ignorable="d ignore"
-        Height="295.25"
+        Height="300"
         Width="454.354"
         Title="Simulador WS Brekeke. Nucleo 2018"
         DataContext="{Binding Main, Source={StaticResource Locator}}" ResizeMode="NoResize">
@@ -19,20 +19,30 @@
             <conv:StartedText x:Key="StartedText"></conv:StartedText>
         </ResourceDictionary>
     </Window.Resources>
-    <StackPanel HorizontalAlignment="Left" Height="244" Margin="10,10,10,10" VerticalAlignment="Top" Width="424">
-        <ListView Height="185" Margin="10,10,10,5">
+    <StackPanel HorizontalAlignment="Left" Height="250" Margin="10,10,10,10" VerticalAlignment="Top" Width="424">
+        <ListView Height="170" Margin="10,10,10,5" ItemsSource="{Binding UIUsers}">
             <ListView.View>
                 <GridView AllowsColumnReorder="False">
                     <GridViewColumn Header="Ed" Width="32"/>
-                    <GridViewColumn Header="Usuario" Width="200"/>
-                    <GridViewColumn Header="Estado" Width="100"/>
+                    <GridViewColumn Header="Usuario" Width="200" DisplayMemberBinding="{Binding Path=Name}"/>
+                    <GridViewColumn Header="Estado" Width="100" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <ComboBox SelectedValue="{Binding Path=Status, Mode=TwoWay}" ItemsSource="{Binding UserStatusStrings}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
         <StackPanel Height="41" Orientation="Horizontal" Margin="10,0">
             <Button Content="Añadir" Width="72" Margin="5" Command="{Binding AppAddUser}"/>
+            <TextBox TextWrapping="Wrap" Width="100" Margin="5" VerticalAlignment="Center" Text="{Binding Path=NewUserName, Mode=TwoWay}"/>
             <Button Content="{Binding IsStarted, Converter={StaticResource StartedText}}" Width="75" Margin="5" Command="{Binding AppStartStop}"/>
             <Button Content="Salir" Width="75" HorizontalAlignment="Right" Margin="5" Command="{Binding AppExit}"/>
+        </StackPanel>
+        <StackPanel Height="20">
+            <TextBlock Foreground="#FFA44F3C" Margin="10 2 10 2" Text="{Binding Path=SystemMessage}" FontSize="10"></TextBlock>
         </StackPanel>
     </StackPanel>
 </Window>

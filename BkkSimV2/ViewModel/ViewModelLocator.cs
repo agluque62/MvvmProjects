@@ -12,6 +12,7 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft.Practices.ServiceLocation;
+
 using BkkSimV2.Model;
 
 namespace BkkSimV2.ViewModel
@@ -37,7 +38,6 @@ namespace BkkSimV2.ViewModel
             {
                 SimpleIoc.Default.Register<IDataService, DataService>();
             }
-
 
             SimpleIoc.Default.Register<MainViewModel>();
         }

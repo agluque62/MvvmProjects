@@ -25,7 +25,7 @@ namespace BkkSimV2.Services
 
             public BkkWsUserInfo()
             {
-                registered = "false";
+                registered = "true";
                 user = "";
                 time = DateTime.Now.ToBinary();
                 other_number = "";
@@ -72,12 +72,12 @@ namespace BkkSimV2.Services
             }
         }
         /** */
-        public static string RegisteredMsg(WorkingUser userInfo)
+        public static string RegisteredMsg(WorkingUser userInfo, bool registered=true)
         {
             BkkWsMessage msg = new BkkWsMessage()
             {
                 method = "notify_registered",
-                parametros = new BkkWsUserInfo() { user = userInfo.Name, registered = userInfo.Status!= UserStatus.Unregistered ? "true" : "false" }
+                parametros = new BkkWsUserInfo() { user = userInfo.Name, registered = registered ? "true" : "false" }
             };
             return JsonConvert.SerializeObject(msg);
         }
@@ -90,7 +90,7 @@ namespace BkkSimV2.Services
                 msgs.Add(new BkkWsMessage()
                 {
                     method = "notify_registered",
-                    parametros = new BkkWsUserInfo() { user = user.Name, registered = user.Status != UserStatus.Unregistered ? "true" : "false" }
+                    parametros = new BkkWsUserInfo() { user = user.Name, registered = "true" }
                 });
             });
             return JsonConvert.SerializeObject(msgs);

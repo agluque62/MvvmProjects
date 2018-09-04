@@ -23,12 +23,20 @@
         <ListView Height="170" Margin="10,10,10,5" ItemsSource="{Binding UIUsers}">
             <ListView.View>
                 <GridView AllowsColumnReorder="False">
-                    <GridViewColumn Header="Ed" Width="32"/>
-                    <GridViewColumn Header="Usuario" Width="200" DisplayMemberBinding="{Binding Path=Name}"/>
-                    <GridViewColumn Header="Estado" Width="100" >
+                    <GridViewColumn Header="Ed" Width="32">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <ComboBox SelectedValue="{Binding Path=Status, Mode=TwoWay}" ItemsSource="{Binding UserStatusStrings}" />
+                                <Button Command="{Binding AppDelUser}" CommandParameter="{Binding Path=Name}">
+                                    <Image Source="Images/trash.png"></Image>
+                                </Button>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Usuario" Width="200" DisplayMemberBinding="{Binding Path=Name}"/>
+                    <GridViewColumn Header="Estado" Width="130" >
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <ComboBox SelectedValue="{Binding Path=Status, Mode=TwoWay}" ItemsSource="{Binding UserStatusStrings}" Width="110" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -38,7 +46,7 @@
         <StackPanel Height="41" Orientation="Horizontal" Margin="10,0">
             <Button Content="Añadir" Width="72" Margin="5" Command="{Binding AppAddUser}"/>
             <TextBox TextWrapping="Wrap" Width="100" Margin="5" VerticalAlignment="Center" Text="{Binding Path=NewUserName, Mode=TwoWay}"/>
-            <Button Content="{Binding IsStarted, Converter={StaticResource StartedText}}" Width="75" Margin="5" Command="{Binding AppStartStop}"/>
+            <!--<Button Content="{Binding IsStarted, Converter={StaticResource StartedText}}" Width="75" Margin="5" Command="{Binding AppStartStop}"/>-->
             <Button Content="Salir" Width="75" HorizontalAlignment="Right" Margin="5" Command="{Binding AppExit}"/>
         </StackPanel>
         <StackPanel Height="20">

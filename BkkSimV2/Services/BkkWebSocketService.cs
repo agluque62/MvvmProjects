@@ -25,8 +25,7 @@ namespace BkkSimV2.Services
         #region Publicos
         public IDataService DataService { get; set; }
         public Action<BkkWebSocketService, bool> SessionRegister = null;
-
-        public void RefreshUser(string nameofuser)
+        public void RefreshUser(string nameofuser, bool infoRegRefresh, bool infoStatusRefresh, bool infoReg=true)
         {
             lock (locker)
             {
@@ -36,12 +35,23 @@ namespace BkkSimV2.Services
                     if (user != null)
                     {
                         /** Envio lo registrados */
-                        Sessions?.Broadcast(MessageService.RegisteredMsg(user));
+                        if (infoRegRefresh==true)
+                            Sessions?.Broadcast(MessageService.RegisteredMsg(user, infoReg));
                         /** Envio los estados */
-                        Sessions?.Broadcast(MessageService.StatusMsg(user));
+                        if (infoStatusRefresh==true)
+                            Sessions?.Broadcast(MessageService.StatusMsg(user));
                     }
                 });
             }
+        }
+
+        public void DisposeSessions()
+        {
+            lock (locker)
+            {
+                Sessions.CloseSession(this.Id, CloseStatusCode.Normal, "Server shutdowm");
+            }
+
         }
 
         #endregion Publicos
@@ -109,10 +119,15 @@ namespace BkkSimV2.Services
 
     public class BkkWebSocketServer : WebSocketServer
     {
-        public BkkWebSocketServer(IDataService dataService, string ip, int port) : 
+        const string strService = "/pbx/ws";
+        public BkkWebSocketServer(string ip, int port) : 
             base (System.Net.IPAddress.Parse(ip), port)
         {
-            AddWebSocketService<BkkWebSocketService>("/pbx/ws", () =>
+        }
+
+        public void Activate(IDataService dataService)
+        {
+            AddWebSocketService<BkkWebSocketService>(strService, () =>
             {
                 return new BkkWebSocketService()
                 {
@@ -128,12 +143,32 @@ namespace BkkSimV2.Services
             });
         }
 
-        public void UpdateUser(string nameofuser)
+        public void Deactivate()
+        {
+            var copia = new List<BkkWebSocketService>(sesiones);
+            copia.ForEach(sesion =>
+            {
+                sesion.DisposeSessions();
+            });
+
+            sesiones.Clear();
+        }
+
+        public void UpdateUser(string nameofuser, bool infoRegRefresh, bool infoStatusRefresh)
         {
             sesiones.ForEach(s =>
             {
-                s.RefreshUser(nameofuser);
+                s.RefreshUser(nameofuser, infoRegRefresh, infoStatusRefresh);
             });
+        }
+
+        public void InformUserUnregistered(string nameofuser)
+        {
+            sesiones.ForEach(s =>
+            {
+                s.RefreshUser(nameofuser, true, false, false);
+            });
+
         }
 
         List<BkkWebSocketService> sesiones = new List<BkkWebSocketService>();

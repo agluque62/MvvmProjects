@@ -52,7 +52,7 @@ namespace UnitsTestProject
             for (int i = 0; i < 10; i++)
             {
                 System.Threading.Tasks.Task.Delay(2000).Wait();
-                wssv.UpdateUser("User-001");
+                wssv.UpdateUser("User-001", true, true);
             }
 
             Console.ReadKey(true);

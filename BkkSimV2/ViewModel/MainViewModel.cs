@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -24,6 +25,7 @@ namespace BkkSimV2.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private readonly IDataService _dataService;
+
         private BkkWebSocketServer _wss = null;
         private string _systemMessage;
         private ObservableCollection<WorkingUser> _uIUsers;
@@ -38,53 +40,86 @@ namespace BkkSimV2.ViewModel
             /** */
             _dataService.GetAppConfig((cfg, x) =>
             {
-                _wss = new BkkWebSocketServer(_dataService, cfg.Ip, cfg.Port);
+                _wss = new BkkWebSocketServer(cfg.Ip, cfg.Port);
+                _wss.Start();
+                _wss.Activate(_dataService);
             });
 
-            IsStarted = false;
+            IsStarted = true;
             NewUserName = "";
-            SystemMessage = "Hola Hola..";
 
             /** Programacion de los comandos UI */
             AppExit = new RelayCommand(() =>
             {
-                /** TODO. Llamar a Dispose */
-                if (IsStarted) _wss.Stop();
+                if (IsStarted)
+                {
+                    _wss.Deactivate();
+                    _wss.Stop();
+                }
+
                 _dataService.SaveWorkingUsers(null);
                 System.Windows.Application.Current.Shutdown();
             });
 
             AppStartStop = new RelayCommand(() =>
             {
-                if (IsStarted) _wss.Stop();
-                else _wss.Start();
-
-                IsStarted = !IsStarted;
-                RaisePropertyChanged("IsStarted");
             });
 
             AppAddUser = new RelayCommand(() =>
             {
                 if (NewUserName == string.Empty)
                 {
-                    SendSystemMessage("El Nombre de Usuario no puede estar vacio");
+                    Messenger.Default.Send<string>("El Nombre de Usuario no puede estar vacio");
                 }
                 else if (_dataService.WorkingUserExist(NewUserName) == true)
                 {
-                    SendSystemMessage($"Nombre de Usuario <{NewUserName}> repetido...");
+                    Messenger.Default.Send<string>($"Nombre de Usuario <{NewUserName}> repetido...");
                 }
                 else
                 {
-                    Messenger.Default.Send<WorkingUser>(new WorkingUser() { Name = NewUserName, /*Registered = true, */Status = UserStatus.Available });
+                    //if (dlgService.ShowQuestion($"¿Desea añadir el usuario {NewUserName}?", "BkkSimV2") == true)
+                    {
+                        WorkingUser newuser = new WorkingUser() { Name = NewUserName, /*Registered = true, */Status = UserStatus.Available };
+                        Messenger.Default.Send<WorkingUserEvent>(new WorkingUserEvent() { User = newuser, Event = ModelEvents.Register });
+                    }
                 }
             });
 
-            /** Mensaje que se envia al añadir un nuevo usuario */
-            Messenger.Default.Register<WorkingUser>(this, (newuser) =>
+            /** Mensaje que se envia como evento de usarios usuario */
+            Messenger.Default.Register<WorkingUserEvent>(this, (ev) =>
             {
-                _dataService.AddWorkingUser(newuser.Name, null);
-                _wss.UpdateUser(newuser.Name);
-                RaisePropertyChanged("UIUsers");
+                switch (ev.Event)
+                {
+                    case ModelEvents.Register:
+                        _dataService.AddWorkingUser(ev.User.Name, null);
+                        _wss.UpdateUser(ev.User.Name, true, false);
+                        RaisePropertyChanged("UIUsers");
+                        break;
+
+                    case ModelEvents.Unregister:
+                        _wss.InformUserUnregistered(ev.User.Name);
+                        _dataService.DelWorkingUser(ev.User.Name, null);
+                        RaisePropertyChanged("UIUsers");
+                        break;
+
+                    case ModelEvents.StatusChange:
+                        _wss.UpdateUser(ev.User.Name, false, true);
+                        break;
+                }
+            });
+
+            /** Para enviar mensajes a la línea de mensajes */
+            Messenger.Default.Register<String>(this, (msg) =>
+            {
+                Task.Factory.StartNew(() =>
+                {
+                    System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() =>
+                    {
+                        SystemMessage = msg;
+                        Task.Delay(5000).Wait();
+                        SystemMessage = "";
+                    });
+                });
             });
 
         }
@@ -97,21 +132,7 @@ namespace BkkSimV2.ViewModel
         ////}
         ///
 
-        protected void SendSystemMessage(string msg)
-        {
-            Task.Factory.StartNew(() =>
-            {
-                System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() =>
-                {
-                    SystemMessage = msg;
-                    Task.Delay(5000).Wait();
-                    SystemMessage = "";
-                });
-            });
-        }
-
         #region Propiedades para UI
-
         public bool IsStarted { get; set; }
         public string NewUserName { get; set; }
         public string SystemMessage

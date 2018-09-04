@@ -6,25 +6,36 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using GalaSoft.MvvmLight.Messaging;
+using GalaSoft.MvvmLight.Command;
+
+using Newtonsoft.Json;
+
 namespace BkkSimV2.Model
 {
+    public enum ModelEvents
+    {
+        Register,
+        Unregister,
+        StatusChange
+    }
     public enum UserStatus
     {
-        //Calling = 0,
-        //Incoming = 1,
-        //Call_Success = 2,
-        //EndTalking = 12,
-        //Answer_Success = 14,
-        //Park_Cancel = 21,
-        //Park_Start = 30,
-        //StartRinging = 65,
-        //Hold = 35,
-        //Unhold = 36,
-        //Disconnect = -1
-        Unregistered = 0,
-        Available = 1,
-        Busy = 2,
-        NotInterrupt = 3
+        Calling = 0,
+        Incoming = 1,
+        Call_Success = 2,
+        EndTalking = 12,
+        Answer_Success = 14,
+        Park_Cancel = 21,
+        Park_Start = 30,
+        StartRinging = 65,
+        Hold = 35,
+        Unhold = 36,
+        Available = -1,
+        //Unregistered = -2,
+        //Available = 0, 
+        //Busy = 2,
+        //NotInterrupt = 3
     }
 
     public class DataItem
@@ -50,10 +61,29 @@ namespace BkkSimV2.Model
 
     public class WorkingUser
     {
-        public string Name { get; set; }
-        //public bool Registered { get; set; }
-        public UserStatus Status { get; set; }
+        private UserStatus _status;
 
+
+        public WorkingUser()
+        {
+            AppDelUser = new RelayCommand<string>((obj) =>
+            {
+                Messenger.Default.Send<WorkingUserEvent>(new WorkingUserEvent() { User = this, Event = ModelEvents.Unregister });
+            });
+        }
+
+        public string Name { get; set; }
+        public UserStatus Status
+        {
+            get => _status;
+            set
+            {
+                _status = value;
+                Messenger.Default.Send<WorkingUserEvent>(new WorkingUserEvent() { User = this, Event = ModelEvents.StatusChange });
+            }
+        }
+
+        [JsonIgnore]
         public IList<UserStatus> UserStatusStrings
         {
             get
@@ -61,11 +91,20 @@ namespace BkkSimV2.Model
                 return Enum.GetValues(typeof(UserStatus)).Cast<UserStatus>().ToList<UserStatus>();
             }
         }
+
+        [JsonIgnore]
+        public RelayCommand<string> AppDelUser { get; set; }
     }
 
     public class WorkingUsers
     {
         public List<WorkingUser> Users { get; set; }
+    }
+
+    public class WorkingUserEvent
+    {
+        public WorkingUser User { get; set; }
+        public ModelEvents Event { get; set; }
     }
 
 }

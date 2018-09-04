@@ -29,6 +29,7 @@ namespace BkkSimV2.ViewModel
         private BkkWebSocketServer _wss = null;
         private string _systemMessage;
         private ObservableCollection<WorkingUser> _uIUsers;
+        private int _openSessions;
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
@@ -40,6 +41,8 @@ namespace BkkSimV2.ViewModel
             /** */
             _dataService.GetAppConfig((cfg, x) =>
             {
+                Title = $"Simulador WS Brekeke. Nucleo 2018. Listening at {cfg.Ip}:{cfg.Port}...";
+
                 _wss = new BkkWebSocketServer(cfg.Ip, cfg.Port);
                 _wss.Start();
                 _wss.Activate(_dataService);
@@ -47,6 +50,7 @@ namespace BkkSimV2.ViewModel
 
             IsStarted = true;
             NewUserName = "";
+            OpenSessions = 0;
 
             /** Programacion de los comandos UI */
             AppExit = new RelayCommand(() =>
@@ -69,57 +73,61 @@ namespace BkkSimV2.ViewModel
             {
                 if (NewUserName == string.Empty)
                 {
-                    Messenger.Default.Send<string>("El Nombre de Usuario no puede estar vacio");
+                    Messenger.Default.Send<BkkSimEvent>(new BkkSimEvent(ModelEvents.Message) { Data = "El Nombre de Usuario no puede estar vacio"});
                 }
                 else if (_dataService.WorkingUserExist(NewUserName) == true)
                 {
-                    Messenger.Default.Send<string>($"Nombre de Usuario <{NewUserName}> repetido...");
+                    Messenger.Default.Send<BkkSimEvent>(new BkkSimEvent(ModelEvents.Message) { Data = $"Nombre de Usuario <{NewUserName}> repetido..."});
                 }
                 else
                 {
-                    //if (dlgService.ShowQuestion($"¿Desea añadir el usuario {NewUserName}?", "BkkSimV2") == true)
-                    {
-                        WorkingUser newuser = new WorkingUser() { Name = NewUserName, /*Registered = true, */Status = UserStatus.Available };
-                        Messenger.Default.Send<WorkingUserEvent>(new WorkingUserEvent() { User = newuser, Event = ModelEvents.Register });
-                    }
+                    WorkingUser newuser = new WorkingUser() { Name = NewUserName, /*Registered = true, */Status = UserStatus.Disconnect };
+                    Messenger.Default.Send<BkkSimEvent>(new BkkSimEvent(ModelEvents.Register) { Data = newuser });
                 }
             });
 
-            /** Mensaje que se envia como evento de usarios usuario */
-            Messenger.Default.Register<WorkingUserEvent>(this, (ev) =>
+            /** Gestor de Mensajes... */
+            Messenger.Default.Register<BkkSimEvent>(this, (ev) =>
             {
                 switch (ev.Event)
                 {
+                    case ModelEvents.Message:
+                        Task.Factory.StartNew(() =>
+                        {
+                            var msg = ev.Data as string;
+                            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() =>
+                            {
+                                SystemMessage = msg;
+                                Task.Delay(5000).Wait();
+                                SystemMessage = "";
+                            });
+                        });
+                        break;
+
                     case ModelEvents.Register:
-                        _dataService.AddWorkingUser(ev.User.Name, null);
-                        _wss.UpdateUser(ev.User.Name, true, false);
+                        _dataService.AddWorkingUser((ev.Data as WorkingUser).Name, null);
+                        _wss.UpdateUser((ev.Data as WorkingUser).Name, true, false);
                         RaisePropertyChanged("UIUsers");
                         break;
 
                     case ModelEvents.Unregister:
-                        _wss.InformUserUnregistered(ev.User.Name);
-                        _dataService.DelWorkingUser(ev.User.Name, null);
+                        _wss.InformUserUnregistered((ev.Data as WorkingUser).Name);
+                        _dataService.DelWorkingUser((ev.Data as WorkingUser).Name, null);
                         RaisePropertyChanged("UIUsers");
                         break;
 
                     case ModelEvents.StatusChange:
-                        _wss.UpdateUser(ev.User.Name, false, true);
+                        _wss.UpdateUser((ev.Data as WorkingUser).Name, false, true);
+                        break;
+
+                    case ModelEvents.SessionOpen:
+                        OpenSessions = OpenSessions + 1;
+                        break;
+
+                    case ModelEvents.SessionClose:
+                        OpenSessions = OpenSessions - 1;
                         break;
                 }
-            });
-
-            /** Para enviar mensajes a la línea de mensajes */
-            Messenger.Default.Register<String>(this, (msg) =>
-            {
-                Task.Factory.StartNew(() =>
-                {
-                    System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() =>
-                    {
-                        SystemMessage = msg;
-                        Task.Delay(5000).Wait();
-                        SystemMessage = "";
-                    });
-                });
             });
 
         }
@@ -154,6 +162,15 @@ namespace BkkSimV2.ViewModel
                 return _uIUsers;
             }
             //set => _uIUsers = value;
+        }
+        public string Title { get; set; }
+        public int OpenSessions
+        {
+            get => _openSessions;
+            set
+            {
+                Set(ref _openSessions, value);
+            }
         }
         #endregion
 

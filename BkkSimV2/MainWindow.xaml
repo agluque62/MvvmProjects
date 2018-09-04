@@ -8,7 +8,7 @@
         mc:Ignorable="d ignore"
         Height="300"
         Width="454.354"
-        Title="Simulador WS Brekeke. Nucleo 2018"
+        Title="{Binding Title}"
         DataContext="{Binding Main, Source={StaticResource Locator}}" ResizeMode="NoResize">
 
     <Window.Resources>
@@ -47,6 +47,8 @@
             <Button Content="Añadir" Width="72" Margin="5" Command="{Binding AppAddUser}"/>
             <TextBox TextWrapping="Wrap" Width="100" Margin="5" VerticalAlignment="Center" Text="{Binding Path=NewUserName, Mode=TwoWay}"/>
             <!--<Button Content="{Binding IsStarted, Converter={StaticResource StartedText}}" Width="75" Margin="5" Command="{Binding AppStartStop}"/>-->
+            <TextBlock Width="60" Margin="5" VerticalAlignment="Center" >Sesiones</TextBlock>
+            <TextBlock Width="30" Margin="5" VerticalAlignment="Center" Text="{Binding OpenSessions}" ></TextBlock>
             <Button Content="Salir" Width="75" HorizontalAlignment="Right" Margin="5" Command="{Binding AppExit}"/>
         </StackPanel>
         <StackPanel Height="20">

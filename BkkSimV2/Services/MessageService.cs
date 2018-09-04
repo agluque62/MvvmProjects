@@ -101,7 +101,7 @@ namespace BkkSimV2.Services
             BkkWsMessage msg = new BkkWsMessage()
             {
                 method = "notify_status",
-                parametros = new BkkWsUserInfo() { user = userInfo.Name, status = userInfo.Status.ToString() }
+                parametros = new BkkWsUserInfo() { user = userInfo.Name, status = ((int )userInfo.Status).ToString() }
             };
             return JsonConvert.SerializeObject(msg);
         }
@@ -114,7 +114,7 @@ namespace BkkSimV2.Services
                 msgs.Add(new BkkWsMessage()
                 {
                     method = "notify_status",
-                    parametros = new BkkWsUserInfo() { user = user.Name, status = user.Status.ToString() }
+                    parametros = new BkkWsUserInfo() { user = user.Name, status = ((int)user.Status).ToString() }
                 });
             });
             return JsonConvert.SerializeObject(msgs);

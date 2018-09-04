@@ -98,7 +98,7 @@ namespace BkkSimV2.Model
                 var exist = Users?.Users?.Any(u => u.Name == nameofuser);
                 if (exist!=null && exist==false)
                 {
-                    Users?.Users.Add(new WorkingUser() { Name = nameofuser, /*Registered = false, */Status = UserStatus.Available });
+                    Users?.Users.Add(new WorkingUser() { Name = nameofuser, /*Registered = false, */Status = UserStatus.Disconnect });
                 }
             }
         }

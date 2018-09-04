@@ -92,6 +92,7 @@ namespace BkkSimV2.Services
                         }
                     }
                 });
+                BkkMessaging.Send(ModelEvents.SessionOpen, null);
             }
             return base.OnOpen();
         }
@@ -102,6 +103,7 @@ namespace BkkSimV2.Services
             {
                 SessionRegister?.Invoke(this, false);
                 IsStarted = false;
+                BkkMessaging.Send(ModelEvents.SessionClose, null);
             }
             return base.OnClose(e);
         }

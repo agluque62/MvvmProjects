@@ -15,10 +15,14 @@ namespace BkkSimV2.Model
 {
     public enum ModelEvents
     {
+        Message,
         Register,
         Unregister,
-        StatusChange
+        StatusChange,
+        SessionOpen,
+        SessionClose
     }
+
     public enum UserStatus
     {
         Calling = 0,
@@ -31,7 +35,7 @@ namespace BkkSimV2.Model
         StartRinging = 65,
         Hold = 35,
         Unhold = 36,
-        Available = -1,
+        Disconnect = -1,
         //Unregistered = -2,
         //Available = 0, 
         //Busy = 2,
@@ -68,7 +72,7 @@ namespace BkkSimV2.Model
         {
             AppDelUser = new RelayCommand<string>((obj) =>
             {
-                Messenger.Default.Send<WorkingUserEvent>(new WorkingUserEvent() { User = this, Event = ModelEvents.Unregister });
+                Messenger.Default.Send<BkkSimEvent>(new BkkSimEvent(ModelEvents.Unregister) { Data = this });
             });
         }
 
@@ -79,7 +83,7 @@ namespace BkkSimV2.Model
             set
             {
                 _status = value;
-                Messenger.Default.Send<WorkingUserEvent>(new WorkingUserEvent() { User = this, Event = ModelEvents.StatusChange });
+                Messenger.Default.Send<BkkSimEvent>(new BkkSimEvent(ModelEvents.StatusChange) { Data = this });
             }
         }
 
@@ -101,10 +105,21 @@ namespace BkkSimV2.Model
         public List<WorkingUser> Users { get; set; }
     }
 
-    public class WorkingUserEvent
+    public class BkkSimEvent : EventArgs
     {
-        public WorkingUser User { get; set; }
+        public BkkSimEvent(ModelEvents ev)
+        {
+            Event = ev;
+        }
         public ModelEvents Event { get; set; }
+        public Object Data { get; set; }
     }
 
+    public class BkkMessaging
+    {
+        public static void Send(ModelEvents ev, Object data)
+        {
+            Messenger.Default.Send<BkkSimEvent>(new BkkSimEvent(ev) { Data = data });
+        }
+    }
 }

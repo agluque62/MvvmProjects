@@ -9,13 +9,20 @@ namespace NuMvvmServices
 {
     public interface IDlgService
     {
-        void Show(string msg);
+        void Show(string msg, string title = "DialogService");
+        void Confirm(string msg, Action<bool> SiNo, string title = "DialogService");
     }
     public class DialogService : IDlgService
     {
-        public void Show(string msg)
+        public void Confirm(string msg,  Action<bool> SiNo, string title="DialogService")
         {
-            MessageBox.Show(msg);
+            MessageBoxResult result = MessageBox.Show(msg, title, MessageBoxButton.YesNo);
+            SiNo?.Invoke(result == MessageBoxResult.Yes);
+        }
+
+        public void Show(string msg, string title="DialogService")
+        {
+            MessageBox.Show(msg, title);
         }
     }
 }

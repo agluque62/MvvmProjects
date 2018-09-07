@@ -45,7 +45,7 @@ namespace UnitsTestProject
         [TestMethod]
         public void BkkServiceUnitTest_TestMethod2()
         {
-            var wssv = new BkkWebSocketServer(dataService, "127.0.0.1", 44444);
+            var wssv = new BkkWebSocketServer(/*dataService, */"127.0.0.1", 44444);
 
             wssv.Start();
 

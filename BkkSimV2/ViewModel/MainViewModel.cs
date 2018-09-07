@@ -4,12 +4,12 @@ using System.Collections.ObjectModel;
 
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
-using GalaSoft.MvvmLight.Views;
+
+using NuMvvmServices;
 
 using BkkSimV2.Model;
 using BkkSimV2.Services;
@@ -25,6 +25,7 @@ namespace BkkSimV2.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private readonly IDataService _dataService;
+        private readonly IDlgService _dlgService;
 
         private BkkWebSocketServer _wss = null;
         private string _systemMessage;
@@ -34,9 +35,10 @@ namespace BkkSimV2.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public MainViewModel(IDataService dataService)
+        public MainViewModel(IDataService dataService, IDlgService dlgService)
         {
             _dataService = dataService;
+            _dlgService = dlgService; 
 
             /** */
             _dataService.GetAppConfig((cfg, x) =>
@@ -55,14 +57,20 @@ namespace BkkSimV2.ViewModel
             /** Programacion de los comandos UI */
             AppExit = new RelayCommand(() =>
             {
-                if (IsStarted)
+                _dlgService.Confirm("¿Desea Salir de la Aplicacion?", (res) =>
                 {
-                    _wss.Deactivate();
-                    _wss.Stop();
-                }
+                    if (res)
+                    {
+                        if (IsStarted)
+                        {
+                            _wss.Deactivate();
+                            _wss.Stop();
+                        }
 
-                _dataService.SaveWorkingUsers(null);
-                System.Windows.Application.Current.Shutdown();
+                        _dataService.SaveWorkingUsers(null);
+                        System.Windows.Application.Current.Shutdown();
+                    }
+                }, Title);
             });
 
             AppStartStop = new RelayCommand(() =>
@@ -81,8 +89,14 @@ namespace BkkSimV2.ViewModel
                 }
                 else
                 {
-                    WorkingUser newuser = new WorkingUser() { Name = NewUserName, /*Registered = true, */Status = UserStatus.Disconnect };
-                    Messenger.Default.Send<BkkSimEvent>(new BkkSimEvent(ModelEvents.Register) { Data = newuser });
+                    _dlgService.Confirm($"¿Desea añadir el usuario {NewUserName}?", (res) =>
+                    {
+                        if (res)
+                        {
+                            WorkingUser newuser = new WorkingUser() { Name = NewUserName, /*Registered = true, */Status = UserStatus.Disconnect };
+                            Messenger.Default.Send<BkkSimEvent>(new BkkSimEvent(ModelEvents.Register) { Data = newuser });
+                        }
+                    }, Title);
                 }
             });
 
@@ -111,9 +125,15 @@ namespace BkkSimV2.ViewModel
                         break;
 
                     case ModelEvents.Unregister:
-                        _wss.InformUserUnregistered((ev.Data as WorkingUser).Name);
-                        _dataService.DelWorkingUser((ev.Data as WorkingUser).Name, null);
-                        RaisePropertyChanged("UIUsers");
+                        _dlgService.Confirm($"¿Desea eliminar el usuario {(ev.Data as WorkingUser).Name}?", (res) =>
+                        {
+                            if (res)
+                            {
+                                _wss.InformUserUnregistered((ev.Data as WorkingUser).Name);
+                                _dataService.DelWorkingUser((ev.Data as WorkingUser).Name, null);
+                                RaisePropertyChanged("UIUsers");
+                            }
+                        }, Title);
                         break;
 
                     case ModelEvents.StatusChange:

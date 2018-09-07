@@ -7,14 +7,15 @@ using System.Threading.Tasks;
 
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+
+using NuMvvmServices;
 using Uv5kiNbxSimV2.Model;
-using Uv5kiNbxSimV2.Services;
 
 namespace Uv5kiNbxSimV2.ViewModel
 {
     public class ConfigUserControlViewModel : ViewModelBase, IDisposable
     {
-        public ConfigUserControlViewModel(IDataService dataService, IDialogService dialogService)
+        public ConfigUserControlViewModel(IDataService dataService, IDlgService dialogService)
         {
             _dialogService = dialogService;
             _dataService = dataService;
@@ -32,11 +33,14 @@ namespace Uv5kiNbxSimV2.ViewModel
                 Int32 iborrar = SelectedIndex;
                 if (iborrar >= 0)
                 {
-                    if (_dialogService.Confirm("¿Desea eliminar el item seleccionado?") )
+                    _dialogService.Confirm("¿Desea eliminar el item seleccionado?", (res) =>
                     {
-                        _config.Nbxs.RemoveAt(iborrar);
-                        RaisePropertyChanged("JData");
-                    }
+                        if (res)
+                        {
+                            _config.Nbxs.RemoveAt(iborrar);
+                            RaisePropertyChanged("JData");
+                        }
+                    });
                 }
             });
         }
@@ -47,7 +51,7 @@ namespace Uv5kiNbxSimV2.ViewModel
         }
 
         private readonly IDataService _dataService;
-        private readonly IDialogService _dialogService;
+        private readonly IDlgService _dialogService;
 
         private AppDataConfig.JSonConfig _config = null;
         public AppDataConfig.JSonConfig JData

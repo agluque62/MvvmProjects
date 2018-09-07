@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 
-using NLog;
+using NuMvvmServices;
 
 namespace Uv5kiNbxSimV2.Model
 {
@@ -50,6 +50,8 @@ namespace Uv5kiNbxSimV2.Model
             WebPort = 1022;
         }
 
+        private readonly ILogService _log = new LogService();
+
         Task NbxJobTask = null;
         private bool Running { get; set; }
         public void Start()
@@ -89,7 +91,7 @@ namespace Uv5kiNbxSimV2.Model
                                         }
                                         catch (Exception x)
                                         {
-                                            LogManager.GetLogger("UlisesNbx").Error(x, "Job Exception");
+                                            _log.Error($"UlisesNbx Exception", x);
                                         }
                                     }
                                 }

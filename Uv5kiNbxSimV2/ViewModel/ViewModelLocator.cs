@@ -13,8 +13,8 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 using Microsoft.Practices.ServiceLocation;
 
+using NuMvvmServices;
 using Uv5kiNbxSimV2.Model;
-using Uv5kiNbxSimV2.Services;
 
 namespace Uv5kiNbxSimV2.ViewModel
 {
@@ -42,7 +42,7 @@ namespace Uv5kiNbxSimV2.ViewModel
             }
 
             /** Servicio de Dialogos.. */
-            SimpleIoc.Default.Register<IDialogService, DialogService>();
+            SimpleIoc.Default.Register<IDlgService, DialogService>();
 
             SimpleIoc.Default.Register<MainViewModel>();
             SimpleIoc.Default.Register<MainUserControlViewModel>();

@@ -1,7 +1,8 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+
+using NuMvvmServices;
 using Uv5kiNbxSimV2.Model;
-using Uv5kiNbxSimV2.Services;
 
 namespace Uv5kiNbxSimV2.ViewModel
 {
@@ -14,12 +15,12 @@ namespace Uv5kiNbxSimV2.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private readonly IDataService _dataService;
-        private readonly IDialogService _dialogService;
+        private readonly IDlgService _dialogService;
 
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public MainViewModel(IDataService dataService, IDialogService dialogService)
+        public MainViewModel(IDataService dataService, IDlgService dialogService)
         {
             CurrentViewModel = new MainUserControlViewModel(dataService);
 

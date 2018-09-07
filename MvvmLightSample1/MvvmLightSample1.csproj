@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MvvmLightSample1</RootNamespace>
     <AssemblyName>MvvmLightSample1</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
@@ -132,6 +132,13 @@
       <Project>{678b39b1-249e-4940-8b8d-cbfdb345ae70}</Project>
       <Name>MyWpfControlLibrary</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NuMvvmServices\NuMvvmServices.csproj">
+      <Project>{93817174-ebee-4a9b-8fc7-a29d6dc40715}</Project>
+      <Name>NuMvvmServices</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

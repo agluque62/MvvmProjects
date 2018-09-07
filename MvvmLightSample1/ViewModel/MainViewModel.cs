@@ -1,4 +1,9 @@
-﻿using GalaSoft.MvvmLight;
+﻿using System.Threading.Tasks;
+
+using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.CommandWpf;
+
+using NuMvvmServices;
 using MvvmLightSample1.Model;
 
 namespace MvvmLightSample1.ViewModel
@@ -12,13 +17,14 @@ namespace MvvmLightSample1.ViewModel
     public class MainViewModel : ViewModelBase
     {
         private readonly IDataService _dataService;
+        private readonly IDlgService _dlgService;
 
         /// <summary>
         /// The <see cref="WelcomeTitle" /> property's name.
         /// </summary>
         public const string WelcomeTitlePropertyName = "WelcomeTitle";
-
         private string _welcomeTitle = string.Empty;
+        public RelayCommand TestDialog { get; set; }
 
         /// <summary>
         /// Gets the WelcomeTitle property.
@@ -39,8 +45,9 @@ namespace MvvmLightSample1.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public MainViewModel(IDataService dataService)
+        public MainViewModel(IDataService dataService, IDlgService dlgService)
         {
+            _dlgService = dlgService;
             _dataService = dataService;
             _dataService.GetData(
                 (item, error) =>
@@ -53,6 +60,15 @@ namespace MvvmLightSample1.ViewModel
 
                     WelcomeTitle = item.Title;
                 });
+
+            TestDialog = new RelayCommand(() =>
+            {
+                _dlgService.Show("Testing DialogService");
+            });
+        }
+
+        void Test()
+        {
         }
 
         ////public override void Cleanup()

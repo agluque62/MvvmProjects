@@ -11,8 +11,11 @@
 
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
+using GalaSoft.MvvmLight.Views;
 using Microsoft.Practices.ServiceLocation;
+
 using MvvmLightSample1.Model;
+using NuMvvmServices;
 
 namespace MvvmLightSample1.ViewModel
 {
@@ -38,6 +41,7 @@ namespace MvvmLightSample1.ViewModel
                 SimpleIoc.Default.Register<IDataService, DataService>();
             }
 
+            SimpleIoc.Default.Register<IDlgService, DialogService>();
             SimpleIoc.Default.Register<MainViewModel>();
         }
 

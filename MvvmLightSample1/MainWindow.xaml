@@ -28,14 +28,13 @@
                    VerticalAlignment="Center"
                    HorizontalAlignment="Center"
                    TextWrapping="Wrap" />
-            <Button Content="boton"/>
-            <ToggleButton Content="toggle button"/>
             <uc:ToggleSwitch Margin="0 0 0 6"
                          HeaderHorizontalAlignment="Stretch" Width="200" HorizontalAlignment="Right"
                          SwitchContentPlacement="Right"
                          Content="Show Gridlines"
                          CheckedText="Yes" UncheckedText="No"
                          IsChecked="{Binding ShowGridlines, Mode=TwoWay}"/>
+            <Button Margin="10" Command="{Binding TestDialog}">Tests</Button>
         </StackPanel>
 
     </Grid>

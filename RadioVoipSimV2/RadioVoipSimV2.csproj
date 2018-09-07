@@ -41,9 +41,6 @@
     <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.5.6\lib\net45\NLog.dll</HintPath>
-    </Reference>
     <Reference Include="SharpSnmpLib, Version=10.0.7.0, Culture=neutral, PublicKeyToken=4c00852d3788e005, processorArchitecture=MSIL">
       <HintPath>..\packages\Lextm.SharpSnmpLib.10.0.7\lib\net452\SharpSnmpLib.dll</HintPath>
     </Reference>
@@ -78,7 +75,6 @@
     <Compile Include="Services\ControlledSipAgent.cs" />
     <Compile Include="Model\SimulatedFrequecy.cs" />
     <Compile Include="Model\SimulatedRadioEquipment.cs" />
-    <Compile Include="Services\LoggingService.cs" />
     <Compile Include="Services\SnmpAgent.cs" />
     <Compile Include="ViewModel\UCConfigViewModel.cs" />
     <Compile Include="ViewModel\UCMainViewModel.cs" />
@@ -140,14 +136,8 @@
     <None Include="config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Include="ndf.ndfsim.mib">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="NLog.xsd">
-      <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
@@ -170,6 +160,10 @@
     <ProjectReference Include="..\MyWpfControlLibrary\MyWpfControlLibrary.csproj">
       <Project>{678b39b1-249e-4940-8b8d-cbfdb345ae70}</Project>
       <Name>MyWpfControlLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NuMvvmServices\NuMvvmServices.csproj">
+      <Project>{93817174-ebee-4a9b-8fc7-a29d6dc40715}</Project>
+      <Name>NuMvvmServices</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

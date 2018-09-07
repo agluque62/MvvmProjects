@@ -4,8 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using NLog;
 using CoreSipNet;
+using NuMvvmServices;
 
 namespace RadioVoipSimV2.Services
 {
@@ -75,7 +75,7 @@ namespace RadioVoipSimV2.Services
         {
             try
             {
-                LoggingService.From().Debug("AnswerCall {0}, {1}", callid, code);
+                _log.From().Trace($"AnswerCall {callid}, {code}");
                 SipAgentNet.AnswerCall(callid, code);
             }
             catch (Exception x)
@@ -87,7 +87,7 @@ namespace RadioVoipSimV2.Services
         {
             try
             {
-                LoggingService.From().Debug("HangupCall {0}, {1}", callid, code);
+                _log.From().Trace("HangupCall {0}, {1}", callid, code);
                 SipAgentNet.HangupCall(callid, code);
             }
             catch (Exception x)
@@ -194,7 +194,7 @@ namespace RadioVoipSimV2.Services
         #region Protegidas.
         protected void LogException(Exception x, string msg, params object[] par)
         {
-            LogManager.GetCurrentClassLogger().Error(x, msg);
+            _log.From().Error(msg, x);
         }
         protected  SipAgentNetSettings settings = new SipAgentNetSettings()
         {
@@ -221,12 +221,12 @@ namespace RadioVoipSimV2.Services
         #region Callbacks
         private void OnCallIncoming(int call, int call2replace, CORESIP_CallInfo info, CORESIP_CallInInfo inInfo)
         {
-            LoggingService.From().Debug("OnCallIncoming {0}, {1}", call, inInfo.DstId);
+            _log.From().Trace("OnCallIncoming {0}, {1}", call, inInfo.DstId);
             SipAgentEvent?.Invoke(SipAgentEvents.IncomingCall, call, inInfo.DstId, null);
         }
         private void OnCallState(int call, CORESIP_CallInfo info, CORESIP_CallStateInfo stateInfo)
         {
-            LoggingService.From().Debug("OnCallState {0}, {1}, {2}", call, stateInfo.State, stateInfo.LastCode);
+            _log.From().Trace("OnCallState {0}, {1}, {2}", call, stateInfo.State, stateInfo.LastCode);
             switch (stateInfo.State)
             {
                 case CORESIP_CallState.CORESIP_CALL_STATE_DISCONNECTED:
@@ -245,7 +245,7 @@ namespace RadioVoipSimV2.Services
         }
         private void OnRdInfo(int call, CORESIP_RdInfo info)
         {
-            LoggingService.From().Debug("OnRdInfo {0}, {1}, {2}, {3}", call, info.PttType, info.PttId, info.Squelch);
+            _log.From().Trace("OnRdInfo {0}, {1}, {2}, {3}", call, info.PttType, info.PttId, info.Squelch);
             switch (info.PttType)
             {
                 case CORESIP_PttType.CORESIP_PTT_NORMAL:
@@ -262,7 +262,7 @@ namespace RadioVoipSimV2.Services
         }
         private void OnKaTimeout(int call)
         {
-            LoggingService.From().Debug("OnKaTimeout {0}", call);
+            _log.From().Trace("OnKaTimeout {0}", call);
             SipAgentEvent?.Invoke(SipAgentEvents.KaTimeout, call, "", null);
         }
         private void OnOptionsReceive(string fromUri/*, string callid, int statusCodem, string supported, string allow*/)
@@ -277,13 +277,12 @@ namespace RadioVoipSimV2.Services
             {
                 if (p2.Contains("FrecDesp::GetQidx") == false)
                 {
-                    LogManager.GetLogger("ControlledSipAgent").
-                        Debug("CoreSipNet Log Level {0}: {1}", p1, p2);
+                    _log.From().Error("CoreSipNet Log Level {0}: {1}", p1, p2);
                 }
             }
         }
         #endregion Callbacks
 
-        protected Logger log = LogManager.GetLogger("SipAgent");
+        private readonly ILogService _log = new LogService();
     }
 }

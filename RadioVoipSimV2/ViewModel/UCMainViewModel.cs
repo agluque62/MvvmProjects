@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using NuMvvmServices;
+
 using RadioVoipSimV2.MvvmFramework;
 using RadioVoipSimV2.Model;
 using RadioVoipSimV2.Services;
@@ -385,14 +387,14 @@ namespace RadioVoipSimV2.ViewModel
 
         private void ProcessCallDisconnected(int callid)
         {
-            LoggingService.From().Debug("ProcessCallDisconnected {0}", callid);
+            logService.From().Debug("ProcessCallDisconnected {0}", callid);
             SimulatedRadioEquipment equipment = FindEquipment(callid);
             if (equipment != null)
             {
                 equipment.Reset();
                 if (equipment.FreqObject != null)
                     equipment.FreqObject.Status = FrequencyStatus.NotOperational;
-            LoggingService.From().Debug("CallDisconnected {0} Procesed", callid);
+                logService.From().Debug("CallDisconnected {0} Procesed", callid);
             }
         }
 
@@ -546,6 +548,8 @@ namespace RadioVoipSimV2.ViewModel
                 return eqs;
             }
         }
+
+        private readonly ILogService logService = new LogService();
 
     }
 }

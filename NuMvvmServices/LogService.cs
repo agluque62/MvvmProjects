@@ -19,6 +19,8 @@ namespace NuMvvmServices
         void Warn(string msg, params object[] par);
         void Error(string msg, params object[] par);
         void Fatal(string msg, params object[] par);
+
+        void TraceException(Exception x);
     }
     public class LogService : ILogService
     {
@@ -36,32 +38,37 @@ namespace NuMvvmServices
 
         void ILogService.Trace(string msg, params object[] par)
         {
-            Log.Trace(msg, par);
+            Log.Trace(msg.Replace(System.Environment.NewLine, "--"), par);
         }
 
         void ILogService.Debug(string msg, params object[] par)
         {
-            Log.Debug(msg, par);
+            Log.Debug(msg.Replace(System.Environment.NewLine, "--"), par);
         }
 
         void ILogService.Info(string msg, params object[] par)
         {
-            Log.Info(msg, par);
+            Log.Info(msg.Replace(System.Environment.NewLine, "--"), par);
         }
 
         void ILogService.Warn(string msg, params object[] par)
         {
-            Log.Warn(msg, par);
+            Log.Warn(msg.Replace(System.Environment.NewLine, "--"), par);
         }
 
         void ILogService.Error(string msg, params object[] par)
         {
-            Log.Error(msg, par);
+            Log.Error(msg.Replace(System.Environment.NewLine, "--"), par);
         }
 
         void ILogService.Fatal(string msg, params object[] par)
         {
-            Log.Fatal(msg, par);
+            Log.Fatal(msg.Replace(System.Environment.NewLine, "--"), par);
+        }
+
+        void ILogService.TraceException(Exception x)
+        {
+            Log.Log<Exception>(LogLevel.Trace, x);
         }
     }
 }

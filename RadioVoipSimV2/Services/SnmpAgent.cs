@@ -14,9 +14,9 @@ using Lextm.SharpSnmpLib.Messaging;
 using Lextm.SharpSnmpLib.Security;
 using Lextm.SharpSnmpLib.Objects;
 
-using NLog;
-
 using Newtonsoft.Json;
+
+using NuMvvmServices;
 
 namespace RadioVoipSimV2.Services
 {
@@ -199,7 +199,7 @@ namespace RadioVoipSimV2.Services
         /// </summary>
         class SnmpLogger : Lextm.SharpSnmpLib.Pipeline.ILogger
         {
-            private static readonly Logger _logger = LogManager.GetLogger("SnmpLogger");
+            private static readonly ILogService _log = new LogService();
             private const string Empty = "-";
 
             public SnmpLogger()
@@ -208,10 +208,7 @@ namespace RadioVoipSimV2.Services
 
             public void Log(ISnmpContext context)
             {
-                if (_logger.IsTraceEnabled)
-                {
-                    _logger.Trace(GetLogEntry(context));
-                }
+                _log.From().Trace(GetLogEntry(context));
             }
 
             private static string GetLogEntry(ISnmpContext context)
@@ -685,7 +682,7 @@ namespace RadioVoipSimV2.Services
             _engine = new SnmpEngine(factory, listener, engineGroup);
             _engine.Listener.AddBinding(new IPEndPoint(IPAddress.Parse(ip), port));
             _engine.Listener.AddBinding(new IPEndPoint(IPAddress.Parse(ip), trap));
-            _engine.ExceptionRaised += (sender, e) => _logger.Error(e.Exception, "ERROR Snmp");
+            _engine.ExceptionRaised += (sender, e) => _log.From().Error("ERROR Snmp", e.Exception);
             _closed = false;
             _store = objectStore;
             _context = SynchronizationContext.Current ?? new SynchronizationContext();
@@ -739,8 +736,8 @@ namespace RadioVoipSimV2.Services
                 }
                 catch (Exception x)
                 {
-                    _logger.Error("SnmpAgent::GetValueAsync", x.Message);
-                    _logger.Trace(x, "SnmpAgent::GetValueAsync");
+                    _log.From().Error("SnmpAgent::GetValueAsync", x.Message);
+                    _log.From().TraceException(x);
                 }
             });
         }
@@ -772,8 +769,8 @@ namespace RadioVoipSimV2.Services
                 }
                 catch (Exception x)
                 {
-                    _logger.Error("SnmpAgent::SetValueAsync", x.Message);
-                    _logger.Trace(x, "SnmpAgent::SetValueAsync");
+                    _log.From().Error("SnmpAgent::SetValueAsync", x.Message);
+                    _log.From().TraceException(x);
                 }
             });
         }
@@ -800,8 +797,8 @@ namespace RadioVoipSimV2.Services
                 }
                 catch (Exception x)
                 {
-                    _logger.Error("SnmpAgent::GetAsync", x.Message);
-                    _logger.Trace(x, "SnmpAgent::GetAsync");
+                    _log.From().Error("SnmpAgent::GetAsync", x.Message);
+                    _log.From().TraceException(x);
                 }
             });
         }
@@ -830,15 +827,15 @@ namespace RadioVoipSimV2.Services
                 }
                 catch (Exception x)
                 {
-                    _logger.Error("SnmpAgent::Trap", x.Message);
-                    _logger.Trace(x, "SnmpAgent::Trap");
+                    _log.From().Error("SnmpAgent::Trap", x.Message);
+                    _log.From().TraceException(x);
                 }
             });
         }
 
         #region Private Members
 
-        private static Logger _logger = LogManager.GetCurrentClassLogger();
+        private static readonly ILogService _log = new LogService();
 		private static SnmpEngine _engine;
         private static ObjectStore _store;
         private static SynchronizationContext _context;

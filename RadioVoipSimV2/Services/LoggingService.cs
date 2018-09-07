@@ -9,7 +9,7 @@ namespace RadioVoipSimV2.Services
 {
     class LoggingService
     {
-        public static LoggingService From([System.Runtime.CompilerServices.CallerLineNumber] int lineNumber = 0, [System.Runtime.CompilerServices.CallerMemberName] string caller = null)
+        public static LoggingService From(System.Runtime.CompilerServices.CallerFilePathAttribute caller=null, [System.Runtime.CompilerServices.CallerLineNumber] int lineNumber = 0)
         {
             return new LoggingService(String.Format("[{0};{1}]: ", caller, lineNumber));
         }

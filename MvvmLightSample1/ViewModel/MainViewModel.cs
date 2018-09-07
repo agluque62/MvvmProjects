@@ -18,6 +18,7 @@ namespace MvvmLightSample1.ViewModel
     {
         private readonly IDataService _dataService;
         private readonly IDlgService _dlgService;
+        private readonly ILogService _log;
 
         /// <summary>
         /// The <see cref="WelcomeTitle" /> property's name.
@@ -45,10 +46,12 @@ namespace MvvmLightSample1.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public MainViewModel(IDataService dataService, IDlgService dlgService)
+        public MainViewModel(IDataService dataService, IDlgService dlgService, ILogService log)
         {
             _dlgService = dlgService;
             _dataService = dataService;
+            _log = log;
+
             _dataService.GetData(
                 (item, error) =>
                 {
@@ -59,10 +62,14 @@ namespace MvvmLightSample1.ViewModel
                     }
 
                     WelcomeTitle = item.Title;
+
+                    _log.From().Info($"Programa Iniciado {_dlgService}");
                 });
 
             TestDialog = new RelayCommand(() =>
             {
+                _log.From().Info("Testing DialogService {0}", new System.Exception("Objeto Excepcion de Prueba...."));
+
                 _dlgService.Show("Testing DialogService");
             });
         }

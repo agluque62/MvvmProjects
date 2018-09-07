@@ -42,6 +42,8 @@ namespace MvvmLightSample1.ViewModel
             }
 
             SimpleIoc.Default.Register<IDlgService, DialogService>();
+            SimpleIoc.Default.Register<ILogService, LogService> ();
+
             SimpleIoc.Default.Register<MainViewModel>();
         }
 

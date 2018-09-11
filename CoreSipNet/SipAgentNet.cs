@@ -51,30 +51,17 @@ namespace CoreSipNet
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     public delegate void ConfInfoCb(int call, [In] CORESIP_ConfInfo confInfo);
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate void OptionsReceiveCb(string fromUri);
+    public delegate void OptionsReceiveCb(string fromUri, string callid, int statusCodem, string supported, string allow);
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void WG67NotifyCb(IntPtr wg67, CORESIP_WG67Info wg67Info, IntPtr userData);
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     public delegate void InfoReceivedCb(int call, string info, uint lenInfo);
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     public delegate void FinWavCb(int call);
-    /// <summary>
-    ///  Received when subscription to conference arrives
-    /// </summary>
-    /// <param name="call"></param>
-    /// <param name="info"></param>
-    /// <param name="lenInfo"></param>
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
     public delegate void IncomingSubscribeConfCb(int call, string from, uint lenInfo);
-
-    /*Callback para recibir notificaciones por la subscripcion de presencia*/
-    /*	dst_uri: uri del destino cuyo estado de presencia ha cambiado.
-     *	subscription_status: vale 0 la subscripcion al evento no ha tenido exito. 
-     *	presence_status: vale 0 si no esta presente. 1 si esta presente.
-     */
     [UnmanagedFunctionPointer(CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-    public delegate void SubPresCb(string dst_uri, int subscription_status, int presence_status);
-    
+    public delegate void SubPresCb(string dst_uri, int subscription_status, int presence_status);    
 
     #endregion
 
@@ -1913,10 +1900,10 @@ namespace CoreSipNet
                 if (OnConfInfo != null)
                     OnConfInfo(p1, p2);
             });
-            _Cb.OnOptionsReceive = new OptionsReceiveCb((p1) =>
+            _Cb.OnOptionsReceive = new OptionsReceiveCb((p1, p2, p3, p4,  p5) =>
             {
                 if (OnOptionsReceive != null)
-                    OnOptionsReceive(p1);
+                    OnOptionsReceive(p1, p2, p3, p4, p5);
             });
             _Cb.OnWG67Notify = new WG67NotifyCb((p1, p2, p3) =>
             {

@@ -19,6 +19,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BkkSimV2", "BkkSimV2\BkkSim
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuMvvmServices", "NuMvvmServices\NuMvvmServices.csproj", "{93817174-EBEE-4A9B-8FC7-A29D6DC40715}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Comunes", "Comunes", "{AD3B3FD7-91D2-4FEC-AAC7-6F21F1791D1C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Pruebas", "Pruebas", "{9BA35D38-BDB5-4236-8945-567C6F02DE02}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ejemplos", "Ejemplos", "{1CB44196-9CB8-417F-B046-3DFF3653BB5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,6 +100,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{D98FF4B5-A07A-4533-81A5-1129265FD478} = {1CB44196-9CB8-417F-B046-3DFF3653BB5F}
+		{D09E025F-67C2-48E5-A2A1-ECFCD860DEA1} = {AD3B3FD7-91D2-4FEC-AAC7-6F21F1791D1C}
+		{678B39B1-249E-4940-8B8D-CBFDB345AE70} = {AD3B3FD7-91D2-4FEC-AAC7-6F21F1791D1C}
+		{37752576-079C-4768-8386-D6CEFE5FFFEC} = {9BA35D38-BDB5-4236-8945-567C6F02DE02}
+		{93817174-EBEE-4A9B-8FC7-A29D6DC40715} = {AD3B3FD7-91D2-4FEC-AAC7-6F21F1791D1C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {03CF884F-3A92-49FC-A46A-1ED849AA18D2}

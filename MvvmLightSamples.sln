@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ejemplos", "Ejemplos", "{1C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SipServicesSimul", "SipServicesSimul\SipServicesSimul.csproj", "{18D66F22-1FAB-439A-8D2E-460220821737}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Proxy", "ProxySample\Proxy.csproj", "{6D9D74C7-5718-44F7-A4AC-D0C258C2EE48}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -107,6 +109,14 @@ Global
 		{18D66F22-1FAB-439A-8D2E-460220821737}.Release|Any CPU.Build.0 = Release|Any CPU
 		{18D66F22-1FAB-439A-8D2E-460220821737}.Release|x86.ActiveCfg = Release|Any CPU
 		{18D66F22-1FAB-439A-8D2E-460220821737}.Release|x86.Build.0 = Release|Any CPU
+		{6D9D74C7-5718-44F7-A4AC-D0C258C2EE48}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D9D74C7-5718-44F7-A4AC-D0C258C2EE48}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D9D74C7-5718-44F7-A4AC-D0C258C2EE48}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6D9D74C7-5718-44F7-A4AC-D0C258C2EE48}.Debug|x86.Build.0 = Debug|Any CPU
+		{6D9D74C7-5718-44F7-A4AC-D0C258C2EE48}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D9D74C7-5718-44F7-A4AC-D0C258C2EE48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D9D74C7-5718-44F7-A4AC-D0C258C2EE48}.Release|x86.ActiveCfg = Release|Any CPU
+		{6D9D74C7-5718-44F7-A4AC-D0C258C2EE48}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -117,6 +127,7 @@ Global
 		{678B39B1-249E-4940-8B8D-CBFDB345AE70} = {AD3B3FD7-91D2-4FEC-AAC7-6F21F1791D1C}
 		{37752576-079C-4768-8386-D6CEFE5FFFEC} = {9BA35D38-BDB5-4236-8945-567C6F02DE02}
 		{93817174-EBEE-4A9B-8FC7-A29D6DC40715} = {AD3B3FD7-91D2-4FEC-AAC7-6F21F1791D1C}
+		{6D9D74C7-5718-44F7-A4AC-D0C258C2EE48} = {1CB44196-9CB8-417F-B046-3DFF3653BB5F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {03CF884F-3A92-49FC-A46A-1ED849AA18D2}

@@ -25,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Pruebas", "Pruebas", "{9BA3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Ejemplos", "Ejemplos", "{1CB44196-9CB8-417F-B046-3DFF3653BB5F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SipServicesSimul", "SipServicesSimul\SipServicesSimul.csproj", "{18D66F22-1FAB-439A-8D2E-460220821737}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,14 @@ Global
 		{93817174-EBEE-4A9B-8FC7-A29D6DC40715}.Release|Any CPU.Build.0 = Release|Any CPU
 		{93817174-EBEE-4A9B-8FC7-A29D6DC40715}.Release|x86.ActiveCfg = Release|Any CPU
 		{93817174-EBEE-4A9B-8FC7-A29D6DC40715}.Release|x86.Build.0 = Release|Any CPU
+		{18D66F22-1FAB-439A-8D2E-460220821737}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18D66F22-1FAB-439A-8D2E-460220821737}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18D66F22-1FAB-439A-8D2E-460220821737}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{18D66F22-1FAB-439A-8D2E-460220821737}.Debug|x86.Build.0 = Debug|Any CPU
+		{18D66F22-1FAB-439A-8D2E-460220821737}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18D66F22-1FAB-439A-8D2E-460220821737}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18D66F22-1FAB-439A-8D2E-460220821737}.Release|x86.ActiveCfg = Release|Any CPU
+		{18D66F22-1FAB-439A-8D2E-460220821737}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

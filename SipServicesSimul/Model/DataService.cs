@@ -25,7 +25,7 @@ namespace SipServicesSimul.Model
             }
             else
             {
-                dataConfig = new DataConfig() { ListenIp = "127.0.0.0", ListenPort = 8060, LastUsers = new System.Collections.Generic.List<UserInfo>() };
+                dataConfig = new DataConfig() { ListenIp = "10.12.60.130", ListenPort = 8060, LastUsers = new System.Collections.Generic.List<UserInfo>() };
                 dataConfig.LastUsers.Add(new UserInfo() { Id = "345001", Status = UserStatus.Open });
                 dataConfig.LastUsers.Add(new UserInfo() { Id = "345002", Status = UserStatus.Open });
             }

@@ -56,16 +56,28 @@ namespace SipServicesSimul.ViewModel
                     return;
                 }
                 dataConfig = data;
-                WelcomeTitle = $"Listen on {data.ListenIp}:{data.ListenPort}";
+
+                _sipPresenceService.Start((err1) =>
+                {
+                    if (err1 != null)
+                    {
+                        WelcomeTitle = err.Message;
+                    }
+                    else
+                    {
+                         WelcomeTitle = $"Listen on {data.ListenIp}:{data.ListenPort}";
+                    }
+                });
+
             });
 
         }
 
-        ////public override void Cleanup()
-        ////{
-        ////    // Clean up if needed
-
-        ////    base.Cleanup();
-        ////}
+        public override void Cleanup()
+        {
+            // Clean up if needed
+            _sipPresenceService.Stop(null);
+            base.Cleanup();
+        }
     }
 }

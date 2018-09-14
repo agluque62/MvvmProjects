@@ -63,6 +63,7 @@ namespace SipServicesSimul.ViewModel
         /// </summary>
         public static void Cleanup()
         {
+            ServiceLocator.Current.GetInstance<MainViewModel>().Cleanup();
         }
     }
 }

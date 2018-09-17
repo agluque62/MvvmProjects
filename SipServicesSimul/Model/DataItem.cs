@@ -20,11 +20,11 @@ namespace SipServicesSimul.Model
         }
     }
 
-    public enum UserStatus { Closed, Open }
+    //public enum UserStatus { Closed, Open }
 
     public class UserInfo
     {
-        public UserStatus Status { get; set; }
+        public string Status { get; set; }
         public string Id { get; set; }
     }
 

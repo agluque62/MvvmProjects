@@ -8,6 +8,16 @@ namespace SipServicesSimul.Model
     {
         private const string ConfigFile = "config.json";
 
+        public bool AddUser(string username)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool DelUser(string username)
+        {
+            throw new NotImplementedException();
+        }
+
         void IDataService.GetData(Action<DataConfig, Exception> callback)
         {
             DataConfig dataConfig;
@@ -26,8 +36,8 @@ namespace SipServicesSimul.Model
             else
             {
                 dataConfig = new DataConfig() { ListenIp = "10.12.60.130", ListenPort = 8060, LastUsers = new System.Collections.Generic.List<UserInfo>() };
-                dataConfig.LastUsers.Add(new UserInfo() { Id = "345001", Status = UserStatus.Open });
-                dataConfig.LastUsers.Add(new UserInfo() { Id = "345002", Status = UserStatus.Open });
+                dataConfig.LastUsers.Add(new UserInfo() { Id = "345001", Status = "" });
+                dataConfig.LastUsers.Add(new UserInfo() { Id = "315002", Status = "" });
             }
             callback?.Invoke(dataConfig, null);
         }

@@ -156,6 +156,17 @@
   <ItemGroup>
     <Folder Include="Services\NotifierCore\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NuMvvmServices\NuMvvmServices.csproj">
+      <Project>{93817174-ebee-4a9b-8fc7-a29d6dc40715}</Project>
+      <Name>NuMvvmServices</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\trash.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

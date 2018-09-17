@@ -6,10 +6,10 @@
         xmlns:ignore="http://www.galasoft.ch/ignore"
         mc:Ignorable="d ignore"
         Height="300"
-        Width="300"
-        Title="MVVM Light Application"
+        Width="450"
+        Title="{Binding WelcomeTitle}"
         DataContext="{Binding Main, Source={StaticResource Locator}}">
-    
+
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -18,15 +18,35 @@
         </ResourceDictionary>
     </Window.Resources>
 
-    <Grid x:Name="LayoutRoot">
+    <StackPanel HorizontalAlignment="Left" Height="250" Margin="10,10,10,10" VerticalAlignment="Top" Width="424">
+        <ListView Height="170" Margin="10,10,10,5" ItemsSource="{Binding UIUsers}">
+            <ListView.View>
+                <GridView AllowsColumnReorder="False">
+                    <GridViewColumn Header="Ed" Width="32">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding AppDelUser}" CommandParameter="{Binding Name}">
+                                    <Image Source="Images/trash.png"/>
+                                </Button>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Usuario" Width="200" DisplayMemberBinding="{Binding Id}"/>
+                    <GridViewColumn Header="Supervisado" Width="100" DisplayMemberBinding="{Binding Status}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <StackPanel Height="41" Orientation="Horizontal" Margin="10,0">
+            <Button Content="Añadir" Width="72" Margin="5" Command="{Binding AppAddUser}"/>
+            <TextBox TextWrapping="Wrap" Width="100" Margin="5" VerticalAlignment="Center" Text="{Binding NewUserName, Mode=TwoWay}"/>
+            <!--<Button Content="{Binding IsStarted, Converter={StaticResource StartedText}}" Width="75" Margin="5" Command="{Binding AppStartStop}"/>-->
+            <!--<TextBlock Width="60" Margin="5" VerticalAlignment="Center" >Sesiones</TextBlock>
+            <TextBlock Width="30" Margin="5" VerticalAlignment="Center" Text="{Binding OpenSessions}" ></TextBlock>-->
+            <Button Content="Salir" Width="75" HorizontalAlignment="Right" Margin="5" Command="{Binding AppExit}"/>
+        </StackPanel>
+        <StackPanel Height="20">
+            <TextBlock Foreground="#FFA44F3C" Margin="10 2 10 2" Text="{Binding SystemMessage}" FontSize="10"/>
+        </StackPanel>
+    </StackPanel>
 
-        <TextBlock FontSize="36"
-                   FontWeight="Bold"
-                   Foreground="Purple"
-                   Text="{Binding WelcomeTitle}"
-                   VerticalAlignment="Center"
-                   HorizontalAlignment="Center"
-                   TextWrapping="Wrap" />
-
-    </Grid>
 </Window>

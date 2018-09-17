@@ -89,6 +89,17 @@ namespace SipServicesSimul.Services
                     return;
                 }
                 config = cfg;
+
+                SipHelper.IsUserOpen = (s) =>
+                {
+                    foreach(var user in config.LastUsers)
+                    {
+                        if (s.ResourceURI.ToString().Contains(user.Id))
+                            return SIPEventPresenceStateEnum.open;
+                    }
+                    return SIPEventPresenceStateEnum.closed;
+                };
+
                 callback?.Invoke(cfg, null);
             });
         }
@@ -111,6 +122,8 @@ namespace SipServicesSimul.Services
                 _sipTransport.SIPTransportRequestReceived += SIPTransportRequestReceived;
                 _sipTransport.SIPTransportResponseReceived += SIPTransportResponseReceived;
 
+                m_sip_notifier = new SipPresenceSubscriptionManager(_sipTransport);
+                m_sip_notifier.Start();
 
                 err?.Invoke(null);
             }
@@ -126,6 +139,7 @@ namespace SipServicesSimul.Services
                 err?.Invoke(new NotImplementedException());
             try
             {
+                m_sip_notifier.Stop();
                 _sipTransport.Shutdown();
                 err?.Invoke(null);
             }
@@ -142,7 +156,7 @@ namespace SipServicesSimul.Services
         private DataConfig config = null;
         private static readonly ILog logger = AppState.logger;
         private static SIPTransport _sipTransport = null;
-
+        private static SipPresenceSubscriptionManager m_sip_notifier = null;
         #region SIPSORCERY CALLBACKS
 
         private static void SIPTransportRequestReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPRequest sipRequest)
@@ -153,11 +167,13 @@ namespace SipServicesSimul.Services
                 {
                     case SIPMethodsEnum.OPTIONS:
                         SIPNonInviteTransaction optionsTransaction = _sipTransport.CreateNonInviteTransaction(sipRequest, remoteEndPoint, localSIPEndPoint, null);
-                        SIPResponse optionsResponse = SipHelper.WR67ResponseNormalize(
+                        SIPResponse optionsResponse = SipHelper.WG67ResponseNormalize(
                             SIPTransport.GetResponse(sipRequest, SIPResponseStatusCodesEnum.Ok, null));
                         optionsTransaction.SendFinalResponse(optionsResponse);
                         break;
                     case SIPMethodsEnum.SUBSCRIBE:
+                        m_sip_notifier.AddSubscribeRequest(localSIPEndPoint, remoteEndPoint, sipRequest);
+                        break;
                     case SIPMethodsEnum.PUBLISH:
                     default:
                         throw new NotImplementedException();
@@ -168,7 +184,7 @@ namespace SipServicesSimul.Services
                 logger.Debug(sipRequest.Method + " request processing not implemented for " + sipRequest.URI.ToParameterlessString() + " from " + remoteEndPoint + ".");
 
                 SIPNonInviteTransaction notImplTransaction = _sipTransport.CreateNonInviteTransaction(sipRequest, remoteEndPoint, localSIPEndPoint, null);
-                SIPResponse notImplResponse = SipHelper.WR67ResponseNormalize(SIPTransport.GetResponse(sipRequest, SIPResponseStatusCodesEnum.NotImplemented, null));
+                SIPResponse notImplResponse = SipHelper.WG67ResponseNormalize(SIPTransport.GetResponse(sipRequest, SIPResponseStatusCodesEnum.NotImplemented, null));
                 notImplTransaction.SendFinalResponse(notImplResponse);
             }
             catch (Exception x)

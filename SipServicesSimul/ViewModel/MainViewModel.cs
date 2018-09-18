@@ -62,6 +62,17 @@ namespace SipServicesSimul.ViewModel
             _sipPresenceService = sipPresenceService;
             _log = new LogService();
 
+            _sipPresenceService.OptionsReceived += (from) =>
+            {
+                _log.From().Info($"Options received from {from}");
+            };
+
+            _sipPresenceService.SubscribeReceived += (from) =>
+            {
+                RaisePropertyChanged("UIUsers");
+                _log.From().Info($"Subscribe received from {from}");
+            };
+
             _sipPresenceService.Configure(_dataService, (data, err) =>
             {
                 if (err != null)
@@ -79,7 +90,7 @@ namespace SipServicesSimul.ViewModel
                     }
                     else
                     {
-                         WelcomeTitle = $"Simulador Servidor Sip Presencia. Nucleo 2018. Listen at {data.ListenIp}:{data.ListenPort}";
+                         WelcomeTitle = $"SimPresenciaSip. Nucleo 2018. Listen at {data.ListenIp}:{data.ListenPort}";
                     }
                 });
             });
@@ -192,7 +203,7 @@ namespace SipServicesSimul.ViewModel
                         _uIUsers = new ObservableCollection<UserInfo>(data.LastUsers);
                     foreach (var user in _uIUsers)
                     {
-                        user.Status = "1";
+                        user.Status = _sipPresenceService.SubscriptionsTo(user.Id).ToString();
                     }
                 });
                 return _uIUsers;

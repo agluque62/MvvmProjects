@@ -41,10 +41,17 @@ namespace SipServicesSimul.Services
 
     public class SipPresenceSubscriptionManager
     {
+        public enum SipNotifierEvents { Info, Error, Subscribe, Unsubscribe, Notify}
 
         const int MAX_MANAGER_SLEEP_TIME = 1000;
         const int MAX_NOTIFIER_QUEUE_SIZE = 100;
         const int MIN_SUBSCRIPTION_EXPIRY = 60;
+
+        #region Eventos...
+
+        public event Action<SipNotifierEvents, string> InternalEvent;
+
+        #endregion Eventos...
 
         #region Publics
 
@@ -79,6 +86,8 @@ namespace SipServicesSimul.Services
                     SIPResponse notSupportedResponse = SipHelper.WG67ResponseNormalize( 
                         SIPTransport.GetResponse(subscribeRequest, SIPResponseStatusCodesEnum.MethodNotAllowed, "Subscribe requests only"));
                     m_sipTransport.SendResponse(notSupportedResponse);
+
+                    InternalEvent?.Invoke(SipNotifierEvents.Error, $"Method {subscribeRequest.Method} Not allowed.");
                 }
                 else
                 {
@@ -90,7 +99,9 @@ namespace SipServicesSimul.Services
                         SIPResponse badEventResponse = SipHelper.WG67ResponseNormalize(
                             SIPTransport.GetResponse(subscribeRequest, SIPResponseStatusCodesEnum.BadEvent, null));
                         m_sipTransport.SendResponse(badEventResponse);
-                        logger.Warn("Event type " + subscribeRequest.Header.Event + " not supported for " + subscribeRequest.URI.ToString() + ".");
+
+                        InternalEvent?.Invoke(SipNotifierEvents.Error, 
+                            "Event type " + subscribeRequest.Header.Event + " not supported for " + subscribeRequest.URI.ToString() + ".");
                     }
                     else if (subscribeRequest.Header.Expires > 0 && subscribeRequest.Header.Expires < MIN_SUBSCRIPTION_EXPIRY)
                     {
@@ -98,14 +109,18 @@ namespace SipServicesSimul.Services
                             SIPTransport.GetResponse(subscribeRequest, SIPResponseStatusCodesEnum.IntervalTooBrief, null));
                         tooBriefResponse.Header.MinExpires = MIN_SUBSCRIPTION_EXPIRY;
                         m_sipTransport.SendResponse(tooBriefResponse);
-                        logger.Warn("Subscribe request was rejected as interval too brief " + subscribeRequest.Header.Expires + ".");
+
+                        InternalEvent?.Invoke(SipNotifierEvents.Error, 
+                            "Subscribe request was rejected as interval too brief " + subscribeRequest.Header.Expires + ".");
                     }
                     else if (subscribeRequest.Header.Contact == null || subscribeRequest.Header.Contact.Count == 0)
                     {
                         SIPResponse noContactResponse = SipHelper.WG67ResponseNormalize(
                             SIPTransport.GetResponse(subscribeRequest, SIPResponseStatusCodesEnum.BadRequest, "Missing Contact header"));
                         m_sipTransport.SendResponse(noContactResponse);
-                        logger.Warn("Subscribe request was rejected due to no Contact header.");
+
+                        InternalEvent?.Invoke(SipNotifierEvents.Error, 
+                            "Subscribe request was rejected due to no Contact header.");
                     }
                     #endregion
                     else
@@ -118,14 +133,18 @@ namespace SipServicesSimul.Services
                             {
                                 m_managerQueue.Enqueue(subscribeTransaction);
                             }
-                            logger.Info("Subscribe queued for " + subscribeRequest.Header.To.ToURI.ToString() + ".");
+
+                            InternalEvent?.Invoke(SipNotifierEvents.Info, 
+                                "Subscribe queued for " + subscribeRequest.Header.To.ToURI.ToString() + ".");
                         }
                         else
                         {
-                            logger.Error("Subscribe queue exceeded max queue size " + MAX_NOTIFIER_QUEUE_SIZE + ", overloaded response sent.");
                             SIPResponse overloadedResponse = SipHelper.WG67ResponseNormalize(
                                 SIPTransport.GetResponse(subscribeRequest, SIPResponseStatusCodesEnum.TemporarilyUnavailable, "Notifier overloaded, please try again shortly"));
                             m_sipTransport.SendResponse(overloadedResponse);
+
+                            InternalEvent?.Invoke(SipNotifierEvents.Error, 
+                                "Subscribe queue exceeded max queue size " + MAX_NOTIFIER_QUEUE_SIZE + ", overloaded response sent.");
                         }
                         m_managerARE.Set();
                     }
@@ -133,8 +152,31 @@ namespace SipServicesSimul.Services
             }
             catch (Exception excp)
             {
-                logger.Error("Exception AddNotifierRequest (" + remoteEndPoint.ToString() + "). " + excp.Message);
+                InternalEvent?.Invoke(SipNotifierEvents.Error, "Exception AddNotifierRequest (" + remoteEndPoint.ToString() + "). " + excp.Message);
             }
+        }
+
+        public void RefreshNotify(string userid )
+        {
+            var subscriptions = (                
+                from s in m_subscriptions
+                where s.Value.ResourceURI.ToString().Contains(userid)
+                select s).ToList();
+
+            foreach(var s in subscriptions)
+            {
+                SendFullStateNotify(s.Key);
+            }
+        }
+
+        public int UsersSubscriptions(string userid)
+        {
+            var subscriptions = (
+                from s in m_subscriptions
+                where s.Value.ResourceURI.ToString().Contains(userid)
+                select s).ToList();
+
+            return subscriptions.Count;
         }
 
         #endregion
@@ -164,12 +206,15 @@ namespace SipServicesSimul.Services
                                 DateTime startTime = DateTime.Now;
                                 Subscribe(subscribeTransaction);
                                 TimeSpan duration = DateTime.Now.Subtract(startTime);
-                                logger.Info("Subscribe time=" + duration.TotalMilliseconds + "ms, user=" + subscribeTransaction.TransactionRequest.Header.To.ToURI.User + ".");
+
+                                InternalEvent?.Invoke(SipNotifierEvents.Info, 
+                                    "Subscribe time=" + duration.TotalMilliseconds + "ms, user=" + subscribeTransaction.TransactionRequest.Header.To.ToURI.User + ".");
                             }
                         }
                         catch (Exception regExcp)
                         {
-                            logger.Error("Exception ProcessSubscribeRequest Subscribe Job. " + regExcp.Message);
+                            InternalEvent?.Invoke(SipNotifierEvents.Error, 
+                                "Exception ProcessSubscribeRequest Subscribe Job. " + regExcp.Message);
                         }
                     }
                     else
@@ -178,12 +223,12 @@ namespace SipServicesSimul.Services
                         m_managerARE.WaitOne(MAX_MANAGER_SLEEP_TIME);
                     }
                 }
-
-                logger.Warn("ProcessSubscribeRequest thread " + Thread.CurrentThread.Name + " stopping.");
+                InternalEvent?.Invoke(SipNotifierEvents.Error, 
+                    "ProcessSubscribeRequest thread " + Thread.CurrentThread.Name + " stopping.");
             }
             catch (Exception excp)
             {
-                logger.Error("Exception ProcessSubscribeRequest (" + Thread.CurrentThread.Name + "). " + excp.Message);
+                InternalEvent?.Invoke(SipNotifierEvents.Error, "Exception ProcessSubscribeRequest (" + Thread.CurrentThread.Name + "). " + excp.Message);
             }
         }
 
@@ -208,7 +253,8 @@ namespace SipServicesSimul.Services
                         SIPResponse renewalErrorResponse = SipHelper.WG67ResponseNormalize(
                             SIPTransport.GetResponse(sipRequest, errorResponse, errorResponseReason));
                         subscribeTransaction.SendFinalResponse(renewalErrorResponse);
-                        logger.Warn("Subscription renewal failed for event type " + sipRequest.Header.Event + " " + sipRequest.URI.ToString() + ", " + errorResponse + " " + errorResponseReason + ".");
+                        InternalEvent?.Invoke(SipNotifierEvents.Error, 
+                            "Subscription renewal failed for event type " + sipRequest.Header.Event + " " + sipRequest.URI.ToString() + ", " + errorResponse + " " + errorResponseReason + ".");
                     }
                     else if (sipRequest.Header.Expires == 0)
                     {
@@ -216,6 +262,9 @@ namespace SipServicesSimul.Services
                         SIPResponse okResponse = SipHelper.WG67ResponseNormalize(
                             SIPTransport.GetResponse(sipRequest, SIPResponseStatusCodesEnum.Ok, null));
                         subscribeTransaction.SendFinalResponse(okResponse);
+                        InternalEvent?.Invoke(SipNotifierEvents.Info, "Existing subscription was closed.");
+                        /** TODO. Habrá que borrarla de la lista ???? */
+                        InternalEvent?.Invoke(SipNotifierEvents.Unsubscribe, "????");
                     }
                     else
                     {
@@ -223,7 +272,8 @@ namespace SipServicesSimul.Services
                         SIPResponse okResponse = SipHelper.WG67ResponseNormalize(
                             SIPTransport.GetResponse(sipRequest, SIPResponseStatusCodesEnum.Ok, null));
                         subscribeTransaction.SendFinalResponse(okResponse);
-                        logger.Info("Subscription renewal for " + sipRequest.URI.ToString() + ", event type " + sipRequest.Header.Event + " and expiry " + sipRequest.Header.Expires + ".");
+                        InternalEvent?.Invoke(SipNotifierEvents.Info, 
+                            "Subscription renewal for " + sipRequest.URI.ToString() + ", event type " + sipRequest.Header.Event + " and expiry " + sipRequest.Header.Expires + ".");
                         SendFullStateNotify(sessionID);
                     }
                 }
@@ -241,7 +291,8 @@ namespace SipServicesSimul.Services
                         SIPResponse subscribeErrorResponse = SipHelper.WG67ResponseNormalize(
                             SIPTransport.GetResponse(sipRequest, errorResponse, errorResponseReason));
                         subscribeTransaction.SendFinalResponse(subscribeErrorResponse);
-                        logger.Warn("Subscription failed for " + sipRequest.URI.ToString() + ", event type " + sipRequest.Header.Event + ", " + errorResponse + " " + errorResponseReason + ".");
+                        InternalEvent?.Invoke(SipNotifierEvents.Error, 
+                            "Subscription failed for " + sipRequest.URI.ToString() + ", event type " + sipRequest.Header.Event + ", " + errorResponse + " " + errorResponseReason + ".");
                     }
                     else
                     {
@@ -251,18 +302,25 @@ namespace SipServicesSimul.Services
                         okResponse.Header.Expires = sipRequest.Header.Expires;
                         okResponse.Header.Contact = new List<SIPContactHeader>() { new SIPContactHeader(null, new SIPURI(SIPSchemesEnum.sip, subscribeTransaction.LocalSIPEndPoint)) };
                         subscribeTransaction.SendFinalResponse(okResponse);
-                        logger.Info("Subscription accepted for " + sipRequest.URI.ToString() + ", event type " + sipRequest.Header.Event + " and expiry " + sipRequest.Header.Expires + ".");
+
+                        InternalEvent?.Invoke(SipNotifierEvents.Info, 
+                            "Subscription accepted for " + sipRequest.URI.ToString() + ", event type " + sipRequest.Header.Event + " and expiry " + sipRequest.Header.Expires + ".");
 
                         if (sessionID != null)
                         {
                             SendFullStateNotify(sessionID);
                         }
+
+                        InternalEvent?.Invoke(SipNotifierEvents.Subscribe, sipRequest.URI.ToString());
+
                     }
                 }
             }
             catch (Exception excp)
             {
-                logger.Error("Exception notifiercore subscribing. " + excp.Message + "\r\n" + subscribeTransaction.TransactionRequest.ToString());
+                InternalEvent?.Invoke(SipNotifierEvents.Error,
+                    "Exception notifiercore subscribing. " + excp.Message + "\r\n" + subscribeTransaction.TransactionRequest.ToString());
+
                 SIPResponse errorResponse = SipHelper.WG67ResponseNormalize(
                     SIPTransport.GetResponse(subscribeTransaction.TransactionRequest, SIPResponseStatusCodesEnum.InternalServerError, null));
                 subscribeTransaction.SendFinalResponse(errorResponse);
@@ -325,7 +383,8 @@ namespace SipServicesSimul.Services
             }
             catch (Exception excp)
             {
-                logger.Error("Exception NotifierSubscriptionsManager SubscribeClient. " + excp.Message);
+                InternalEvent?.Invoke(SipNotifierEvents.Error, 
+                    "Exception NotifierSubscriptionsManager SubscribeClient. " + excp.Message);
                 throw;
             }
         }
@@ -355,7 +414,9 @@ namespace SipServicesSimul.Services
                     }
                     else if (cseq > existingSubscription.SubscriptionDialogue.RemoteCSeq)
                     {
-                        logger.Debug("Renewing subscription for " + existingSubscription.SessionID + " and " + existingSubscription.SubscriptionDialogue.Owner + ".");
+                        InternalEvent?.Invoke(SipNotifierEvents.Info, 
+                            "Renewing subscription for " + existingSubscription.SessionID + " and " + existingSubscription.SubscriptionDialogue.Owner + ".");
+
                         existingSubscription.SubscriptionDialogue.RemoteCSeq = cseq;
 
                         string sessionID = Guid.NewGuid().ToString();
@@ -401,7 +462,9 @@ namespace SipServicesSimul.Services
                         //}
 
                         //MonitorLogEvent_External(new SIPMonitorConsoleEvent(SIPMonitorServerTypesEnum.Notifier, SIPMonitorEventTypesEnum.SubscribeRenew, "Monitor session successfully renewed for " + existingSubscription.SubscriptionEventPackage.ToString() + " " + existingSubscription.ResourceURI.ToString() + ".", existingSubscription.SubscriptionDialogue.Owner));
-                        logger.Info("Monitor session successfully renewed for " + existingSubscription.SubscriptionEventPackage.ToString() + " " + existingSubscription.ResourceURI.ToString() + ".");
+
+                        InternalEvent?.Invoke(SipNotifierEvents.Info, 
+                            "Monitor session successfully renewed for " + existingSubscription.SubscriptionEventPackage.ToString() + " " + existingSubscription.ResourceURI.ToString() + ".");
 
                         return existingSubscription.SessionID;
                     }
@@ -420,7 +483,8 @@ namespace SipServicesSimul.Services
             }
             catch (Exception excp)
             {
-                logger.Error("Exception RenewSubscription. " + excp.Message);
+                InternalEvent?.Invoke(SipNotifierEvents.Error, 
+                    "Exception RenewSubscription. " + excp.Message);
                 throw;
             }
             //return null;
@@ -442,12 +506,14 @@ namespace SipServicesSimul.Services
                 }
                 else
                 {
-                    logger.Warn("No subscription could be found for " + sessionID + " when attempting to send a full state notification.");
+                    InternalEvent?.Invoke(SipNotifierEvents.Error, 
+                        "No subscription could be found for " + sessionID + " when attempting to send a full state notification.");
                 }
             }
             catch (Exception excp)
             {
-                logger.Error("Exception NotifierSubscriptionsManager SendFullStateNotify. " + excp.Message);
+                InternalEvent?.Invoke(SipNotifierEvents.Error, 
+                    "Exception NotifierSubscriptionsManager SendFullStateNotify. " + excp.Message);
                 throw;
             }
         }
@@ -461,13 +527,13 @@ namespace SipServicesSimul.Services
                 {
                     m_subscriptions.Remove(subscription.SessionID);
                 }
-
-                //MonitorLogEvent_External(new SIPMonitorConsoleEvent(SIPMonitorServerTypesEnum.Notifier, SIPMonitorEventTypesEnum.Warn, "Stopping subscription for " + subscription.SubscriptionEventPackage.ToString() + " " + subscription.ResourceURI.ToString() + ".", subscription.SubscriptionDialogue.Owner));
-                logger.Info("Stopping subscription for " + subscription.SubscriptionEventPackage.ToString() + " " + subscription.ResourceURI.ToString() + ".");
+                InternalEvent?.Invoke(SipNotifierEvents.Info,
+                    "Stopping subscription for " + subscription.SubscriptionEventPackage.ToString() + " " + subscription.ResourceURI.ToString() + ".");
             }
             catch (Exception excp)
             {
-                logger.Error("Exception StopSubscription. " + excp.Message);
+                InternalEvent?.Invoke(SipNotifierEvents.Error,
+                    "Exception StopSubscription. " + excp.Message);
             }
         }
 
@@ -515,13 +581,15 @@ namespace SipServicesSimul.Services
                 //logger.Debug(notifyRequest.ToString());
 
                 //MonitorLogEvent_External(new SIPMonitorConsoleEvent(SIPMonitorServerTypesEnum.Notifier, SIPMonitorEventTypesEnum.NotifySent, "Notification sent for " + subscription.SubscriptionEventPackage.ToString() + " and " + subscription.ResourceURI.ToString() + " to " + subscription.SubscriptionDialogue.RemoteTarget.ToString() + " (cseq=" + notifyRequest.Header.CSeq + ").", subscription.SubscriptionDialogue.Owner));
-                logger.Info("Notification sent for " + subscription.SubscriptionEventPackage.ToString() + " and " + subscription.ResourceURI.ToString() + " to " + subscription.SubscriptionDialogue.RemoteTarget.ToString() + " (cseq=" + notifyRequest.Header.CSeq + ").");
+                InternalEvent?.Invoke(SipNotifierEvents.Info,
+                    "Notification sent for " + subscription.SubscriptionEventPackage.ToString() + " and " + subscription.ResourceURI.ToString() + " to " + subscription.SubscriptionDialogue.RemoteTarget.ToString() + " (cseq=" + notifyRequest.Header.CSeq + ").");
 
                 subscription.NotificationSent();
             }
             catch (Exception excp)
             {
-                logger.Error("Exception SendNotifyRequestForSubscription. " + excp.Message);
+                InternalEvent?.Invoke(SipNotifierEvents.Error,
+                    "Exception SendNotifyRequestForSubscription. " + excp.Message);
                 throw;
             }
         }
@@ -534,52 +602,55 @@ namespace SipServicesSimul.Services
                 {
                     // The NOTIFY request was met with an error response.
                     //MonitorLogEvent_External(new SIPMonitorConsoleEvent(SIPMonitorServerTypesEnum.Notifier, SIPMonitorEventTypesEnum.Warn, "A notify request received an error response of " + sipResponse.Status + " " + sipResponse.ReasonPhrase + ".", subscription.SubscriptionDialogue.Owner));
-                    logger.Info("A notify request received an error response of " + sipResponse.Status + " " + sipResponse.ReasonPhrase + ".");
+                    InternalEvent?.Invoke(SipNotifierEvents.Info,
+                        "A notify request received an error response of " + sipResponse.Status + " " + sipResponse.ReasonPhrase + ".");
                     StopSubscription(subscription);
                 }
             }
             catch (Exception excp)
             {
-                logger.Error("Exception NotifyTransactionFinalResponseReceived. " + excp.Message);
+                InternalEvent?.Invoke(SipNotifierEvents.Error,
+                    "Exception NotifyTransactionFinalResponseReceived. " + excp.Message);
             }
         }
 
         private bool MonitorEventAvailable(SIPMonitorEvent sipMonitorEvent)
         {
-            try
-            {
-                SIPMonitorMachineEvent machineEvent = sipMonitorEvent as SIPMonitorMachineEvent;
+            //try
+            //{
+            //    SIPMonitorMachineEvent machineEvent = sipMonitorEvent as SIPMonitorMachineEvent;
 
-                if (machineEvent != null && !machineEvent.SessionID.IsNullOrBlank() && m_subscriptions.ContainsKey(machineEvent.SessionID))
-                {
-                    SIPEventSubscription subscription = m_subscriptions[machineEvent.SessionID];
+            //    if (machineEvent != null && !machineEvent.SessionID.IsNullOrBlank() && m_subscriptions.ContainsKey(machineEvent.SessionID))
+            //    {
+            //        SIPEventSubscription subscription = m_subscriptions[machineEvent.SessionID];
 
-                    lock (subscription)
-                    {
-                        string resourceURI = (machineEvent.ResourceURI != null) ? machineEvent.ResourceURI.ToString() : null;
+            //        lock (subscription)
+            //        {
+            //            string resourceURI = (machineEvent.ResourceURI != null) ? machineEvent.ResourceURI.ToString() : null;
 
-                        //logger.Debug("NotifierSubscriptionsManager received new " + machineEvent.MachineEventType + ", resource ID=" + machineEvent.ResourceID + ", resource URI=" + resourceURI + ".");
+            //            //logger.Debug("NotifierSubscriptionsManager received new " + machineEvent.MachineEventType + ", resource ID=" + machineEvent.ResourceID + ", resource URI=" + resourceURI + ".");
 
-                        //MonitorLogEvent_External(new SIPMonitorConsoleEvent(SIPMonitorServerTypesEnum.Notifier, SIPMonitorEventTypesEnum.Monitor, "NotifierSubscriptionsManager received new " + machineEvent.MachineEventType + ", resource ID=" + machineEvent.ResourceID + ", resource URI=" + resourceURI + ".", subscription.SubscriptionDialogue.Owner));
+            //            //MonitorLogEvent_External(new SIPMonitorConsoleEvent(SIPMonitorServerTypesEnum.Notifier, SIPMonitorEventTypesEnum.Monitor, "NotifierSubscriptionsManager received new " + machineEvent.MachineEventType + ", resource ID=" + machineEvent.ResourceID + ", resource URI=" + resourceURI + ".", subscription.SubscriptionDialogue.Owner));
 
-                        if (subscription.AddMonitorEvent(machineEvent))
-                        {
-                            SendNotifyRequestForSubscription(subscription);
-                        }
+            //            if (subscription.AddMonitorEvent(machineEvent))
+            //            {
+            //                SendNotifyRequestForSubscription(subscription);
+            //            }
 
-                        //logger.Debug("NotifierSubscriptionsManager completed " + machineEvent.MachineEventType + ", resource ID=" + machineEvent.ResourceID + ", resource URI=" + resourceURI + ".");
-                    }
+            //            //logger.Debug("NotifierSubscriptionsManager completed " + machineEvent.MachineEventType + ", resource ID=" + machineEvent.ResourceID + ", resource URI=" + resourceURI + ".");
+            //        }
 
-                    return true;
-                }
+            //        return true;
+            //    }
 
-                return false;
-            }
-            catch (Exception excp)
-            {
-                logger.Error("Exception NotifierSubscriptionsManager MonitorEventAvailable. " + excp.Message);
-                return false;
-            }
+            //    return false;
+            //}
+            //catch (Exception excp)
+            //{
+            //    logger.Error("Exception NotifierSubscriptionsManager MonitorEventAvailable. " + excp.Message);
+            //    return false;
+            //}
+            return false;
         }
 
         #endregion Internal

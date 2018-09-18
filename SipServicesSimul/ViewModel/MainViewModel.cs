@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
@@ -23,7 +24,10 @@ namespace SipServicesSimul.ViewModel
     {
         private readonly IDataService _dataService;
         private readonly ISipPresenceService _sipPresenceService;
-        private DataConfig dataConfig = null;
+        private readonly IDlgService _dlgService;
+        private readonly ILogService _log;
+        //private DataConfig dataConfig = null;
+        private string _systemMessage;
 
         /// <summary>
         /// The <see cref="WelcomeTitle" /> property's name.
@@ -51,10 +55,12 @@ namespace SipServicesSimul.ViewModel
         /// <summary>
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
-        public MainViewModel(IDataService dataService, ISipPresenceService sipPresenceService)
+        public MainViewModel(IDataService dataService, IDlgService dlgService, ISipPresenceService sipPresenceService)
         {
             _dataService = dataService;
+            _dlgService = dlgService;
             _sipPresenceService = sipPresenceService;
+            _log = new LogService();
 
             _sipPresenceService.Configure(_dataService, (data, err) =>
             {
@@ -63,7 +69,7 @@ namespace SipServicesSimul.ViewModel
                     WelcomeTitle = err.Message;
                     return;
                 }
-                dataConfig = data;
+                //dataConfig = data;
 
                 _sipPresenceService.Start((err1) =>
                 {
@@ -82,20 +88,13 @@ namespace SipServicesSimul.ViewModel
             /** Programacion de los comandos UI */
             AppExit = new RelayCommand(() =>
             {
-                //_dlgService.Confirm("¿Desea Salir de la Aplicacion?", (res) =>
-                //{
-                //    if (res)
-                //    {
-                //        if (IsStarted)
-                //        {
-                //            _wss.Deactivate();
-                //            _wss.Stop();
-                //        }
-
-                //        _dataService.SaveWorkingUsers(null);
-                //        System.Windows.Application.Current.Shutdown();
-                //    }
-                //}, Title);
+                _dlgService.Confirm("¿Desea Salir de la Aplicacion?", (res) =>
+                {
+                    if (res)
+                    {
+                        System.Windows.Application.Current.Shutdown();
+                    }
+                }, WelcomeTitle);
             });
 
             AppStartStop = new RelayCommand(() =>
@@ -104,83 +103,78 @@ namespace SipServicesSimul.ViewModel
 
             AppAddUser = new RelayCommand(() =>
             {
-                //if (NewUserName == string.Empty)
-                //{
-                //    Messenger.Default.Send<BkkSimEvent>(new BkkSimEvent(ModelEvents.Message) { Data = "El Nombre de Usuario no puede estar vacio" });
-                //}
-                //else if (_dataService.WorkingUserExist(NewUserName) == true)
-                //{
-                //    Messenger.Default.Send<BkkSimEvent>(new BkkSimEvent(ModelEvents.Message) { Data = $"Nombre de Usuario <{NewUserName}> repetido..." });
-                //}
-                //else
-                //{
-                //    _dlgService.Confirm($"¿Desea añadir el usuario {NewUserName}?", (res) =>
-                //    {
-                //        if (res)
-                //        {
-                //            WorkingUser newuser = new WorkingUser() { Name = NewUserName, /*Registered = true, */Status = UserStatus.Disconnect };
-                //            Messenger.Default.Send<BkkSimEvent>(new BkkSimEvent(ModelEvents.Register) { Data = newuser });
-                //        }
-                //    }, Title);
-                //}
+                if (NewUserName == string.Empty)
+                {
+                    Messenger.Default.Send<ModelEvent>(new ModelEvent(ModelEvents.Message) { Data = "El Nombre de Usuario no puede estar vacio" });
+                }
+                else if (_dataService.UserExist(NewUserName) == true)
+                {
+                    Messenger.Default.Send<ModelEvent>(new ModelEvent(ModelEvents.Message) { Data = $"Nombre de Usuario <{NewUserName}> repetido..." });
+                }
+                else
+                {
+                    _dlgService.Confirm($"¿Desea añadir el usuario {NewUserName}?", (res) =>
+                    {
+                        if (res)
+                        {
+                            UserInfo newuser = new UserInfo() { Id = NewUserName, Status = "" };
+                            Messenger.Default.Send<ModelEvent>(new ModelEvent(ModelEvents.Register) { Data = newuser });
+                        }
+                    }, WelcomeTitle);
+                }
             });
 
             /** Gestor de Mensajes... */
-            Messenger.Default.Register<string>(this, (ev) =>
-            //Messenger.Default.Register<BkkSimEvent>(this, (ev) =>
+            Messenger.Default.Register<ModelEvent>(this, (ev) =>
             {
-                //switch (ev.Event)
-                //{
-                //    case ModelEvents.Message:
-                //        Task.Factory.StartNew(() =>
-                //        {
-                //            var msg = ev.Data as string;
-                //            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() =>
-                //            {
-                //                SystemMessage = msg;
-                //                Task.Delay(5000).Wait();
-                //                SystemMessage = "";
-                //            });
-                //        });
-                //        break;
+                switch (ev.Event)
+                {
+                    case ModelEvents.Message:
+                        Task.Factory.StartNew(() =>
+                        {
+                            var msg = ev.Data as string;
+                            System.Windows.Threading.Dispatcher.CurrentDispatcher.Invoke(() =>
+                            {
+                                SystemMessage = msg;
+                                Task.Delay(5000).Wait();
+                                SystemMessage = "";
+                            });
+                        });
+                        break;
 
-                //    case ModelEvents.Register:
-                //        _dataService.AddWorkingUser((ev.Data as WorkingUser).Name, null);
-                //        _wss.UpdateUser((ev.Data as WorkingUser).Name, true, false);
-                //        RaisePropertyChanged("UIUsers");
-                //        break;
+                    case ModelEvents.Register:
+                        _sipPresenceService.AddUser((ev.Data as UserInfo).Id);
+                        RaisePropertyChanged("UIUsers");
+                        break;
 
-                //    case ModelEvents.Unregister:
-                //        _dlgService.Confirm($"¿Desea eliminar el usuario {(ev.Data as WorkingUser).Name}?", (res) =>
-                //        {
-                //            if (res)
-                //            {
-                //                _wss.InformUserUnregistered((ev.Data as WorkingUser).Name);
-                //                _dataService.DelWorkingUser((ev.Data as WorkingUser).Name, null);
-                //                RaisePropertyChanged("UIUsers");
-                //            }
-                //        }, Title);
-                //        break;
+                    case ModelEvents.Unregister:
+                        _dlgService.Confirm($"¿Desea eliminar el usuario {(ev.Data as UserInfo).Id}?", (res) =>
+                        {
+                            if (res)
+                            {
+                                _sipPresenceService.RemoveUser((ev.Data as UserInfo).Id);
+                                RaisePropertyChanged("UIUsers");
+                            }
+                        }, WelcomeTitle);
+                        break;
 
-                //    case ModelEvents.StatusChange:
-                //        _wss.UpdateUser((ev.Data as WorkingUser).Name, false, true);
-                //        break;
+                    case ModelEvents.StatusChange:
+                        break;
 
-                //    case ModelEvents.SessionOpen:
-                //        OpenSessions = OpenSessions + 1;
-                //        break;
+                    case ModelEvents.SessionOpen:
+                        break;
 
-                //    case ModelEvents.SessionClose:
-                //        OpenSessions = OpenSessions - 1;
-                //        break;
-                //}
+                    case ModelEvents.SessionClose:
+                        break;
+                }
             });
 
         }
 
         public override void Cleanup()
         {
-            _dataService.SaveData(dataConfig, null);
+            _log.From().Info("Saliendo de aplicacion...");
+            _dataService.SaveData(null);
             // Clean up if needed
             _sipPresenceService.Stop(null);
             base.Cleanup();
@@ -202,6 +196,16 @@ namespace SipServicesSimul.ViewModel
                     }
                 });
                 return _uIUsers;
+            }
+        }
+
+        public string NewUserName { get; set; }
+        public string SystemMessage
+        {
+            get => _systemMessage;
+            set
+            {
+                Set(ref _systemMessage, value);
             }
         }
 

@@ -15,6 +15,8 @@ using Microsoft.Practices.ServiceLocation;
 using SipServicesSimul.Model;
 using SipServicesSimul.Services;
 
+using NuMvvmServices;
+
 namespace SipServicesSimul.ViewModel
 {
     /// <summary>
@@ -40,6 +42,8 @@ namespace SipServicesSimul.ViewModel
             }
 
             SimpleIoc.Default.Register<ISipPresenceService, SipPresenceService>();
+            SimpleIoc.Default.Register<IDlgService, DialogService>();
+
 
             SimpleIoc.Default.Register<MainViewModel>();
         }

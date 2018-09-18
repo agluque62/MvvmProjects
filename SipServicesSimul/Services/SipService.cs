@@ -76,23 +76,31 @@ namespace SipServicesSimul.Services
 
         void ISipPresenceService.AddUser(string userid)
         {
-            throw new NotImplementedException();
+            if (_dataService != null)
+            {
+                _dataService.AddUser(userid);
+                /** TODO. Si hay alguna subscripcion al usuario, hay que generar los NOTIFY correspondientes */
+            }
+            //throw new NotImplementedException();
         }
 
         void ISipPresenceService.Configure(IDataService dataService, Action<DataConfig, Exception> callback)
         {
-            dataService.GetData((cfg, error) =>
+            _dataService = dataService;
+            _dataService.GetData((cfg, error) =>
             {
                 if (error != null)
                 {
                     callback?.Invoke(null, error);
                     return;
                 }
-                config = cfg;
+
+                ListenIp = cfg.ListenIp;
+                ListenPort = cfg.ListenPort;
 
                 SipHelper.IsUserOpen = (s) =>
                 {
-                    foreach(var user in config.LastUsers)
+                    foreach(var user in cfg.LastUsers)
                     {
                         if (s.ResourceURI.ToString().Contains(user.Id))
                             return SIPEventPresenceStateEnum.open;
@@ -106,16 +114,21 @@ namespace SipServicesSimul.Services
 
         void ISipPresenceService.RemoveUser(string userid)
         {
-            throw new NotImplementedException();
+            if (_dataService != null)
+            {
+                _dataService.DelUser(userid);
+                /** TODO. Si hay suscripciones al usuario, hay que generar los correspondienes NOTIFY */
+            }
+            //throw new NotImplementedException();
         }
 
         void ISipPresenceService.Start(Action<Exception> err)
         {
-            if (config == null)
+            if (_dataService==null)
                 err?.Invoke(new ApplicationException("El servicio no está configurado"));
             try
             {
-                var sipChannel = new SIPUDPChannel(new IPEndPoint(IPAddress.Parse(config.ListenIp), config.ListenPort));
+                var sipChannel = new SIPUDPChannel(new IPEndPoint(IPAddress.Parse(ListenIp), ListenPort));
                 _sipTransport = new SIPTransport(SIPDNSManager.ResolveSIPService, new SIPTransactionEngine());
                 _sipTransport.AddSIPChannel(sipChannel);
 
@@ -153,13 +166,16 @@ namespace SipServicesSimul.Services
 
 
         #region Private
-        private DataConfig config = null;
-        private static readonly ILog logger = AppState.logger;
-        private static SIPTransport _sipTransport = null;
-        private static SipPresenceSubscriptionManager m_sip_notifier = null;
+        private string ListenIp { get; set; }
+        private int ListenPort { get; set; }
+        private readonly ILog logger = AppState.logger;
+        private IDataService _dataService = null;
+
+        private SIPTransport _sipTransport = null;
+        private SipPresenceSubscriptionManager m_sip_notifier = null;
         #region SIPSORCERY CALLBACKS
 
-        private static void SIPTransportRequestReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPRequest sipRequest)
+        private void SIPTransportRequestReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPRequest sipRequest)
         {
             try
             {
@@ -193,7 +209,7 @@ namespace SipServicesSimul.Services
             }
         }
 
-        private static void SIPTransportResponseReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPResponse sipResponse)
+        private void SIPTransportResponseReceived(SIPEndPoint localSIPEndPoint, SIPEndPoint remoteEndPoint, SIPResponse sipResponse)
         {
         }
 

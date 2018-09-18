@@ -25,7 +25,7 @@
                     <GridViewColumn Header="Ed" Width="32">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <Button Command="{Binding AppDelUser}" CommandParameter="{Binding Name}">
+                                <Button Command="{Binding DelUserCmd}" CommandParameter="{Binding Id}">
                                     <Image Source="Images/trash.png"/>
                                 </Button>
                             </DataTemplate>

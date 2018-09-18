@@ -15,6 +15,11 @@ namespace SipServicesSimul.Design
             throw new NotImplementedException();
         }
 
+        public bool UserExist(string username)
+        {
+            throw new NotImplementedException();
+        }
+
         void IDataService.GetData(Action<DataConfig, Exception> callback)
         {
             DataConfig data = new DataConfig() { ListenIp = "127.0.0.0", ListenPort = 8060, LastUsers = new System.Collections.Generic.List<UserInfo>() };
@@ -23,7 +28,7 @@ namespace SipServicesSimul.Design
             callback?.Invoke(data, null);
         }
 
-        void IDataService.SaveData(DataConfig dataConfig, Action<Exception> callback)
+        void IDataService.SaveData(Action<Exception> callback)
         {
             throw new NotImplementedException();
         }

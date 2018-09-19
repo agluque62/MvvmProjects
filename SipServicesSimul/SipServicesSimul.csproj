@@ -153,9 +153,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\NotifierCore\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\NuMvvmServices\NuMvvmServices.csproj">
       <Project>{93817174-ebee-4a9b-8fc7-a29d6dc40715}</Project>

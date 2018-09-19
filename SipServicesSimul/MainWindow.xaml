@@ -20,6 +20,11 @@
 
     <StackPanel HorizontalAlignment="Left" Height="250" Margin="10,10,10,10" VerticalAlignment="Top" Width="460">
         <ListView Height="170" Margin="10,10,10,5" ItemsSource="{Binding UIUsers}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.View>
                 <GridView AllowsColumnReorder="False">
                     <GridViewColumn Header="Ed" Width="32">

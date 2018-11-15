@@ -69,6 +69,9 @@ namespace BkkSimV2.Services
                 IsStarted = true;
                 Task.Factory.StartNew(() =>
                 {
+                    /** */
+                    Send(MessageService.ServerStatusActive);
+
                     DateTime lastRefresh = DateTime.MinValue;
                     while (IsStarted)
                     {
@@ -91,6 +94,7 @@ namespace BkkSimV2.Services
                             }
                         }
                     }
+                    Send(MessageService.ServerStatusClose);
                 });
                 BkkMessaging.Send(ModelEvents.SessionOpen, null);
             }

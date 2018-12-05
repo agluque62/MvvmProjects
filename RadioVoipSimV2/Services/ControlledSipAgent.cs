@@ -196,7 +196,7 @@ namespace RadioVoipSimV2.Services
         {
             _log.From().Error(msg, x);
         }
-        protected  SipAgentNetSettings settings = new SipAgentNetSettings()
+        protected  	 settings = new SipAgentNetSettings()
         {
             Default = new SipAgentNetSettings.DefaultSettings()
             {

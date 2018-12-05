@@ -76,6 +76,13 @@
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
+                        <GridViewColumn Header="PHONE-SRV">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <ComboBox Width="70" SelectedValue="{Binding PhoneService, Mode=TwoWay}" ItemsSource="{Binding ServiceStates}" IsEnabled="{Binding Active}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                         <GridViewColumn Header="PRE-SRV">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>

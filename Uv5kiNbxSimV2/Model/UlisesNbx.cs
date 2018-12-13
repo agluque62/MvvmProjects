@@ -108,7 +108,7 @@ namespace Uv5kiNbxSimV2.Model
                                                 var data = new
                                                 {
                                                     Machine = Environment.MachineName,
-                                                    ServerType = "RadioServer",
+                                                    ServerType = "Radio",
                                                     GlobalMaster = "Master",
                                                     RadioService = RadioService.ToString(),
                                                     CfgService = CfgService.ToString(),
@@ -130,7 +130,7 @@ namespace Uv5kiNbxSimV2.Model
                                                 var data = new
                                                 {
                                                     Machine = Environment.MachineName,
-                                                    ServerType = "PhoneServer",
+                                                    ServerType = "Phone",
                                                     GlobalMaster = "Master",
                                                     RadioService = RadioService.ToString(),
                                                     CfgService = CfgService.ToString(),

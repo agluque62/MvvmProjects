@@ -46,7 +46,7 @@ namespace Uv5kiNbxSimV2.ViewModel
 
                 foreach(var nbx in cfg.Nbxs)
                 {
-                    var item = new UlisesNbxItem() { Ip = nbx.Ip, WebPort = nbx.Wp };
+                    var item = new UlisesNbxItem() { Ip = nbx.Ip, WebPort = nbx.RadioWp };
                     item.Start();
                     Nbxs.Add(item);
                 };

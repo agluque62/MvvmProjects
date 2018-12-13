@@ -25,7 +25,7 @@ namespace Uv5kiNbxSimV2.ViewModel
             });
 
             CfgAdd = new RelayCommand(() => {
-                _config.Nbxs.Add(new AppDataConfig.JSonNbxConfig() { Ip = "127.0.0.1", Wp = 8000 });
+                _config.Nbxs.Add(new AppDataConfig.JSonNbxConfig() { Ip = "127.0.0.1", RadioWp = 8000 });
                 RaisePropertyChanged("JData");
             });
 

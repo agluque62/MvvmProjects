@@ -8,7 +8,7 @@
         xmlns:vm="clr-namespace:Uv5kiNbxSimV2.ViewModel"
         mc:Ignorable="d ignore"
         Height="500"
-        Width="600"
+        Width="700"
         Title="Simulador de Elementos Nodebox. NDF 2018..."
         DataContext="{Binding Main, Source={StaticResource Locator}}">
     

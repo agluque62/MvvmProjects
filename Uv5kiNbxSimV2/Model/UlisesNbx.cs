@@ -20,6 +20,7 @@ namespace Uv5kiNbxSimV2.Model
         public static event Action<string> NotifyChange;
         public static String ServerIp { get; set; }
         public static int ServerPort { get; set; }
+        public static string Mode { get; set; }
 
         public IList<U5kServiceState> ServiceStates
         {
@@ -102,13 +103,12 @@ namespace Uv5kiNbxSimV2.Model
                                             client.Send(msg, msg.Length, destino);
                                             NotifyChange?.Invoke(String.Format("{0}: Sending msg C:{1}, R:{2}, T:{3}, P:{4}", Ip, msg[0], msg[1], msg[2], msg[3]));
 #else
-
-                                            if (NbxType== NbxTypes.Radio || NbxType== NbxTypes.Ambos)
+                                            if (UlisesNbxItem.Mode == "Mixed")
                                             {
                                                 var data = new
                                                 {
                                                     Machine = Environment.MachineName,
-                                                    ServerType = "Radio",
+                                                    ServerType = "Mixed",
                                                     GlobalMaster = "Master",
                                                     RadioService = RadioService.ToString(),
                                                     CfgService = CfgService.ToString(),
@@ -124,27 +124,51 @@ namespace Uv5kiNbxSimV2.Model
 
                                                 NotifyChange?.Invoke(String.Format("{0}: Sending msg {1}", Ip, msg));
                                             }
-
-                                            if (NbxType == NbxTypes.Telefonia || NbxType == NbxTypes.Ambos)
+                                            else
                                             {
-                                                var data = new
+                                                if (NbxType == NbxTypes.Radio || NbxType == NbxTypes.Ambos)
                                                 {
-                                                    Machine = Environment.MachineName,
-                                                    ServerType = "Phone",
-                                                    GlobalMaster = "Master",
-                                                    RadioService = RadioService.ToString(),
-                                                    CfgService = CfgService.ToString(),
-                                                    PhoneService = PhoneService.ToString(),
-                                                    TifxService = TifxService.ToString(),
-                                                    PresenceService = PresService.ToString(),
-                                                    WebPort,
-                                                    TimeStamp = DateTime.Now
-                                                };
-                                                string msg = JsonConvert.SerializeObject(data);
-                                                Byte[] bin = Encoding.ASCII.GetBytes(msg);
-                                                client.Send(bin, bin.Length, destino);
+                                                    var data = new
+                                                    {
+                                                        Machine = Environment.MachineName,
+                                                        ServerType = "Radio",
+                                                        GlobalMaster = "Master",
+                                                        RadioService = RadioService.ToString(),
+                                                        CfgService = CfgService.ToString(),
+                                                        PhoneService = PhoneService.ToString(),
+                                                        TifxService = TifxService.ToString(),
+                                                        PresenceService = PresService.ToString(),
+                                                        WebPort,
+                                                        TimeStamp = DateTime.Now
+                                                    };
+                                                    string msg = JsonConvert.SerializeObject(data);
+                                                    Byte[] bin = Encoding.ASCII.GetBytes(msg);
+                                                    client.Send(bin, bin.Length, destino);
 
-                                                NotifyChange?.Invoke(String.Format("{0}: Sending msg {1}", Ip, msg));
+                                                    NotifyChange?.Invoke(String.Format("{0}: Sending msg {1}", Ip, msg));
+                                                }
+
+                                                if (NbxType == NbxTypes.Telefonia || NbxType == NbxTypes.Ambos)
+                                                {
+                                                    var data = new
+                                                    {
+                                                        Machine = Environment.MachineName,
+                                                        ServerType = "Phone",
+                                                        GlobalMaster = "Master",
+                                                        RadioService = RadioService.ToString(),
+                                                        CfgService = CfgService.ToString(),
+                                                        PhoneService = PhoneService.ToString(),
+                                                        TifxService = TifxService.ToString(),
+                                                        PresenceService = PresService.ToString(),
+                                                        WebPort,
+                                                        TimeStamp = DateTime.Now
+                                                    };
+                                                    string msg = JsonConvert.SerializeObject(data);
+                                                    Byte[] bin = Encoding.ASCII.GetBytes(msg);
+                                                    client.Send(bin, bin.Length, destino);
+
+                                                    NotifyChange?.Invoke(String.Format("{0}: Sending msg {1}", Ip, msg));
+                                                }
                                             }
 #endif
                                         }

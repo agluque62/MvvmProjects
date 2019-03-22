@@ -20,6 +20,7 @@ namespace Uv5kiNbxSimV2.Model
             public string Ip { get; set; }
             public int RadioWp { get; set; }
             public int PhoneWp { get; set; }
+            public int MixedWp { get; set; }
             public JSonNbxConfig()
             {
                 Hash = DateTime.Now.Ticks;
@@ -31,6 +32,7 @@ namespace Uv5kiNbxSimV2.Model
         {
             public string ServerIP { get; set; }
             public int ServerPort { get; set; }
+            public string Modo { get; set; }
             public ObservableCollection<JSonNbxConfig> Nbxs { get; set; }
         }
 
@@ -56,8 +58,8 @@ namespace Uv5kiNbxSimV2.Model
                     ServerPort = 8103,
                     Nbxs = new ObservableCollection<JSonNbxConfig>()
                     {
-                        new JSonNbxConfig(){ Ip="192.168.0.60", RadioWp=8101, PhoneWp=8102},
-                        new JSonNbxConfig(){ Ip="192.168.0.61", RadioWp=8101, PhoneWp=8102},
+                        new JSonNbxConfig(){ Ip="192.168.0.60", RadioWp=8101, PhoneWp=8102, MixedWp=1023},
+                        new JSonNbxConfig(){ Ip="192.168.0.61", RadioWp=8101, PhoneWp=8102, MixedWp=1023},
                     }
                 };
             }

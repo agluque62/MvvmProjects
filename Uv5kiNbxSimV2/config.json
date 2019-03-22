@@ -1,8 +1,9 @@
 {
-    "ServerIP": "10.12.60.35",
-    "ServerPort":8103,
+  "ServerIP": "10.12.60.35",
+  "ServerPort": 1022,
+  "Modo": "Mixed",
     "Nbxs": [
-        {"Ip": "192.168.0.71", "RadioWp": 8101, "PhoneWp": 8102},
-        {"Ip": "192.168.0.72", "RadioWp": 8101, "PhoneWp": 8102}
+        {"Ip": "192.168.0.71", "RadioWp": 8101, "PhoneWp": 8102, "MixedWp": 1023},
+        {"Ip": "192.168.0.72", "RadioWp": 8101, "PhoneWp": 8102, "MixedWp": 1023}
         ]
 }

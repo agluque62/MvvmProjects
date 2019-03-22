@@ -42,11 +42,12 @@ namespace Uv5kiNbxSimV2.ViewModel
                 _mensajes.Insert(0, new LogMessage() { Msg = DateTime.Now.ToLongTimeString() + ": Mensaje Inicial..." });
 
                 UlisesNbxItem.ServerIp = cfg.ServerIP;
-                UlisesNbxItem.ServerPort = cfg.ServerPort; 
+                UlisesNbxItem.ServerPort = cfg.ServerPort;
+                UlisesNbxItem.Mode = cfg.Modo;
 
                 foreach(var nbx in cfg.Nbxs)
                 {
-                    var item = new UlisesNbxItem() { Ip = nbx.Ip, WebPort = nbx.RadioWp };
+                    var item = new UlisesNbxItem() { Ip = nbx.Ip, WebPort = cfg.Modo == "Mixed" ? nbx.MixedWp : nbx.RadioWp };
                     item.Start();
                     Nbxs.Add(item);
                 };

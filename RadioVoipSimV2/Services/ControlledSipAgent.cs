@@ -23,7 +23,7 @@ namespace RadioVoipSimV2.Services
                 SipAgentNet.CallIncoming += OnCallIncoming;
                 SipAgentNet.RdInfo += OnRdInfo;
                 SipAgentNet.KaTimeout += OnKaTimeout;
-                SipAgentNet.OptionsReceive += OnOptionsReceive;
+                //SipAgentNet.OptionsReceive += OnOptionsReceive;
                 SipAgentNet.InfoReceived += OnInfoReceived;
                 SipAgentNet.Log += OnLog;
 
@@ -55,7 +55,7 @@ namespace RadioVoipSimV2.Services
                 SipAgentNet.CallIncoming -= OnCallIncoming;
                 SipAgentNet.RdInfo -= OnRdInfo;
                 SipAgentNet.KaTimeout -= OnKaTimeout;
-                SipAgentNet.OptionsReceive -= OnOptionsReceive;
+                //SipAgentNet.OptionsReceive -= OnOptionsReceive;
                 SipAgentNet.InfoReceived -= OnInfoReceived;
 
                 SipAgentNet.End();
@@ -196,7 +196,7 @@ namespace RadioVoipSimV2.Services
         {
             _log.From().Error(msg, x);
         }
-        protected  	 settings = new SipAgentNetSettings()
+        protected SipAgentNetSettings settings = new SipAgentNetSettings()
         {
             Default = new SipAgentNetSettings.DefaultSettings()
             {

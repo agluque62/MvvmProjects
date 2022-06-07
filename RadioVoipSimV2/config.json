@@ -1,5 +1,5 @@
 {
-  "VoipAgentIP": "192.168.0.129",
+  "VoipAgentIP": "11.12.60.35",
   "VoipAgentPort": 7060,
   "PttOn2SqhOn": 50,
   "PttOff2SqhOff": 50,
@@ -252,7 +252,7 @@
     }
   ],
   "Snmp": {
-    "AgentIp": "192.168.0.129",
+    "AgentIp": "11.12.60.35",
     "AgentPort": 161,
     "BaseOid": ".1.3.6.1.4.1.7916.8.4.1.3.1",
     "QueryOid": ".1.3.6.1.4.1.7916.8.4.1.1.0",
